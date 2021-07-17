@@ -134,7 +134,7 @@ func loadConfigDataAdditionalComponents(
 	configData.SellTransactionCount = sessionData.SellTransactionCount         /* Store Number of SELL transactions in the last 60 minutes for html output */
 	configData.ThreadCount, _ = mysql.GetThreadCount(sessionData)              /* Store thread count for html output */
 	configData.ThreadAmount, _ = mysql.GetThreadAmount(sessionData)            /* Store thread cost amount for html output */
-	configData.MarketDataMACD = math.Floor(marketData.MACD*100) / 100          /* Store  for html output */
+	configData.MarketDataMACD = math.Floor(marketData.MACD*10000) / 10000      /* Store  for html output */
 	configData.MarketDataRsi14 = math.Floor(marketData.Rsi14*100) / 100        /* Store RSI14 for html output */
 	configData.MarketDataRsi7 = math.Floor(marketData.Rsi7*100) / 100          /* Store RSI7 for html output */
 	configData.MarketDataRsi3 = math.Floor(marketData.Rsi3*100) / 100          /* Store RSI3 for html output */
