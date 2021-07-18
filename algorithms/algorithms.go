@@ -889,14 +889,6 @@ func SellDecisionTree(
 		}
 	}
 
-	/* Check if MACD higher than SellHoldOnMACD, and hold sale.
-	The objective of this setting is to extend the holding as long as possible while ticker price is climbing */
-	if marketData.MACD > functions.StrToFloat64(configData.SellHoldOnMACD.(string)) {
-
-		return false, order
-
-	}
-
 	/* Retrieve lowest price order from Thread database */
 	if order.OrderID,
 		order.Price,
