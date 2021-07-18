@@ -145,7 +145,6 @@ type Config struct {
 	Buy_wait                                     interface{} /* Wait time between BUY transactions in seconds */
 	Exchange_comission                           interface{}
 	Profit_min                                   interface{}
-	SellHoldOnMACD                               interface{}
 	SellWaitBeforeCancel                         interface{} /* Wait time before cancelling a sale in seconds */
 	SellWaitAfterCancel                          interface{} /* Wait time before selling after a cancel in seconds */
 	SellToCover                                  interface{} /* Define if will sell to cover low funds */

@@ -629,7 +629,6 @@ func loadConfigData(
 		Exchange_comission:                           viper.GetString("config.exchange_comission"),
 		ExchangeName:                                 viper.GetString("config.exchangename"),
 		Profit_min:                                   viper.GetString("config.profit_min"),
-		SellHoldOnMACD:                               viper.GetString("config.sellHoldOnMACD"),
 		SellWaitBeforeCancel:                         viper.GetString("config.sellwaitbeforecancel"),
 		SellWaitAfterCancel:                          viper.GetString("config.sellwaitaftercancel"),
 		SellToCover:                                  viper.GetString("config.selltocover"),
@@ -674,7 +673,6 @@ func SaveConfigData(
 	viper.Set("config.exchange_comission", r.PostFormValue("exchange_comission"))
 	viper.Set("config.exchangename", r.PostFormValue("exchangename"))
 	viper.Set("config.profit_min", r.PostFormValue("profit_min"))
-	viper.Set("config.sellHoldOnMACD", r.PostFormValue("sellHoldOnMACD"))
 	viper.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
