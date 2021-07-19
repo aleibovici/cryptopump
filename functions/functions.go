@@ -632,6 +632,7 @@ func loadConfigData(
 		SellWaitBeforeCancel:                         viper.GetString("config.sellwaitbeforecancel"),
 		SellWaitAfterCancel:                          viper.GetString("config.sellwaitaftercancel"),
 		SellToCover:                                  viper.GetString("config.selltocover"),
+		SellHoldOnRSI3:                               viper.GetString("config.sellholdonrsi3"),
 		Symbol_fiat:                                  viper.GetString("config.symbol_fiat"),
 		Symbol_fiat_stash:                            viper.GetString("config.symbol_fiat_stash"),
 		Symbol:                                       viper.GetString("config.symbol"),
@@ -676,6 +677,7 @@ func SaveConfigData(
 	viper.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
+	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
 	viper.Set("config.symbol", r.PostFormValue("symbol"))
 	viper.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
 	viper.Set("config.symbol_fiat_stash", r.PostFormValue("symbol_fiat_stash"))

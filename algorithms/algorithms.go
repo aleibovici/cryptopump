@@ -925,6 +925,14 @@ func SellDecisionTree(
 		(order.Price*(1+calculateProfit(configData, sessionData))) &&
 		order.OrderID != 0 {
 
+		/* Hold sale if RSI3 above defined threshold.
+		The objective of this setting is to extend the holding as long as possible while ticker price is climbing */
+		if marketData.Rsi3 > functions.StrToFloat64(configData.SellHoldOnRSI3.(string)) {
+
+			return false, order
+
+		}
+
 		return true, order
 
 	}

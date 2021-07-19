@@ -27,6 +27,7 @@ config:
   profit_min: "0.001"
   secretkey: 
   secretkeytestnet: 
+  sellholdonrsi3: "70"
   selltocover: "false"
   sellwaitaftercancel: "10"
   sellwaitbeforecancel: "20"
