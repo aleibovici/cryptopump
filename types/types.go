@@ -148,6 +148,7 @@ type Config struct {
 	SellWaitBeforeCancel                         interface{} /* Wait time before cancelling a sale in seconds */
 	SellWaitAfterCancel                          interface{} /* Wait time before selling after a cancel in seconds */
 	SellToCover                                  interface{} /* Define if will sell to cover low funds */
+	SellHoldOnRSI3                               interface{} /* Hold sale if RSI3 above defined threshold */
 	Symbol_fiat                                  interface{}
 	Symbol_fiat_stash                            interface{}
 	Symbol                                       interface{}
