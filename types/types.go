@@ -129,7 +129,6 @@ type Config struct {
 	ApikeyTestNet                                interface{} /* API key for exchange test network, used with launch.json */
 	SecretkeyTestNet                             interface{} /* Secret key for exchange test network, used with launch.json */
 	Buy_24hs_highprice_entry                     interface{}
-	Buy_24hs_highprice_entry_MACD                interface{}
 	Buy_direction_down                           interface{}
 	Buy_direction_up                             interface{}
 	Buy_quantity_fiat_up                         interface{}

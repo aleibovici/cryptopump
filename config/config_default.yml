@@ -2,7 +2,6 @@ config:
   apikey: 
   apikeytestnet: 
   buy_24hs_highprice_entry: "0.0005"
-  buy_24hs_highprice_entry_macd: "20"
   buy_direction_down: "20"
   buy_direction_up: "10"
   buy_quantity_fiat_down: "50.00"

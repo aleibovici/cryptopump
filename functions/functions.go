@@ -612,7 +612,6 @@ func loadConfigData(
 		ApikeyTestNet:                    viper.GetString("config.apiKeyTestNet"),    /* API key for exchange test network, used with launch.json */
 		SecretkeyTestNet:                 viper.GetString("config.secretKeyTestNet"), /* Secret key for exchange test network, used with launch.json */
 		Buy_24hs_highprice_entry:         viper.GetString("config.buy_24hs_highprice_entry"),
-		Buy_24hs_highprice_entry_MACD:    viper.GetString("config.buy_24hs_highprice_entry_MACD"),
 		Buy_direction_down:               viper.GetString("config.buy_direction_down"),
 		Buy_direction_up:                 viper.GetString("config.buy_direction_up"),
 		Buy_quantity_fiat_up:             viper.GetString("config.buy_quantity_fiat_up"),
@@ -655,7 +654,6 @@ func SaveConfigData(
 	sessionData *types.Session) {
 
 	viper.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy_24hs_highprice_entry"))
-	viper.Set("config.buy_24hs_highprice_entry_MACD", r.PostFormValue("buy_24hs_highprice_entry_MACD"))
 	viper.Set("config.buy_direction_down", r.PostFormValue("buy_direction_down"))
 	viper.Set("config.buy_direction_up", r.PostFormValue("buy_direction_up"))
 	viper.Set("config.buy_quantity_fiat_up", r.PostFormValue("buy_quantity_fiat_up"))
