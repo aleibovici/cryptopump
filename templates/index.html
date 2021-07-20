@@ -118,7 +118,7 @@
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_up">Buy Quantity FIAT Up</label>
+                                        for="buy_quantity_fiat_up">Buy Quantity FIAT Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_quantity_fiat_up"
@@ -131,7 +131,7 @@
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_down">Buy Quantity FIAT Down</label>
+                                        for="buy_quantity_fiat_down">Buy Quantity FIAT Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_quantity_fiat_down"
@@ -144,7 +144,7 @@
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_init">Buy Quantity FIAT Init</label>
+                                        for="buy_quantity_fiat_init">Buy Quantity FIAT Initial</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_quantity_fiat_init"
@@ -156,35 +156,35 @@
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_direction_up">Buy Direction Up</label>
+                                    <label class="col-form-label" for="buy_direction_up">Buy Direction Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_direction_up"
                                         name="buy_direction_up" data-toggle="tooltip"
-                                        title='Minimum volume direction to buy on upmarket' maxlength="7"
+                                        title='Minimum volume direction to buy on upmarket' maxlength="3"
                                         value="{{ .Buy_direction_up }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_direction_down">Buy Direction Down</label>
+                                    <label class="col-form-label" for="buy_direction_down">Buy Direction Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_direction_down"
                                         name="buy_direction_down" data-toggle="tooltip"
-                                        title='Minimum volume direction to buy on downmarket' maxlength="7"
+                                        title='Minimum volume direction to buy on downmarket' maxlength="3"
                                         value="{{ .Buy_direction_down }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_rsi7_entry">Buy RSI7 Entry</label>
+                                    <label class="col-form-label" for="buy_rsi7_entry">Buy on RSI7</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_rsi7_entry" name="buy_rsi7_entry"
-                                        data-toggle="tooltip" title='rsi7 buy entrypoint' maxlength="7"
+                                        data-toggle="tooltip" title='Buy if RSI7 lower than (x)' maxlength="3"
                                         value="{{ .Buy_rsi7_entry }}" />
                                 </div>
                             </div>
@@ -197,7 +197,7 @@
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control" id="buy_24hs_highprice_entry"
                                         name="buy_24hs_highprice_entry" data-toggle="tooltip"
-                                        title='Maximum entrypoint in relation to 24hs highPrice (decimal)' maxlength="8"
+                                        title='Maximum entrypoint in relation to 24hs highPrice (decimal)' maxlength="10"
                                         value="{{ .Buy_24hs_highprice_entry }}" />
                                 </div>
                             </div>
@@ -211,7 +211,7 @@
                                     <input type="text" class="form-control" id="buy_repeat_threshold_up"
                                         name="buy_repeat_threshold_up" data-toggle="tooltip"
                                         title='Minimum percentual threshold before repeat buy on upmarket (decimal)'
-                                        maxlength="7" value="{{ .Buy_repeat_threshold_up }}" />
+                                        maxlength="10" value="{{ .Buy_repeat_threshold_up }}" />
                                 </div>
                             </div>
 
@@ -224,7 +224,7 @@
                                     <input type="text" class="form-control" id="buy_repeat_threshold_down"
                                         name="buy_repeat_threshold_down" data-toggle="tooltip"
                                         title='Minimum percentual threshold before repeat buy on downmarket(decimal)'
-                                        maxlength="7" value="{{ .Buy_repeat_threshold_down }}" />
+                                        maxlength="10" value="{{ .Buy_repeat_threshold_down }}" />
                                 </div>
                             </div>
 
@@ -237,7 +237,7 @@
                                     <input type="text" class="form-control" id="buy_repeat_threshold_down_second"
                                         name="buy_repeat_threshold_down_second" data-toggle="tooltip"
                                         title='Minimum percentage threshold before second repeat buy on downmarket(decimal)'
-                                        maxlength="7" value="{{ .Buy_repeat_threshold_down_second }}" />
+                                        maxlength="10" value="{{ .Buy_repeat_threshold_down_second }}" />
                                 </div>
                             </div>
 
@@ -251,7 +251,7 @@
                                         id="buy_repeat_threshold_down_second_start_count"
                                         name="buy_repeat_threshold_down_second_start_count" data-toggle="tooltip"
                                         title='Thread count when to start Buy_repeat_threshold_down_second pricing '
-                                        maxlength="7" value="{{ .Buy_repeat_threshold_down_second_start_count }}" />
+                                        maxlength="2" value="{{ .Buy_repeat_threshold_down_second_start_count }}" />
                                 </div>
                             </div>
 
@@ -303,7 +303,7 @@
                                         <input type="text" class="form-control" id="profit_min" name="profit_min"
                                             data-toggle="tooltip"
                                             title='Minimum average profit percentage before selling (decimal)'
-                                            maxlength="7" value="{{ .Profit_min }}" />
+                                            maxlength="10" value="{{ .Profit_min }}" />
                                     </div>
                                 </div>
 
@@ -389,7 +389,7 @@
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="exchange_comission"
                                             name="exchange_comission" data-toggle="tooltip" title='Time to stop cycles'
-                                            maxlength="7" value="{{ .Exchange_comission }}" />
+                                            maxlength="10" value="{{ .Exchange_comission }}" />
                                     </div>
                                 </div>
 
