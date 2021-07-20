@@ -89,24 +89,13 @@ func UpdatePendingOrders(
 
 }
 
-/* Check if ticker price lower than 24hs high price and
-that MACD is higher than buy_24hs_highprice_entry_MACD  */
+/* Check if ticker price lower than 24hs high price */
 func is24hsHighPrice(
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session) bool {
 
-	buy_24hs_highprice_entry := functions.StrToFloat64(configData.Buy_24hs_highprice_entry.(string))
-	buy_24hs_highprice_entry_MACD := functions.StrToFloat64(configData.Buy_24hs_highprice_entry_MACD.(string))
-
-	if marketData.Price >= (marketData.PriceChangeStatsHighPrice*(1-buy_24hs_highprice_entry)) &&
-		marketData.MACD < buy_24hs_highprice_entry_MACD {
-
-		return true
-
-	}
-
-	return false
+	return marketData.Price >= (marketData.PriceChangeStatsHighPrice * (1 - functions.StrToFloat64(configData.Buy_24hs_highprice_entry.(string))))
 
 }
 
@@ -349,13 +338,6 @@ func isBuyInitial(
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session) (bool, float64) {
-
-	/* Check if moving average 14 not less than Buy_MACD_entry */
-	if marketData.MACD < functions.StrToFloat64(configData.Buy_MACD_entry.(string)) {
-
-		return false, 0
-
-	}
 
 	/* Validate RSI7 lower than buy_rsi7_entry */
 	/* Validate RSI3 not negative */
