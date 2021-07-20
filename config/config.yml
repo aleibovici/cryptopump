@@ -5,7 +5,6 @@ config:
   buy_24hs_highprice_entry_macd: "20"
   buy_direction_down: "20"
   buy_direction_up: "10"
-  buy_macd_entry: "-30"
   buy_quantity_fiat_down: "50.00"
   buy_quantity_fiat_init: "50.00"
   buy_quantity_fiat_up: "50.00"

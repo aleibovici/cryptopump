@@ -623,7 +623,6 @@ func loadConfigData(
 		Buy_repeat_threshold_down_second_start_count: viper.GetString("config.buy_repeat_threshold_down_second_start_count"),
 		Buy_repeat_threshold_up:                      viper.GetString("config.buy_repeat_threshold_up"),
 		Buy_rsi7_entry:                               viper.GetString("config.buy_rsi7_entry"),
-		Buy_MACD_entry:                               viper.GetString("config.buy_MACD_entry"),
 		Buy_wait:                                     viper.GetString("config.buy_wait"),
 		Exchange_comission:                           viper.GetString("config.exchange_comission"),
 		ExchangeName:                                 viper.GetString("config.exchangename"),
@@ -663,7 +662,6 @@ func SaveConfigData(
 	viper.Set("config.buy_quantity_fiat_down", r.PostFormValue("buy_quantity_fiat_down"))
 	viper.Set("config.buy_quantity_fiat_init", r.PostFormValue("buy_quantity_fiat_init"))
 	viper.Set("config.buy_rsi7_entry", r.PostFormValue("buy_rsi7_entry"))
-	viper.Set("config.buy_MACD_entry", r.PostFormValue("buy_MACD_entry"))
 	viper.Set("config.buy_wait", r.PostFormValue("buy_wait"))
 	viper.Set("config.buy_repeat_threshold_down", r.PostFormValue("buy_repeat_threshold_down"))
 	viper.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buy_repeat_threshold_down_second"))

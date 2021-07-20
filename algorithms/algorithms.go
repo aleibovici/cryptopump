@@ -350,13 +350,6 @@ func isBuyInitial(
 	marketData *types.Market,
 	sessionData *types.Session) (bool, float64) {
 
-	/* Check if moving average 14 not less than Buy_MACD_entry */
-	if marketData.MACD < functions.StrToFloat64(configData.Buy_MACD_entry.(string)) {
-
-		return false, 0
-
-	}
-
 	/* Validate RSI7 lower than buy_rsi7_entry */
 	/* Validate RSI3 not negative */
 	if marketData.Rsi7 < functions.StrToFloat64(configData.Buy_rsi7_entry.(string)) && marketData.Rsi3 > 0 {
