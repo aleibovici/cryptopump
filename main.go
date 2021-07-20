@@ -17,11 +17,13 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"sync"
 	"time"
 
 	"github.com/jtaczanowski/go-scheduler"
 	"github.com/sdcoffey/techan"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/viper"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -116,6 +118,9 @@ func main() {
 	http.HandleFunc("/", myHandler.handler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	fmt.Printf("Listening on port %s \n", port)
+
+	open.Run("http://localhost:" + port) /* Open URI using the OS's default browser */
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 
 }
@@ -161,7 +166,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
 
 			/* This is the template execution for 'index' */
-			functions.ExecuteTemplate(w, "index.html", fh.configData, fh.sessionData)
+			functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
 
 		}
 
@@ -193,6 +198,26 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			/* This function uses a hidden field 'submitselect' in each HTML template to detect the actions triggered by users.
 			HTML action must include 'document.getElementById('submitselect').value='about';this.form.submit()' */
 			switch r.PostFormValue("submitselect") {
+			case "new":
+
+				/* Spawn a new CryptoPump process  */
+				path, err := os.Executable()
+				if err != nil {
+					log.Println(err)
+				}
+
+				cmd := exec.Command(path)
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+
+				err = cmd.Start()
+				if err != nil {
+					log.Println(err)
+				}
+
+				/* This is the template execution for 'index' */
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+
 			case "start":
 
 				go execution(
@@ -204,7 +229,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
 
 				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, "index.html", fh.configData, fh.sessionData)
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
 
 			case "stop":
 
@@ -220,7 +245,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
 
 				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, "index.html", fh.configData, fh.sessionData)
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
 
 			case "buy":
 
@@ -230,7 +255,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
 
 				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, "index.html", fh.configData, fh.sessionData)
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
 
 			case "sell":
 
@@ -240,7 +265,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
 
 				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, "index.html", fh.configData, fh.sessionData)
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
 
 			case "configTemplate":
 
@@ -251,7 +276,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				configData := functions.LoadConfigTemplate(fh.sessionData)
 
 				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, "index.html", configData, fh.sessionData)
+				functions.ExecuteTemplate(w, configData, fh.sessionData)
 
 			}
 		}
