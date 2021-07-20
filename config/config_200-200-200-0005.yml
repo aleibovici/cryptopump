@@ -6,7 +6,6 @@ config:
   buy_direction_down: "20"
   buy_direction_up: "10"
   buy_macd_entry: "-30"
-  buy_macd_upmarket: "10"
   buy_quantity_fiat_down: "50.00"
   buy_quantity_fiat_init: "50.00"
   buy_quantity_fiat_up: "50.00"

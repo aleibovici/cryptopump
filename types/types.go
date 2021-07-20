@@ -141,7 +141,6 @@ type Config struct {
 	Buy_repeat_threshold_up                      interface{}
 	Buy_rsi7_entry                               interface{}
 	Buy_MACD_entry                               interface{}
-	Buy_MACD_upmarket                            interface{}
 	Buy_wait                                     interface{} /* Wait time between BUY transactions in seconds */
 	Exchange_comission                           interface{}
 	Profit_min                                   interface{}
