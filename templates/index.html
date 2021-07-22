@@ -13,92 +13,117 @@
             crossorigin="anonymous" />
 
         <link href="../static/stylesheets/cryptopump.css" rel="stylesheet" type="text/css" />
+
+      <!-- Load marketData every 2 seconds -->
+      <script>
+        var counter = 1;
+        var auto_refresh = setInterval(
+        async function() {
+            var json = await fetch(window.location.href + 'market').then(response => response.json()).then((json) => {return json;});
+            $('#divIDRsi3').html(json.Rsi3);
+            $('#divIDRsi7').html(json.Rsi7);
+            $('#divIDRsi14').html(json.Rsi14);
+            $('#divIDMACD').html(json.MACD);
+            $('#divIDPrice').html(json.Price);
+            $('#divIDDirection').html(json.Direction);
+            counter++;
+        }, 2000);
+    </script>
+
     </head>
 
     <body class="html">
 
         <div class="container-fluid">
 
-                <!-- Plotter and data visualization -->
-                <div class="row">
-
-                    <div class="col" style="border: 1px solid none">
-
-                        <p></p>
-
-                        <div class="row">
-
-                            <div class="col-sm">
-                                <span class="badge badge-warning">{{ .ThreadID }}</span> &nbsp;&nbsp;
-                                <span class="badge badge-warning">Threads</span>
-                                <span class="label label-default">{{ .ThreadCount }}</span>
-                            </div>
-
-                            <div class="col-5">
-                                <span class="badge badge-warning">Profit</span>
-                                <span class="label label-default">$ {{ .Profit }}</span> &nbsp;
-                                <span class="badge badge-warning">Deployed</span>
-                                <span class="label label-default">$ {{ .ThreadAmount }}</span> &nbsp;
-                                <span class="badge badge-warning">Funds</span>
-                                <span class="label label-default">{{ .Symbol_fiat }} {{ .FiatFunds }}</span>
-                            </div>
-
-                            <div class="col-sm">
-                                <span class="badge badge-secondary badge-warning">MACD</span>
-                                <span class="label label-default center">{{ .MarketDataMACD }}</span> &nbsp;
-                                <span class="badge badge-warning">RSI 14</span>
-                                <span class="label label-default">{{ .MarketDataRsi14 }}</span> &nbsp;
-                                <span class="badge badge-warning">RSI  7</span>
-                                <span class="label label-default">{{ .MarketDataRsi7 }}</span> &nbsp;
-                                <span class="badge badge-warning">RSI  3</span>
-                                <span class="label label-default">{{ .MarketDataRsi3 }}</span>
-                            </div>
-
-                        </div>
+                     <!-- Plotter and data visualization -->
+                     <div class="row">
 
                         <div class="col" style="border: 1px solid none">
+    
+                            <p></p>
+    
+                            <div class="row">
+    
+                                <div class="col-2" style="border: 1px solid none">
+                                    <span class="badge badge-warning">{{ .ThreadID }}</span> &nbsp;&nbsp;
+                                    <span class="badge badge-warning">Threads</span>
+                                    <span class="label label-default">{{ .ThreadCount }}</span>
+                                </div>
+    
+                                <div class="col-5 text-center" style="border: 1px solid none">
+                                    <span class="badge badge-warning">Profit $</span>
+                                    <span class="label label-default">{{ .Profit }}</span> &nbsp;
+                                    <span class="badge badge-warning">Deployed $</span>
+                                    <span class="label label-default">{{ .ThreadAmount }}</span> &nbsp;
+                                    <span class="badge badge-warning">Funds</span>
+                                    <span class="label label-default">{{ .Symbol_fiat }} {{ .FiatFunds }}</span>  &nbsp;
+                                    <span class="badge badge-warning">Thread Profit</span>
+                                    <span class="label label-default">$ {{ .ProfitThreadID }}</span> &nbsp;
+                                    <span class="badge badge-warning">Transactions/h</span>
+                                    <span class="label label-default">{{ .SellTransactionCount }}</span>
+                                </div>
+    
+                                <div class="col text-center" style="border: 1px solid none">
+                                    <span class="badge badge-secondary badge-info">MACD</span>
+                                    <span class="label label-default center" id="divIDMACD"></span> &nbsp;
+                                    <span class="badge badge-info">RSI 14</span>
+                                    <span class="label label-default" id="divIDRsi14"></span> &nbsp;
+                                    <span class="badge badge-info">RSI  7</span>
+                                    <span class="label label-default" id="divIDRsi7"></span> &nbsp;
+                                    <span class="badge badge-info">RSI  3</span>
+                                    <span class="label label-default" id="divIDRsi3"></span>
+                                </div>
+
+                                <div class="col-1" style="border: 1px solid none">
+                                    <span class="badge badge-secondary badge-info">Direction ▲</span>
+                                    <span class="label label-default" id="divIDDirection"></span>
+                                </div>
+    
+                                <div class="col-1" style="border: 1px solid none">
+                                    <span class="badge badge-secondary badge-info">Price $</span>
+                                    <span class="label label-default" id="divIDPrice"></span>
+                                </div>
+    
+                            </div>
+    
+                        </div>
+    
+                    </div>
+    
+                    <div class="row">
+    
+                        <div class="col text-center" style="border: 1px solid none">
                             {{ .HtmlSnippet }}
                         </div>
-
-                    </div>
-
-                    <div class="col-md-auto align-items-center" style="border: 1px solid none">
-                        <p></p>
-                        <span class="badge badge-secondary">Thread Profit</span>
-                        <br>
-                        <span class="label label-default">$ {{ .ProfitThreadID }}</span>
-                        <br><br>
-                        <span class="badge badge-secondary">Transactions/h</span>
-                        <br>
-                        <span class="label label-default">{{ .SellTransactionCount }}</span>
-                    </div>
-                    
-                    <div class="col-md-auto" style="border: 1px solid none">
-                        <div class="table-wrapper">
-                            <table class="table-sm table-striped">
-                                <thead>
-                                    <tr>
-                                        <th><span class="badge badge-secondary">OrderID</span></th>
-                                        <th><span class="badge badge-secondary">Quote</span></th>
-                                        <th><span class="badge badge-secondary">Price</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{ range .Orders }}
+                        
+                        <div class="col-md-auto text-center" style="border: 1px solid none">
+                            <p></p>
+                            <div class="table-wrapper">
+                                <table class="table-sm table-striped">
+                                    <thead>
                                         <tr>
-                                        <td>{{ .OrderID }}</td>
-                                        <td>{{ .CummulativeQuoteQuantity }}</td>
-                                        <td>{{ .Price }}</td>
+                                            <th><span class="badge badge-secondary">OrderID</span></th>
+                                            <th><span class="badge badge-secondary">Quote</span></th>
+                                            <th><span class="badge badge-secondary">Price</span></th>
                                         </tr>
-                                    {{ end }}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {{ range .Orders }}
+                                            <tr>
+                                            <td>{{ .OrderID }}</td>
+                                            <td>{{ .CummulativeQuoteQuantity }}</td>
+                                            <td>{{ .Price }}</td>
+                                            </tr>
+                                        {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+    
                     </div>
-
-                </div>
-
-            <!-- Config Settings -->
+    
+                <!-- Config Settings -->
             <form method="POST" action="/">
 
                 <input type="hidden" name="submitselect" value="" id="submitselect" />
@@ -531,7 +556,7 @@
                 </button>
 
                 <button type="button" class="btn btn-primary btn-primary-addon" id="stop" name="stop"
-                    onclick="document.getElementById('submitselect').value='stop';this.form.submit()" disabled>
+                    onclick="document.getElementById('submitselect').value='stop';this.form.submit()">
                     Stop
                 </button>
 
