@@ -12,12 +12,14 @@ import (
 	"cryptopump/threads"
 	"cryptopump/types"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"sync"
 	"time"
 
@@ -139,10 +141,6 @@ func loadConfigDataAdditionalComponents(
 	configData.SellTransactionCount = sessionData.SellTransactionCount         /* Store Number of SELL transactions in the last 60 minutes for html output */
 	configData.ThreadCount, _ = mysql.GetThreadCount(sessionData)              /* Store thread count for html output */
 	configData.ThreadAmount, _ = mysql.GetThreadAmount(sessionData)            /* Store thread cost amount for html output */
-	configData.MarketDataMACD = math.Floor(marketData.MACD*10000) / 10000      /* Store  for html output */
-	configData.MarketDataRsi14 = math.Floor(marketData.Rsi14*100) / 100        /* Store RSI14 for html output */
-	configData.MarketDataRsi7 = math.Floor(marketData.Rsi7*100) / 100          /* Store RSI7 for html output */
-	configData.MarketDataRsi3 = math.Floor(marketData.Rsi3*100) / 100          /* Store RSI3 for html output */
 
 }
 
@@ -167,6 +165,47 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			/* This is the template execution for 'index' */
 			functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+
+		case "/market":
+
+			/* This handler provides market data for the javascript auto-loader  */
+
+			type Market struct {
+				Rsi3      string /* Relative Strength Index for 3 periods */
+				Rsi7      string /* Relative Strength Index for 7 periods */
+				Rsi14     string /* Relative Strength Index for 14 periods */
+				MACD      string /* Moving average convergence divergence */
+				Price     string /* Market Price */
+				Direction string /* Market Direction */
+			}
+
+			marketData := Market{}
+			marketData.Rsi3 = functions.Float64ToStr(fh.marketData.Rsi3, 2)
+			marketData.Rsi7 = functions.Float64ToStr(fh.marketData.Rsi7, 2)
+			marketData.Rsi14 = functions.Float64ToStr(fh.marketData.Rsi14, 2)
+			marketData.MACD = functions.Float64ToStr(fh.marketData.MACD, 4)
+			marketData.Price = functions.Float64ToStr(fh.marketData.Price, 2)
+			marketData.Direction = strconv.Itoa(fh.marketData.Direction)
+
+			w.Header().Set("Content-Type", "application/json")
+			tmp, _ := json.Marshal(marketData)
+
+			if _, err := w.Write(tmp); err != nil {
+
+				functions.Logger(
+					fh.configData,
+					nil,
+					fh.sessionData,
+					log.DebugLevel,
+					0,
+					0,
+					0,
+					0,
+					functions.GetFunctionName()+" - "+err.Error())
+
+				return
+
+			}
 
 		}
 
