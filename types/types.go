@@ -113,7 +113,7 @@ type Market struct {
 	Rsi3                      float64            /* Relative Strength Index for 3 periods */
 	Rsi7                      float64            /* Relative Strength Index for 7 periods */
 	Rsi14                     float64            /* Relative Strength Index for 14 periods */
-	MACD                      float64            /* Moving Average for 14 periods */
+	MACD                      float64            /* Moving average convergence divergence */
 	Price                     float64            /* Market Price */
 	PriceChangeStatsHighPrice float64            /* High price for 1 period */
 	PriceChangeStatsLowPrice  float64            /* Low price for 1 period */
@@ -129,7 +129,6 @@ type Config struct {
 	ApikeyTestNet                                interface{} /* API key for exchange test network, used with launch.json */
 	SecretkeyTestNet                             interface{} /* Secret key for exchange test network, used with launch.json */
 	Buy_24hs_highprice_entry                     interface{}
-	Buy_24hs_highprice_entry_MACD                interface{}
 	Buy_direction_down                           interface{}
 	Buy_direction_up                             interface{}
 	Buy_quantity_fiat_up                         interface{}
@@ -140,8 +139,6 @@ type Config struct {
 	Buy_repeat_threshold_down_second_start_count interface{}
 	Buy_repeat_threshold_up                      interface{}
 	Buy_rsi7_entry                               interface{}
-	Buy_MACD_entry                               interface{}
-	Buy_MACD_upmarket                            interface{}
 	Buy_wait                                     interface{} /* Wait time between BUY transactions in seconds */
 	Exchange_comission                           interface{}
 	Profit_min                                   interface{}
@@ -170,10 +167,6 @@ type Config struct {
 	SellTransactionCount                         interface{} /* Store Number of SELL transactions in the last 60 minutes for html output */
 	ThreadCount                                  interface{} /* Store thread count for html output */
 	ThreadAmount                                 interface{} /* Store thread cost amount for html output */
-	MarketDataMACD                               interface{} /* Store MACD for html output */
-	MarketDataRsi3                               interface{} /* Store RSI14 for html output */
-	MarketDataRsi7                               interface{} /* Store RSI7 for html output */
-	MarketDataRsi14                              interface{} /* Store RSI3 for html output */
 }
 
 /* Struct for User Data Streams for Binance */

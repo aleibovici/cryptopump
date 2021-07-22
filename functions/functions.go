@@ -286,11 +286,28 @@ func ConvertFiatToCoin(fiatQty float64, ticker_price float64, lotSizeMin float64
 
 }
 
+/* Select the correct html template based on sessionData */
+func selectTemplate(
+	sessionData *types.Session) (template string) {
+
+	if sessionData.ThreadID == "" {
+
+		template = "index.html"
+
+	} else {
+
+		template = "index_nostart.html"
+
+	}
+
+	return template
+
+}
+
 // ExecuteTemplate function
 /* This public function i responsible for executing any templates */
 func ExecuteTemplate(
 	wr io.Writer,
-	name string,
 	data interface{},
 	sessionData *types.Session) {
 
@@ -314,7 +331,7 @@ func ExecuteTemplate(
 
 	}
 
-	if err = tlp.ExecuteTemplate(wr, name, data); err != nil {
+	if err = tlp.ExecuteTemplate(wr, selectTemplate(sessionData), data); err != nil {
 
 		Logger(
 			nil,
@@ -612,7 +629,6 @@ func loadConfigData(
 		ApikeyTestNet:                    viper.GetString("config.apiKeyTestNet"),    /* API key for exchange test network, used with launch.json */
 		SecretkeyTestNet:                 viper.GetString("config.secretKeyTestNet"), /* Secret key for exchange test network, used with launch.json */
 		Buy_24hs_highprice_entry:         viper.GetString("config.buy_24hs_highprice_entry"),
-		Buy_24hs_highprice_entry_MACD:    viper.GetString("config.buy_24hs_highprice_entry_MACD"),
 		Buy_direction_down:               viper.GetString("config.buy_direction_down"),
 		Buy_direction_up:                 viper.GetString("config.buy_direction_up"),
 		Buy_quantity_fiat_up:             viper.GetString("config.buy_quantity_fiat_up"),
@@ -623,8 +639,6 @@ func loadConfigData(
 		Buy_repeat_threshold_down_second_start_count: viper.GetString("config.buy_repeat_threshold_down_second_start_count"),
 		Buy_repeat_threshold_up:                      viper.GetString("config.buy_repeat_threshold_up"),
 		Buy_rsi7_entry:                               viper.GetString("config.buy_rsi7_entry"),
-		Buy_MACD_entry:                               viper.GetString("config.buy_MACD_entry"),
-		Buy_MACD_upmarket:                            viper.GetString("config.buy_MACD_upmarket"),
 		Buy_wait:                                     viper.GetString("config.buy_wait"),
 		Exchange_comission:                           viper.GetString("config.exchange_comission"),
 		ExchangeName:                                 viper.GetString("config.exchangename"),
@@ -657,15 +671,12 @@ func SaveConfigData(
 	sessionData *types.Session) {
 
 	viper.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy_24hs_highprice_entry"))
-	viper.Set("config.buy_24hs_highprice_entry_MACD", r.PostFormValue("buy_24hs_highprice_entry_MACD"))
 	viper.Set("config.buy_direction_down", r.PostFormValue("buy_direction_down"))
 	viper.Set("config.buy_direction_up", r.PostFormValue("buy_direction_up"))
 	viper.Set("config.buy_quantity_fiat_up", r.PostFormValue("buy_quantity_fiat_up"))
 	viper.Set("config.buy_quantity_fiat_down", r.PostFormValue("buy_quantity_fiat_down"))
 	viper.Set("config.buy_quantity_fiat_init", r.PostFormValue("buy_quantity_fiat_init"))
 	viper.Set("config.buy_rsi7_entry", r.PostFormValue("buy_rsi7_entry"))
-	viper.Set("config.buy_MACD_entry", r.PostFormValue("buy_MACD_entry"))
-	viper.Set("config.buy_MACD_upmarket", r.PostFormValue("buy_MACD_upmarket"))
 	viper.Set("config.buy_wait", r.PostFormValue("buy_wait"))
 	viper.Set("config.buy_repeat_threshold_down", r.PostFormValue("buy_repeat_threshold_down"))
 	viper.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buy_repeat_threshold_down_second"))
