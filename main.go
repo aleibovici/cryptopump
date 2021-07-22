@@ -184,7 +184,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			marketData.Rsi7 = functions.Float64ToStr(fh.marketData.Rsi7, 2)
 			marketData.Rsi14 = functions.Float64ToStr(fh.marketData.Rsi14, 2)
 			marketData.MACD = functions.Float64ToStr(fh.marketData.MACD, 4)
-			marketData.Price = functions.Float64ToStr(fh.marketData.Price, 2)
+			marketData.Price = functions.Float64ToStr(fh.marketData.Price, 3)
 			marketData.Direction = strconv.Itoa(fh.marketData.Direction)
 
 			w.Header().Set("Content-Type", "application/json")
