@@ -97,8 +97,9 @@ func Plot(sessionData *types.Session) (
 			},
 		}),
 		charts.WithInitializationOpts(opts.Initialization{
-			Width:  "1900px",
-			Height: "400px",
+			PageTitle: "CryptoPump",
+			Width:     "1900px",
+			Height:    "400px",
 		}),
 		charts.WithTooltipOpts(opts.Tooltip{
 			Show:    true,
