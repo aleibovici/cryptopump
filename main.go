@@ -148,7 +148,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		case "/sessiondata":
 
 			/* Load dynamic components for javascript autoloader for html output */
-
+      
 			w.Header().Set("Content-Type", "application/json")
 
 			tmp, _ := loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData)

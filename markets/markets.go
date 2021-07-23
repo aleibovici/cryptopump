@@ -114,15 +114,6 @@ func calculateRSI(
 	return techan.NewRelativeStrengthIndexIndicator(closePrices, timeframe).Calculate(series.LastIndex() - 1).Float()
 }
 
-/* NewTrendlineIndicator returns an indicator whose output is the slope of the trend line given by the values in the window */
-func calculateMA(
-	closePrices techan.Indicator,
-	series *techan.TimeSeries,
-	window int) float64 {
-
-	return techan.NewTrendlineIndicator(closePrices, window).Calculate(series.LastIndex() - 1).Float()
-}
-
 func calculateMACD(
 	closePrices techan.Indicator,
 	series *techan.TimeSeries,
