@@ -5,7 +5,6 @@
         <!-- Required meta tags -->
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta http-equiv="refresh" content="60" /> <!-- Automatically refresh the webpage every 60 seconds -->
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -14,21 +13,71 @@
 
         <link href="../static/stylesheets/cryptopump.css" rel="stylesheet" type="text/css" />
 
-      <!-- Load marketData every 2 seconds -->
-      <script>
-        var counter = 1;
-        var auto_refresh = setInterval(
-        async function() {
-            var json = await fetch(window.location.href + 'market').then(response => response.json()).then((json) => {return json;});
-            $('#divIDRsi3').html(json.Rsi3);
-            $('#divIDRsi7').html(json.Rsi7);
-            $('#divIDRsi14').html(json.Rsi14);
-            $('#divIDMACD').html(json.MACD);
-            $('#divIDPrice').html(json.Price);
-            $('#divIDDirection').html(json.Direction);
-            counter++;
-        }, 2000);
-    </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
+
+            <!-- Load marketData every 2 seconds -->
+            <script>
+                var counter = 1;
+                var json;
+                var auto_refresh = setInterval(
+                async function() {
+                    json = await fetch(window.location.href + 'sessiondata').then(response => response.json()).then((json) => {return json;});
+                    $('#divIDRsi3').html(json.Market.Rsi3);
+                    $('#divIDRsi7').html(json.Market.Rsi7);
+                    $('#divIDRsi14').html(json.Market.Rsi14);
+                    $('#divIDMACD').html(json.Market.MACD);
+                    $('#divIDPrice').html(json.Market.Price);
+                    $('#divIDDirection').html(json.Market.Direction);
+                    $('#divIDSessionThreadID').html(json.Session.ThreadID);
+                    $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
+                    $('#divIDSessionSymbol_fiat').html(json.Session.Symbol_fiat);
+                    $('#divIDSessionSymbol_fiat_funds').html(json.Session.Symbol_fiat_funds);
+                    $('#divIDSessionProfit').html(json.Session.Profit);
+                    $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
+                    $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
+                    $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
+                    $('#divIDSessionOrders').html(json.Session.Orders);
+                    $('#divIDSessionHtmlSnippet').html(json.Market.HtmlSnippet);
+                    counter++;
+    
+                    function buildHtmlTable(selector) {
+                        var columns = addAllColumnHeaders(json.Session.Orders, selector);
+    
+                        for (var i = 0; i < json.Session.Orders.length; i++) {
+                            var row$ = $('<tr/>');
+                            for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                            var cellValue = json.Session.Orders[i][columns[colIndex]];
+                            if (cellValue == null) cellValue = "";
+                            row$.append($('<td/>').html(cellValue));
+                            }
+                            $(selector).append(row$);
+                        }
+                    }
+    
+                    function addAllColumnHeaders(myList, selector) {
+                        var columnSet = [];
+                        var headerTr$ = $('<tr/>');
+    
+                            for (var i = 0; i < myList.length; i++) {
+                                var rowHash = myList[i];
+                                for (var key in rowHash) {
+                                if ($.inArray(key, columnSet) == -1) {
+                                    columnSet.push(key);
+                                    headerTr$.append($('<th/>').html(key));
+                                }
+                                }
+                            }
+                        $(selector).append(headerTr$);
+                        return columnSet;
+                    }
+                
+                    $('#excelDataTable').empty();
+                    buildHtmlTable('#excelDataTable')
+                    
+                }, 1000);
+    
+            </script>
 
     </head>
 
@@ -43,81 +92,62 @@
     
                             <p></p>
     
-                            <div class="row">
-    
-                                <div class="col-2" style="border: 1px solid none">
-                                    <span class="badge badge-warning">{{ .ThreadID }}</span> &nbsp;&nbsp;
-                                    <span class="badge badge-warning">Threads</span>
-                                    <span class="label label-default">{{ .ThreadCount }}</span>
-                                </div>
-    
-                                <div class="col-5 text-center" style="border: 1px solid none">
-                                    <span class="badge badge-warning">Profit $</span>
-                                    <span class="label label-default">{{ .Profit }}</span> &nbsp;
-                                    <span class="badge badge-warning">Deployed $</span>
-                                    <span class="label label-default">{{ .ThreadAmount }}</span> &nbsp;
-                                    <span class="badge badge-warning">Funds</span>
-                                    <span class="label label-default">{{ .Symbol_fiat }} {{ .FiatFunds }}</span>  &nbsp;
-                                    <span class="badge badge-warning">Thread Profit</span>
-                                    <span class="label label-default">$ {{ .ProfitThreadID }}</span> &nbsp;
-                                    <span class="badge badge-warning">Transactions/h</span>
-                                    <span class="label label-default">{{ .SellTransactionCount }}</span>
-                                </div>
-    
-                                <div class="col text-center" style="border: 1px solid none">
-                                    <span class="badge badge-secondary badge-info">MACD</span>
-                                    <span class="label label-default center" id="divIDMACD"></span> &nbsp;
-                                    <span class="badge badge-info">RSI 14</span>
-                                    <span class="label label-default" id="divIDRsi14"></span> &nbsp;
-                                    <span class="badge badge-info">RSI  7</span>
-                                    <span class="label label-default" id="divIDRsi7"></span> &nbsp;
-                                    <span class="badge badge-info">RSI  3</span>
-                                    <span class="label label-default" id="divIDRsi3"></span>
-                                </div>
+                        <div class="row">
 
-                                <div class="col-1" style="border: 1px solid none">
-                                    <span class="badge badge-secondary badge-info">Direction ▲</span>
-                                    <span class="label label-default" id="divIDDirection"></span>
-                                </div>
-    
-                                <div class="col-1" style="border: 1px solid none">
-                                    <span class="badge badge-secondary badge-info">Price $</span>
-                                    <span class="label label-default" id="divIDPrice"></span>
-                                </div>
-    
+                            <div class="col-2" style="border: 1px solid none">
+                                <span class="badge badge-warning" id="divIDSessionThreadID"></span> &nbsp;&nbsp;
+                                <span class="badge badge-warning">Threads</span>
+                                <span class="label label-default" id="divIDSessionThreadCount"></span>
                             </div>
+
+                            <div class="col-5 text-center" style="border: 1px solid none">
+                                <span class="badge badge-warning">Profit $</span>
+                                <span class="label label-default" id="divIDSessionProfit"></span> &nbsp;
+                                <span class="badge badge-warning">Deployed $</span>
+                                <span class="label label-default" id="divIDSessionThreadAmount"></span> &nbsp;
+                                <span class="badge badge-warning">Funds</span>
+                                <span class="label label-default" id="divIDSessionSymbol_fiat"></span>
+                                <span class="label label-default" id="divIDSessionSymbol_fiat_funds"></span>  &nbsp;
+                                <span class="badge badge-warning">Thread Profit $</span>
+                                <span class="label label-default" id="divIDSessionProfitThreadID"></span> &nbsp;
+                                <span class="badge badge-warning">Transactions/h</span>
+                                <span class="label label-default" id="divIDSessionSellTransactionCount"></span>
+                            </div>
+
+                            <div class="col text-center" style="border: 1px solid none">
+                                <span class="badge badge-secondary badge-info">MACD</span>
+                                <span class="label label-default center" id="divIDMACD"></span> &nbsp;
+                                <span class="badge badge-info">RSI 14</span>
+                                <span class="label label-default" id="divIDRsi14"></span> &nbsp;
+                                <span class="badge badge-info">RSI  7</span>
+                                <span class="label label-default" id="divIDRsi7"></span> &nbsp;
+                                <span class="badge badge-info">RSI  3</span>
+                                <span class="label label-default" id="divIDRsi3"></span>
+                            </div>
+
+                            <div class="col-1" style="border: 1px solid none">
+                                <span class="badge badge-secondary badge-info">Direction ▲</span>
+                                <span class="label label-default" id="divIDDirection"></span>
+                            </div>
+
+                            <div class="col-1" style="border: 1px solid none">
+                                <span class="badge badge-secondary badge-info">Price $</span>
+                                <span class="label label-default" id="divIDPrice"></span>
+                            </div>
+
+                        </div>
     
                         </div>
     
                     </div>
     
                     <div class="row">
-    
-                        <div class="col text-center" style="border: 1px solid none">
-                            {{ .HtmlSnippet }}
-                        </div>
+                        <div class="col text-center" style="border: 1px solid none" id="divIDSessionHtmlSnippet"></div>
                         
                         <div class="col-md-auto text-center" style="border: 1px solid none">
                             <p></p>
                             <div class="table-wrapper">
-                                <table class="table-sm table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th><span class="badge badge-secondary">OrderID</span></th>
-                                            <th><span class="badge badge-secondary">Quote</span></th>
-                                            <th><span class="badge badge-secondary">Price</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {{ range .Orders }}
-                                            <tr>
-                                            <td>{{ .OrderID }}</td>
-                                            <td>{{ .CummulativeQuoteQuantity }}</td>
-                                            <td>{{ .Price }}</td>
-                                            </tr>
-                                        {{ end }}
-                                    </tbody>
-                                </table>
+                                <table class="table-sm table-striped" id="excelDataTable"></table>
                             </div>
                         </div>
     

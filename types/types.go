@@ -66,7 +66,7 @@ type ExchangeInfo struct {
 
 /* struct for session elements */
 type Session struct {
-	ThreadID             string
+	ThreadID             string /* Unique session ID for the thread */
 	ThreadIDSession      string
 	ThreadCount          int
 	SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes */
@@ -159,14 +159,6 @@ type Config struct {
 	ConfigTemplateList                           interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                                 interface{} /* Exchange name */
 	TgBotApikey                                  interface{} /* Telegram bot API key */
-	HtmlSnippet                                  interface{} /* Store kline plotter graph for html output */
-	Orders                                       interface{} /* Store thread orders for html output */
-	FiatFunds                                    interface{} /* Store fiat currency funds for html output */
-	Profit                                       interface{} /* Store total profit for html output */
-	ProfitThreadID                               interface{} /* Store threadID profit for html output */
-	SellTransactionCount                         interface{} /* Store Number of SELL transactions in the last 60 minutes for html output */
-	ThreadCount                                  interface{} /* Store thread count for html output */
-	ThreadAmount                                 interface{} /* Store thread cost amount for html output */
 }
 
 /* Struct for User Data Streams for Binance */
