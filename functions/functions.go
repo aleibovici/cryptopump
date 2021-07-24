@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"os"
@@ -198,7 +199,7 @@ func MustGetenv(k string) string {
 		log.Fatalf("Warning: %s environment variable not set.\n", k)
 	}
 
-	return v
+	return strings.ToLower(v)
 
 }
 
@@ -286,11 +287,28 @@ func ConvertFiatToCoin(fiatQty float64, ticker_price float64, lotSizeMin float64
 
 }
 
+/* Select the correct html template based on sessionData */
+func selectTemplate(
+	sessionData *types.Session) (template string) {
+
+	if sessionData.ThreadID == "" {
+
+		template = "index.html"
+
+	} else {
+
+		template = "index_nostart.html"
+
+	}
+
+	return template
+
+}
+
 // ExecuteTemplate function
 /* This public function i responsible for executing any templates */
 func ExecuteTemplate(
 	wr io.Writer,
-	name string,
 	data interface{},
 	sessionData *types.Session) {
 
@@ -314,7 +332,7 @@ func ExecuteTemplate(
 
 	}
 
-	if err = tlp.ExecuteTemplate(wr, name, data); err != nil {
+	if err = tlp.ExecuteTemplate(wr, selectTemplate(sessionData), data); err != nil {
 
 		Logger(
 			nil,

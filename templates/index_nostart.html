@@ -17,67 +17,67 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
 
-            <!-- Load marketData every 2 seconds -->
-            <script>
-                var json;
-                var auto_refresh = setInterval(
-                async function() {
-                    json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
+        <!-- Load marketData every 2 seconds -->
+        <script>
+            var json;
+            var auto_refresh = setInterval(
+            async function() {
+                json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
                     .then(response => response.json())
                     .then((json) => {return json;});
-                    $('#divIDRsi3').html(json.Market.Rsi3);
-                    $('#divIDRsi7').html(json.Market.Rsi7);
-                    $('#divIDRsi14').html(json.Market.Rsi14);
-                    $('#divIDMACD').html(json.Market.MACD);
-                    $('#divIDPrice').html(json.Market.Price);
-                    $('#divIDDirection').html(json.Market.Direction);
-                    $('#divIDSessionThreadID').html(json.Session.ThreadID);
-                    $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
-                    $('#divIDSessionSymbol_fiat').html(json.Session.Symbol_fiat);
-                    $('#divIDSessionSymbol_fiat_funds').html(json.Session.Symbol_fiat_funds);
-                    $('#divIDSessionProfit').html(json.Session.Profit);
-                    $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
-                    $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
-                    $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
-                    $('#divIDSessionOrders').html(json.Session.Orders);
-                    $('#divIDSessionHtmlSnippet').html(json.Market.HtmlSnippet);
-    
-                    function buildHtmlTable(selector) {
-                        var columns = addAllColumnHeaders(json.Session.Orders, selector);
-    
-                        for (var i = 0; i < json.Session.Orders.length; i++) {
-                            var row$ = $('<tr/>');
-                            for (var colIndex = 0; colIndex < columns.length; colIndex++) {
-                            var cellValue = json.Session.Orders[i][columns[colIndex]];
-                            if (cellValue == null) cellValue = "";
-                            row$.append($('<td/>').html(cellValue));
-                            }
-                            $(selector).append(row$);
+                $('#divIDRsi3').html(json.Market.Rsi3);
+                $('#divIDRsi7').html(json.Market.Rsi7);
+                $('#divIDRsi14').html(json.Market.Rsi14);
+                $('#divIDMACD').html(json.Market.MACD);
+                $('#divIDPrice').html(json.Market.Price);
+                $('#divIDDirection').html(json.Market.Direction);
+                $('#divIDSessionThreadID').html(json.Session.ThreadID);
+                $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
+                $('#divIDSessionSymbol_fiat').html(json.Session.Symbol_fiat);
+                $('#divIDSessionSymbol_fiat_funds').html(json.Session.Symbol_fiat_funds);
+                $('#divIDSessionProfit').html(json.Session.Profit);
+                $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
+                $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
+                $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
+                $('#divIDSessionOrders').html(json.Session.Orders);
+                $('#divIDSessionHtmlSnippet').html(json.Market.HtmlSnippet);
+
+                function buildHtmlTable(selector) {
+                    var columns = addAllColumnHeaders(json.Session.Orders, selector);
+
+                    for (var i = 0; i < json.Session.Orders.length; i++) {
+                        var row$ = $('<tr/>');
+                        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                        var cellValue = json.Session.Orders[i][columns[colIndex]];
+                        if (cellValue == null) cellValue = "";
+                        row$.append($('<td/>').html(cellValue));
                         }
+                        $(selector).append(row$);
                     }
-    
-                    function addAllColumnHeaders(myList, selector) {
-                        var columnSet = [];
-                        var headerTr$ = $('<tr/>');
-    
-                            for (var i = 0; i < myList.length; i++) {
-                                var rowHash = myList[i];
-                                for (var key in rowHash) {
-                                if ($.inArray(key, columnSet) == -1) {
-                                    columnSet.push(key);
-                                    headerTr$.append($('<th/>').html(key));
-                                }
-                                }
+                }
+
+                function addAllColumnHeaders(myList, selector) {
+                    var columnSet = [];
+                    var headerTr$ = $('<tr/>');
+
+                        for (var i = 0; i < myList.length; i++) {
+                            var rowHash = myList[i];
+                            for (var key in rowHash) {
+                            if ($.inArray(key, columnSet) == -1) {
+                                columnSet.push(key);
+                                headerTr$.append($('<th/>').html(key));
                             }
-                        $(selector).append(headerTr$);
-                        return columnSet;
-                    }
+                            }
+                        }
+                    $(selector).append(headerTr$);
+                    return columnSet;
+                }
+            
+                $('#excelDataTable').empty();
+                buildHtmlTable('#excelDataTable')
                 
-                    $('#excelDataTable').empty();
-                    buildHtmlTable('#excelDataTable')
-                    
-                }, 1000);
-            </script>
+            }, 1000);
+        </script>
 
     </head>
 
@@ -85,13 +85,13 @@
 
         <div class="container-fluid">
 
-                     <!-- Plotter and data visualization -->
-                     <div class="row">
+                <!-- Plotter and data visualization -->
+                <div class="row">
 
-                        <div class="col" style="border: 1px solid none">
-    
-                            <p></p>
-    
+                    <div class="col" style="border: 1px solid none">
+
+                        <p></p>
+
                         <div class="row">
 
                             <div class="col-2" style="border: 1px solid none">
@@ -136,24 +136,24 @@
                             </div>
 
                         </div>
-    
-                        </div>
-    
+
                     </div>
-    
-                    <div class="row">
-                        <div class="col text-center" style="border: 1px solid none" id="divIDSessionHtmlSnippet"></div>
-                        
-                        <div class="col-md-auto text-center" style="border: 1px solid none">
-                            <p></p>
-                            <div class="table-wrapper">
-                                <table class="table-sm table-striped" id="excelDataTable"></table>
-                            </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col text-center" style="border: 1px solid none" id="divIDSessionHtmlSnippet"></div>
+                    
+                    <div class="col-md-auto text-center" style="border: 1px solid none">
+                        <p></p>
+                        <div class="table-wrapper">
+                            <table class="table-sm table-striped" id="excelDataTable"></table>
                         </div>
-    
                     </div>
-    
-                <!-- Config Settings -->
+
+                </div>
+
+            <!-- Config Settings -->
             <form method="POST" action="/">
 
                 <input type="hidden" name="submitselect" value="" id="submitselect" />
@@ -578,12 +578,12 @@
                 </div>
 
                 <button type="button" class="btn btn-primary btn-primary-addon" id="new" name="new"
-                onclick="document.getElementById('submitselect').value='new';this.form.submit()" disabled>
+                onclick="document.getElementById('submitselect').value='new';this.form.submit()">
                 New
                 </button>
 
                 <button type="button" class="btn btn-primary btn-primary-addon" id="start" name="start"
-                    onclick="document.getElementById('submitselect').value='start';this.form.submit()">
+                    onclick="document.getElementById('submitselect').value='start';this.form.submit()" disabled>
                     Start
                 </button>
 
@@ -598,12 +598,12 @@
                 </button>
 
                 <button type="button" class="btn btn-primary btn-primary-addon" id="buy" name="buy"
-                    onclick="document.getElementById('submitselect').value='buy';this.form.submit()" disabled>
+                    onclick="document.getElementById('submitselect').value='buy';this.form.submit()">
                     buy Market
                 </button>
 
                 <button type="button" class="btn btn-primary btn-primary-addon" id="sell" name="sell"
-                    onclick="document.getElementById('submitselect').value='sell';this.form.submit()" disabled>
+                    onclick="document.getElementById('submitselect').value='sell';this.form.submit()">
                     sell Market
                 </button>
             </form>

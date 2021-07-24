@@ -12,6 +12,7 @@ require (
 	github.com/sdcoffey/big v0.7.0
 	github.com/sdcoffey/techan v0.12.0
 	github.com/sirupsen/logrus v1.8.1
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/viper v1.8.1
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 )

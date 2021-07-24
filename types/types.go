@@ -66,7 +66,7 @@ type ExchangeInfo struct {
 
 /* struct for session elements */
 type Session struct {
-	ThreadID             string
+	ThreadID             string /* Unique session ID for the thread */
 	ThreadIDSession      string
 	ThreadCount          int
 	SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes */
@@ -113,7 +113,7 @@ type Market struct {
 	Rsi3                      float64            /* Relative Strength Index for 3 periods */
 	Rsi7                      float64            /* Relative Strength Index for 7 periods */
 	Rsi14                     float64            /* Relative Strength Index for 14 periods */
-	MACD                      float64            /* Moving Average for 14 periods */
+	MACD                      float64            /* Moving average convergence divergence */
 	Price                     float64            /* Market Price */
 	PriceChangeStatsHighPrice float64            /* High price for 1 period */
 	PriceChangeStatsLowPrice  float64            /* Low price for 1 period */
@@ -159,18 +159,6 @@ type Config struct {
 	ConfigTemplateList                           interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                                 interface{} /* Exchange name */
 	TgBotApikey                                  interface{} /* Telegram bot API key */
-	HtmlSnippet                                  interface{} /* Store kline plotter graph for html output */
-	Orders                                       interface{} /* Store thread orders for html output */
-	FiatFunds                                    interface{} /* Store fiat currency funds for html output */
-	Profit                                       interface{} /* Store total profit for html output */
-	ProfitThreadID                               interface{} /* Store threadID profit for html output */
-	SellTransactionCount                         interface{} /* Store Number of SELL transactions in the last 60 minutes for html output */
-	ThreadCount                                  interface{} /* Store thread count for html output */
-	ThreadAmount                                 interface{} /* Store thread cost amount for html output */
-	MarketDataMACD                               interface{} /* Store MACD for html output */
-	MarketDataRsi3                               interface{} /* Store RSI14 for html output */
-	MarketDataRsi7                               interface{} /* Store RSI7 for html output */
-	MarketDataRsi14                              interface{} /* Store RSI3 for html output */
 }
 
 /* Struct for User Data Streams for Binance */
