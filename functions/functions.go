@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"os"
@@ -198,7 +199,7 @@ func MustGetenv(k string) string {
 		log.Fatalf("Warning: %s environment variable not set.\n", k)
 	}
 
-	return v
+	return strings.ToLower(v)
 
 }
 
