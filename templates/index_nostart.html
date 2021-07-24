@@ -19,11 +19,12 @@
 
         <!-- Load marketData every 2 seconds -->
         <script>
-            var counter = 1;
             var json;
             var auto_refresh = setInterval(
             async function() {
-                json = await fetch(window.location.href + 'sessiondata').then(response => response.json()).then((json) => {return json;});
+                json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
+                    .then(response => response.json())
+                    .then((json) => {return json;});
                 $('#divIDRsi3').html(json.Market.Rsi3);
                 $('#divIDRsi7').html(json.Market.Rsi7);
                 $('#divIDRsi14').html(json.Market.Rsi14);
@@ -40,7 +41,6 @@
                 $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
                 $('#divIDSessionOrders').html(json.Session.Orders);
                 $('#divIDSessionHtmlSnippet').html(json.Market.HtmlSnippet);
-                counter++;
 
                 function buildHtmlTable(selector) {
                     var columns = addAllColumnHeaders(json.Session.Orders, selector);
@@ -77,7 +77,6 @@
                 buildHtmlTable('#excelDataTable')
                 
             }, 1000);
-
         </script>
 
     </head>
@@ -322,28 +321,7 @@
                                 </div>
                             </div>
 
-                            <!-- Load  Config Template -->
-                            <div class="container col-lg-6">
-                                <div class="row">
-                                    <div class="col">
-                                        <label class="col-form-label" for="template">Template</label>
-                                    </div>
-                                    <div class="col input-group input-group-sm">
-                                        <select class="form-control form-control-sm" style="width: 250px;"
-                                            id="configTemplateList" name="configTemplateList"
-                                            onchange="document.getElementById('submitselect').value='configTemplate';this.form.submit()">
-                                            {{range $key, $value := .ConfigTemplateList}}
-                                            <option value="{{ $key }}">{{ $value }}</option>
-                                            {{end}}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                        <div class="col container-input ml-2">
+                            <br>
 
                             <div class="container-fluid">
                                 <p class="lead" style="text-align: center;">Sell</p>
@@ -417,7 +395,9 @@
 
                             </div>
 
-                            <br>
+                        </div>
+
+                        <div class="col container-input ml-2">
 
                             <div class="container-fluid">
 
@@ -572,6 +552,27 @@
                                 </div>
 
                             </div>
+
+                            <br>
+
+                            <!-- Load  Config Template -->
+                            <div class="container col-lg-6">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="col-form-label" for="template">Template</label>
+                                    </div>
+                                    <div class="col input-group input-group-sm">
+                                        <select class="form-control form-control-sm" style="width: 250px;"
+                                            id="configTemplateList" name="configTemplateList"
+                                            onchange="document.getElementById('submitselect').value='configTemplate';this.form.submit()">
+                                            {{range $key, $value := .ConfigTemplateList}}
+                                            <option value="{{ $key }}">{{ $value }}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
