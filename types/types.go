@@ -159,6 +159,7 @@ type Config struct {
 	ConfigTemplateList                           interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                                 interface{} /* Exchange name */
 	TgBotApikey                                  interface{} /* Telegram bot API key */
+	HtmlSnippet                                  interface{} /* Store kline plotter graph for html output */
 }
 
 /* Struct for User Data Streams for Binance */
