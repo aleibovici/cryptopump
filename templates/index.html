@@ -40,7 +40,6 @@
                     $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
                     $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
                     $('#divIDSessionOrders').html(json.Session.Orders);
-                    $('#divIDSessionHtmlSnippet').html(json.Market.HtmlSnippet);
     
                     function buildHtmlTable(selector) {
                         var columns = addAllColumnHeaders(json.Session.Orders, selector);
@@ -142,7 +141,7 @@
                     </div>
     
                     <div class="row">
-                        <div class="col text-center" style="border: 1px solid none" id="divIDSessionHtmlSnippet"></div>
+                        <div class="col text-center" style="border: 1px solid none" >{{ .HtmlSnippet }}</div>
                         
                         <div class="col-md-auto text-center" style="border: 1px solid none">
                             <p></p>

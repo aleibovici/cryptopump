@@ -96,6 +96,18 @@ func Plot(sessionData *types.Session) (
 				Formatter: "{value}\n",
 			},
 		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Type:       "inside",
+			Start:      60,
+			End:        100,
+			XAxisIndex: []int{0},
+		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Type:       "slider",
+			Start:      60,
+			End:        100,
+			XAxisIndex: []int{0},
+		}),
 		charts.WithInitializationOpts(opts.Initialization{
 			PageTitle: "CryptoPump",
 			Width:     "1900px",
