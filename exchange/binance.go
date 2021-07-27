@@ -86,7 +86,7 @@ func binanceMapKline(from []*binance.Kline) (to []*types.Kline) {
 
 }
 
-/* Map binance.WsKline types to WsKline type */
+// BinanceMapWsKline Map binance.WsKline types to WsKline type
 func BinanceMapWsKline(from binance.WsKline) (to types.WsKline) {
 
 	to = types.WsKline{}

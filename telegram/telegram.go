@@ -61,7 +61,7 @@ func send(
 
 }
 
-/* Check for Telegram bot updates */
+// CheckUpdates Check for Telegram bot updates
 func CheckUpdates(
 	configData *types.Config,
 	sessionData *types.Session,

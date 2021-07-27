@@ -45,24 +45,21 @@ func Float64ToStr(value float64, prec int) string {
 
 }
 
-// IntToFloat64
-/* This public function convert Int to Float64 */
+// IntToFloat64 convert Int to Float64
 func IntToFloat64(value int) float64 {
 
 	return float64(value)
 
 }
 
-// Profit
-/* This public function calculate profit */
+// GetProfitResult calculate profit
 func GetProfitResult(buyPrice float64, sellPrice float64) float64 {
 
 	return (sellPrice - buyPrice) / buyPrice
 
 }
 
-// StrToInt function
-/* This public function convert string to int */
+// StrToInt convert string to int
 func StrToInt(value string) (r int) {
 
 	var err error
@@ -77,6 +74,7 @@ func StrToInt(value string) (r int) {
 
 }
 
+// Logger is responsible for all system logging
 func Logger(
 	configData *types.Config,
 	marketData *types.Market,
@@ -215,7 +213,7 @@ func GetIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-/* Return random thread ID */
+// GetThreadID Return random thread ID
 func GetThreadID() string {
 
 	return xid.New().String()
@@ -246,7 +244,7 @@ func stringToTime(str string) (r time.Time) {
 
 }
 
-/* Check if time is in a specific range */
+// IsInTimeRange Check if time is in a specific range
 func IsInTimeRange(startTimeString string, endTimeString string) bool {
 
 	t := time.Now()
@@ -271,7 +269,7 @@ func IsInTimeRange(startTimeString string, endTimeString string) bool {
 
 }
 
-/* Validate available funds to buy */
+// IsFundsAvailable Validate available funds to buy
 func IsFundsAvailable(
 	configData *types.Config,
 	sessionData *types.Session) bool {
@@ -280,10 +278,10 @@ func IsFundsAvailable(
 
 }
 
-/* Convert Fiat currency to Coin */
-func ConvertFiatToCoin(fiatQty float64, ticker_price float64, lotSizeMin float64, lotSizeStep float64) float64 {
+// ConvertFiatToCoin Convert Fiat currency to Coin
+func ConvertFiatToCoin(fiatQty float64, tickerPrice float64, lotSizeMin float64, lotSizeStep float64) float64 {
 
-	return math.Round((fiatQty/ticker_price)/lotSizeStep) * lotSizeStep
+	return math.Round((fiatQty/tickerPrice)/lotSizeStep) * lotSizeStep
 
 }
 
@@ -351,7 +349,7 @@ func ExecuteTemplate(
 
 }
 
-/* Retrieve current function name */
+// GetFunctionName Retrieve current function name
 func GetFunctionName() string {
 
 	pc := make([]uintptr, 15)
@@ -363,7 +361,7 @@ func GetFunctionName() string {
 
 }
 
-/* Create lock for threadID */
+// LockThreadID Create lock for threadID
 func LockThreadID(threadID string) bool {
 
 	filename := threadID + ".lock"
@@ -389,7 +387,7 @@ func LockThreadID(threadID string) bool {
 
 }
 
-/* Determine port for HTTP service. */
+// GetPort Determine port for HTTP service.
 func GetPort() (port string) {
 
 	port = os.Getenv("PORT")
@@ -419,7 +417,7 @@ func GetPort() (port string) {
 
 }
 
-/* Delete configuration file for ThreadID */
+// DeleteConfigFile Delete configuration file for ThreadID
 func DeleteConfigFile(sessionData *types.Session) {
 
 	filename := sessionData.ThreadID + ".yml"
@@ -444,7 +442,7 @@ func DeleteConfigFile(sessionData *types.Session) {
 
 }
 
-/* Retrieve or create config file based on ThreadID */
+// GetConfigData Retrieve or create config file based on ThreadID
 func GetConfigData(
 	sessionData *types.Session) *types.Config {
 
@@ -560,8 +558,8 @@ func getConfigTemplateList(sessionData *types.Session) []string {
 
 }
 
-/* Load the selected configuration template */
-/* Three's a BUG where it only works before the first UPDATE */
+// LoadConfigTemplate Load the selected configuration template
+// Three's a BUG where it only works before the first UPDATE
 func LoadConfigTemplate(
 	sessionData *types.Session) *types.Config {
 
@@ -666,7 +664,7 @@ func loadConfigData(
 
 }
 
-/* This routine save viper configuration from html */
+// SaveConfigData save viper configuration from html
 func SaveConfigData(
 	r *http.Request,
 	sessionData *types.Session) {

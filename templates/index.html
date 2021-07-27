@@ -33,8 +33,8 @@
                     $('#divIDDirection').html(json.Market.Direction);
                     $('#divIDSessionThreadID').html(json.Session.ThreadID);
                     $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
-                    $('#divIDSessionSymbol_fiat').html(json.Session.Symbol_fiat);
-                    $('#divIDSessionSymbol_fiat_funds').html(json.Session.Symbol_fiat_funds);
+                    $('#divIDSessionSymbol_fiat').html(json.Session.SymbolFiat);
+                    $('#divIDSessionSymbol_fiat_funds').html(json.Session.SymbolFiatFunds);
                     $('#divIDSessionProfit').html(json.Session.Profit);
                     $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
                     $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
@@ -141,7 +141,7 @@
                     </div>
     
                     <div class="row">
-                        <div class="col text-center" style="border: 1px solid none" >{{ .HtmlSnippet }}</div>
+                        <div class="col text-center" style="border: 1px solid none" >{{ .HTMLSnippet }}</div>
                         
                         <div class="col-md-auto text-center" style="border: 1px solid none">
                             <p></p>

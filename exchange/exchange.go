@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-/* Define the exchange to be used */
+// GetClient Define the exchange to be used
 func GetClient(
 	configData *types.Config,
 	sessionData *types.Session) {
@@ -27,7 +27,7 @@ func GetClient(
 
 }
 
-/* Retrieve Order Status */
+// GetOrder Retrieve Order Status
 func GetOrder(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -44,7 +44,7 @@ func GetOrder(
 
 }
 
-/* Create order to BUY */
+// BuyOrder Create order to BUY
 func BuyOrder(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -61,7 +61,7 @@ func BuyOrder(
 
 }
 
-/* Create order to SELL */
+// SellOrder Create order to SELL
 func SellOrder(
 	configData *types.Config,
 	marketData *types.Market,
@@ -79,7 +79,7 @@ func SellOrder(
 
 }
 
-/* CANCEL an order */
+// CancelOrder CANCEL an order
 func CancelOrder(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -96,7 +96,7 @@ func CancelOrder(
 
 }
 
-/* Retrieve exchange information */
+// GetInfo Retrieve exchange information
 func GetInfo(
 	configData *types.Config,
 	sessionData *types.Session) (info *types.ExchangeInfo, err error) {
@@ -112,26 +112,24 @@ func GetInfo(
 
 }
 
-/* Retrieve Lot Size specs */
+// GetLotSize Retrieve Lot Size specs
 func GetLotSize(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	if info, err := GetInfo(configData, sessionData); err != nil {
-
-		return
-
-	} else {
+	if info, err := GetInfo(configData, sessionData); err == nil {
 
 		sessionData.MaxQuantity = functions.StrToFloat64(info.MaxQuantity)
 		sessionData.MinQuantity = functions.StrToFloat64(info.MinQuantity)
 		sessionData.StepSize = functions.StrToFloat64(info.StepSize)
 
+		return
+
 	}
 
 }
 
-/* Retrieve funds available */
+// GetSymbolFunds Retrieve funds available
 func GetSymbolFunds(
 	configData *types.Config,
 	sessionData *types.Session) (balance float64, err error) {
@@ -147,7 +145,7 @@ func GetSymbolFunds(
 
 }
 
-/* Retrieve KLines via REST API */
+// GetKlines Retrieve KLines via REST API
 func GetKlines(
 	configData *types.Config,
 	sessionData *types.Session) (klines []*types.Kline, err error) {
@@ -169,7 +167,7 @@ func GetKlines(
 
 }
 
-/* Retrieve 24hs Rolling Price Statistics */
+// GetPriceChangeStats Retrieve 24hs Rolling Price Statistics
 func GetPriceChangeStats(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -205,7 +203,7 @@ func getBuyQuantity(
 
 }
 
-/* Retrieve listen key for user stream service */
+// GetUserStreamServiceListenKey Retrieve listen key for user stream service
 func GetUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (listenKey string, err error) {
@@ -221,7 +219,7 @@ func GetUserStreamServiceListenKey(
 
 }
 
-/* Keep user stream service alive */
+// KeepAliveUserStreamServiceListenKey Keep user stream service alive
 func KeepAliveUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
@@ -237,7 +235,7 @@ func KeepAliveUserStreamServiceListenKey(
 
 }
 
-/* Synchronize time */
+// NewSetServerTimeService Synchronize time
 func NewSetServerTimeService(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
@@ -253,7 +251,7 @@ func NewSetServerTimeService(
 
 }
 
-/* WsBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for a specified symbol. */
+// WsBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for a specified symbol.
 func WsBookTickerServe(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -271,7 +269,7 @@ func WsBookTickerServe(
 
 }
 
-/* WsKlineServe serve websocket kline handler */
+// WsKlineServe serve websocket kline handler
 func WsKlineServe(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -289,7 +287,7 @@ func WsKlineServe(
 
 }
 
-/* WsUserDataServe serve user data handler with listen key */
+// WsUserDataServe serve user data handler with listen key
 func WsUserDataServe(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -307,7 +305,7 @@ func WsUserDataServe(
 
 }
 
-/* Buy Ticker */
+// BuyTicker Buy Ticker
 func BuyTicker(
 	quantity float64,
 	configData *types.Config,
@@ -471,7 +469,7 @@ S:
 
 }
 
-/* Sell Ticker */
+// SellTicker Sell Ticker
 func SellTicker(
 	order types.Order,
 	configData *types.Config,

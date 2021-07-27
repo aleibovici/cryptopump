@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-/* Define node role Master or Slave */
+// GetRole Define node role Master or Slave
 func GetRole(
 	sessionData *types.Session) {
 
@@ -53,7 +53,7 @@ func GetRole(
 
 }
 
-/* Release node role if Master */
+// ReleaseRole Release node role if Master
 func ReleaseRole(
 	sessionData *types.Session) {
 

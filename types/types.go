@@ -9,6 +9,7 @@ import (
 	"github.com/sdcoffey/techan"
 )
 
+// Order struct define an exchange order
 type Order struct {
 	ClientOrderID            string  `json:"clientOrderId"`
 	CummulativeQuoteQuantity float64 `json:"cummulativeQuoteQty"`
@@ -23,6 +24,7 @@ type Order struct {
 	ThreadIDSession          int
 }
 
+// Kline struct define a kline
 type Kline struct {
 	OpenTime int64  `json:"openTime"`
 	Open     string `json:"open"`
@@ -32,7 +34,7 @@ type Kline struct {
 	Volume   string `json:"volume"`
 }
 
-/* WsKline define websocket kline */
+// WsKline struct define websocket kline
 type WsKline struct {
 	StartTime            int64  `json:"t"`
 	EndTime              int64  `json:"T"` /* Currently not in use */
@@ -52,19 +54,20 @@ type WsKline struct {
 	ActiveBuyQuoteVolume string `json:"Q"` /* Currently not in use */
 }
 
-/* PriceChangeStats define price change stats */
+// PriceChangeStats define price change stats
 type PriceChangeStats struct {
 	HighPrice string `json:"highPrice"`
 	LowPrice  string `json:"lowPrice"`
 }
 
+// ExchangeInfo define exchange order size
 type ExchangeInfo struct {
 	MaxQuantity string `json:"maxQty"`
 	MinQuantity string `json:"minQty"`
 	StepSize    string `json:"stepSize"`
 }
 
-/* struct for session elements */
+// Session struct define session elements
 type Session struct {
 	ThreadID             string /* Unique session ID for the thread */
 	ThreadIDSession      string
@@ -91,24 +94,26 @@ type Session struct {
 	StepSize             float64          /* Defines the intervals that a quantity can be increased/decreased by exchange */
 }
 
-/* struct for client libraries */
+// Client struct for client libraries
 type Client struct {
 	Binance *binance.Client
 }
 
-/* struct for websocket handlers for exchanges */
+// WsHandler struct for websocket handlers for exchanges
 type WsHandler struct {
 	BinanceWsKline         func(event *binance.WsKlineEvent)      /* WsKlineServe serve websocket kline handler */
 	BinanceWsBookTicker    func(event *binance.WsBookTickerEvent) /* WsBookTicker serve websocket kline handler */
 	BinanceWsUserDataServe func(message []byte)                   /* WsUserDataServe serve user data handler with listen key */
 }
 
+// KlineData struct define kline retention for e-charts plotting
 type KlineData struct {
 	Date    int64
 	Data    [4]float64
 	Volumes float64
 }
 
+// Market struct define realtime market data
 type Market struct {
 	Rsi3                      float64            /* Relative Strength Index for 3 periods */
 	Rsi7                      float64            /* Relative Strength Index for 7 periods */
@@ -122,6 +127,7 @@ type Market struct {
 	Series                    *techan.TimeSeries /* kline data format for technical analysis */
 }
 
+// Config struct for configuration
 type Config struct {
 	ThreadID                                     interface{} /* For index.html population */
 	Apikey                                       interface{} /* Exchange API Key */
@@ -159,10 +165,10 @@ type Config struct {
 	ConfigTemplateList                           interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                                 interface{} /* Exchange name */
 	TgBotApikey                                  interface{} /* Telegram bot API key */
-	HtmlSnippet                                  interface{} /* Store kline plotter graph for html output */
+	HTMLSnippet                                  interface{} /* Store kline plotter graph for html output */
 }
 
-/* Struct for User Data Streams for Binance */
+// OutboundAccountPosition Struct for User Data Streams for Binance
 type OutboundAccountPosition struct {
 	EventType  string     `json:"e"` /* Event type */
 	EventTime  int64      `json:"E"` /* Event Time */
@@ -170,13 +176,14 @@ type OutboundAccountPosition struct {
 	Balances   []Balances `json:"B"` /* Balances Array */
 }
 
-/* Struct for User Data Streams for Binance */
+// Balances Struct for User Data Streams for Binance
 type Balances struct {
 	Asset  string `json:"a"` /* Asset */
 	Free   string `json:"f"` /* Free */
 	Locked string `json:"l"` /* Locked */
 }
 
+// ExecutionReport struct define exchange websocket transactions
 type ExecutionReport struct {
 	EventType             string `json:"e"` //Event type
 	EventTime             int64  `json:"E"` //Event Time
