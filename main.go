@@ -616,7 +616,7 @@ func loadSessionDataAdditionalComponents(
 
 			tmp := Order{}
 			tmp.OrderID = strconv.Itoa(key.OrderID)
-			tmp.Quote = functions.Float64ToStr(key.CummulativeQuoteQuantity, 2)
+			tmp.Quote = functions.Float64ToStr(key.CumulativeQuoteQuantity, 2)
 			tmp.Price = functions.Float64ToStr(key.Price, 3)
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)

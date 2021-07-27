@@ -142,7 +142,7 @@ func InitTCPConnectionPool() (*sql.DB, error) {
 func SaveOrder(
 	sessionData *types.Session,
 	ClientOrderID string,
-	CummulativeQuoteQuantity float64,
+	CumulativeQuoteQuantity float64,
 	ExecutedQuantity float64,
 	OrderID int64,
 	Price float64,
@@ -155,7 +155,7 @@ func SaveOrder(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?)",
 		ClientOrderID,
-		CummulativeQuoteQuantity,
+		CumulativeQuoteQuantity,
 		ExecutedQuantity,
 		OrderID,
 		Price,
@@ -191,7 +191,7 @@ func SaveOrder(
 func UpdateOrder(
 	sessionData *types.Session,
 	OrderID int64,
-	CummulativeQuoteQuantity float64,
+	CumulativeQuoteQuantity float64,
 	ExecutedQuantity float64,
 	Price float64,
 	Status string) (err error) {
@@ -200,7 +200,7 @@ func UpdateOrder(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.UpdateOrder(?,?,?,?,?)",
 		OrderID,
-		CummulativeQuoteQuantity,
+		CumulativeQuoteQuantity,
 		ExecutedQuantity,
 		Price,
 		Status); err != nil {
@@ -330,7 +330,7 @@ func DeleteSession(
 func SaveThreadTransaction(
 	sessionData *types.Session,
 	OrderID int64,
-	CummulativeQuoteQuantity float64,
+	CumulativeQuoteQuantity float64,
 	Price float64,
 	ExecutedQuantity float64) (err error) {
 
@@ -340,7 +340,7 @@ func SaveThreadTransaction(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		OrderID,
-		CummulativeQuoteQuantity,
+		CumulativeQuoteQuantity,
 		Price,
 		ExecutedQuantity); err != nil {
 
@@ -653,7 +653,7 @@ func GetOrderTransactionPending(
 // GetThreadTransactionByPrice function
 func GetThreadTransactionByPrice(
 	marketData *types.Market,
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cummulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
 
 	var rows *sql.Rows
 
@@ -678,7 +678,7 @@ func GetThreadTransactionByPrice(
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cummulativeQuoteQty,
+			&cumulativeQuoteQty,
 			&orderID,
 			&price,
 			&executedQuantity,
@@ -687,13 +687,13 @@ func GetThreadTransactionByPrice(
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cummulativeQuoteQty, transactTime, err
+	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
 
 }
 
 // GetThreadLastTransaction Return the last 'active' BUY transaction for a Thread
 func GetThreadLastTransaction(
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cummulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
 
 	var rows *sql.Rows
 
@@ -717,7 +717,7 @@ func GetThreadLastTransaction(
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cummulativeQuoteQty,
+			&cumulativeQuoteQty,
 			&orderID,
 			&price,
 			&executedQuantity,
@@ -726,7 +726,7 @@ func GetThreadLastTransaction(
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cummulativeQuoteQty, transactTime, err
+	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
 
 }
 
@@ -832,11 +832,11 @@ func GetThreadTransactionByThreadID(
 	for rows.Next() {
 
 		var orderID int
-		var cummulativeQuoteQty, price string
-		err = rows.Scan(&orderID, &cummulativeQuoteQty, &price)
+		var cumulativeQuoteQty, price string
+		err = rows.Scan(&orderID, &cumulativeQuoteQty, &price)
 
 		order.OrderID = orderID
-		order.CummulativeQuoteQuantity = math.Round(functions.StrToFloat64(cummulativeQuoteQty)*100) / 100
+		order.CumulativeQuoteQuantity = math.Round(functions.StrToFloat64(cumulativeQuoteQty)*100) / 100
 		order.Price = math.Round(functions.StrToFloat64(price)*1000) / 1000
 		orders = append(orders, order)
 

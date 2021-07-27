@@ -11,17 +11,17 @@ import (
 
 // Order struct define an exchange order
 type Order struct {
-	ClientOrderID            string  `json:"clientOrderId"`
-	CummulativeQuoteQuantity float64 `json:"cummulativeQuoteQty"`
-	ExecutedQuantity         float64 `json:"executedQty"`
-	OrderID                  int     `json:"orderId"`
-	Price                    float64 `json:"price"`
-	Side                     string  `json:"side"`
-	Status                   string  `json:"status"`
-	Symbol                   string  `json:"symbol"`
-	TransactTime             int64   `json:"transactTime"`
-	ThreadID                 int
-	ThreadIDSession          int
+	ClientOrderID           string  `json:"clientOrderId"`
+	CumulativeQuoteQuantity float64 `json:"cumulativeQuoteQty"`
+	ExecutedQuantity        float64 `json:"executedQty"`
+	OrderID                 int     `json:"orderId"`
+	Price                   float64 `json:"price"`
+	Side                    string  `json:"side"`
+	Status                  string  `json:"status"`
+	Symbol                  string  `json:"symbol"`
+	TransactTime            int64   `json:"transactTime"`
+	ThreadID                int
+	ThreadIDSession         int
 }
 
 // Kline struct define a kline
@@ -203,7 +203,7 @@ type ExecutionReport struct {
 	OrderRejectReason     string `json:"r"` //Order reject reason; will be an error code.
 	OrderID               int    `json:"i"` //Order ID
 	LastExecutedQuantity  string `json:"l"` //Last executed quantity
-	CummulativeQty        string `json:"z"` //Cumulative filled quantity
+	CumulativeQty         string `json:"z"` //Cumulative filled quantity
 	LastExecutedPrice     string `json:"L"` //Last executed price
 	ComissionAmount       string `json:"n"` //Commission amount
 	ComissionAsset        string `json:"N"` //Commission asset
@@ -214,7 +214,7 @@ type ExecutionReport struct {
 	IsTradeMakerSide      bool   `json:"m"` //Is this trade the maker side?
 	Ignore1               bool   `json:"M"` //Ignore
 	OrderCreationTime     int64  `json:"O"` //Order creation time
-	CummulativeQuoteQty   string `json:"Z"` //Cumulative quote asset transacted quantity
+	CumulativeQuoteQty    string `json:"Z"` //Cumulative quote asset transacted quantity
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
 }

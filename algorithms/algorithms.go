@@ -76,7 +76,7 @@ func UpdatePendingOrders(
 		if err := mysql.UpdateOrder(
 			sessionData,
 			int64(orderStatus.OrderID),
-			orderStatus.CummulativeQuoteQuantity,
+			orderStatus.CumulativeQuoteQuantity,
 			orderStatus.ExecutedQuantity,
 			orderStatus.Price,
 			string(orderStatus.Status)); err != nil {
@@ -183,7 +183,7 @@ func isBuyUpmarket(
 	if order.OrderID,
 		order.Price,
 		order.ExecutedQuantity,
-		order.CummulativeQuoteQuantity,
+		order.CumulativeQuoteQuantity,
 		order.TransactTime,
 		err = mysql.GetThreadLastTransaction(sessionData); err != nil {
 
@@ -830,7 +830,7 @@ func SellDecisionTree(
 		order.OrderID,
 			order.Price,
 			order.ExecutedQuantity,
-			order.CummulativeQuoteQuantity,
+			order.CumulativeQuoteQuantity,
 			order.TransactTime,
 			_ = mysql.GetThreadLastTransaction(sessionData)
 
@@ -864,7 +864,7 @@ func SellDecisionTree(
 			order.OrderID,
 				order.Price,
 				order.ExecutedQuantity,
-				order.CummulativeQuoteQuantity,
+				order.CumulativeQuoteQuantity,
 				order.TransactTime,
 				_ = mysql.GetThreadLastTransaction(sessionData)
 
@@ -881,7 +881,7 @@ func SellDecisionTree(
 	if order.OrderID,
 		order.Price,
 		order.ExecutedQuantity,
-		order.CummulativeQuoteQuantity,
+		order.CumulativeQuoteQuantity,
 		order.TransactTime,
 		err = mysql.GetThreadTransactionByPrice(
 		marketData,
