@@ -344,7 +344,7 @@ func BuyTicker(
 	}
 
 	/* Check if result is nil and set as zero */
-	if orderPrice = orderResponse.CummulativeQuoteQuantity / orderResponse.ExecutedQuantity; math.IsNaN(orderPrice) {
+	if orderPrice = orderResponse.CumulativeQuoteQuantity / orderResponse.ExecutedQuantity; math.IsNaN(orderPrice) {
 		orderPrice = 0
 	}
 
@@ -354,7 +354,7 @@ func BuyTicker(
 	if err := mysql.SaveOrder(
 		sessionData,
 		orderResponse.ClientOrderID,
-		orderResponse.CummulativeQuoteQuantity,
+		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
 		orderPrice,
@@ -398,7 +398,7 @@ S:
 		switch orderStatus.Status {
 		case "FILLED", "PARTIALLY_FILLED":
 
-			orderPrice = orderStatus.CummulativeQuoteQuantity / orderStatus.ExecutedQuantity
+			orderPrice = orderStatus.CumulativeQuoteQuantity / orderStatus.ExecutedQuantity
 
 			orderExecutedQuantity = orderStatus.ExecutedQuantity
 
@@ -406,7 +406,7 @@ S:
 			if err := mysql.UpdateOrder(
 				sessionData,
 				int64(orderResponse.OrderID),
-				orderResponse.CummulativeQuoteQuantity,
+				orderResponse.CumulativeQuoteQuantity,
 				orderResponse.ExecutedQuantity,
 				orderPrice,
 				string(orderStatus.Status)); err != nil {
@@ -432,7 +432,7 @@ S:
 		if err := mysql.SaveThreadTransaction(
 			sessionData,
 			int64(orderResponse.OrderID),
-			orderResponse.CummulativeQuoteQuantity,
+			orderResponse.CumulativeQuoteQuantity,
 			orderPrice,
 			orderExecutedQuantity); err != nil {
 
@@ -478,7 +478,7 @@ func SellTicker(
 
 	var orderResponse *types.Order
 	var orderStatus *types.Order
-	var cummulativeQuoteQuantity float64
+	var cumulativeQuoteQuantity float64
 	var cancelOrderResponse *types.Order
 	var isCanceled bool
 	var err error
@@ -515,7 +515,7 @@ func SellTicker(
 	if err := mysql.SaveOrder(
 		sessionData,
 		orderResponse.ClientOrderID,
-		orderResponse.CummulativeQuoteQuantity,
+		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
 		marketData.Price,
@@ -533,7 +533,7 @@ S:
 	switch orderResponse.Status {
 	case "FILLED":
 
-		cummulativeQuoteQuantity = orderResponse.CummulativeQuoteQuantity
+		cumulativeQuoteQuantity = orderResponse.CumulativeQuoteQuantity
 
 	case "CANCELED":
 
@@ -662,13 +662,13 @@ S:
 
 		}
 
-		cummulativeQuoteQuantity = orderStatus.CummulativeQuoteQuantity
+		cumulativeQuoteQuantity = orderStatus.CumulativeQuoteQuantity
 
 		/* Update order status and price */
 		if err := mysql.UpdateOrder(
 			sessionData,
 			int64(orderResponse.OrderID),
-			orderStatus.CummulativeQuoteQuantity,
+			orderStatus.CumulativeQuoteQuantity,
 			orderStatus.ExecutedQuantity,
 			marketData.Price,
 			string(orderStatus.Status)); err != nil {
@@ -700,7 +700,7 @@ S:
 			order.OrderID,
 			int64(orderResponse.OrderID),
 			marketData.Price,
-			functions.GetProfitResult(order.CummulativeQuoteQuantity, cummulativeQuoteQuantity),
+			functions.GetProfitResult(order.CumulativeQuoteQuantity, cumulativeQuoteQuantity),
 			"SELL")
 
 	} else if isCanceled {

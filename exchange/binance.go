@@ -16,7 +16,7 @@ func binanceMapOrder(from *binance.Order) (to *types.Order) {
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
@@ -33,7 +33,7 @@ func binanceMapCreateOrderResponse(from *binance.CreateOrderResponse) (to *types
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
@@ -51,7 +51,7 @@ func binanceMapCancelOrderResponse(from *binance.CancelOrderResponse) (to *types
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
