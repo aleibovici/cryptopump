@@ -253,7 +253,7 @@ func binanceGetSymbolFunds(
 
 	for key := range account.Balances {
 
-		if account.Balances[key].Asset == sessionData.Symbol_fiat {
+		if account.Balances[key].Asset == sessionData.SymbolFiat {
 
 			return functions.StrToFloat64(account.Balances[key].Free), err
 

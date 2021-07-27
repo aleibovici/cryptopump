@@ -71,8 +71,8 @@ func main() {
 		ThreadCount:          0,
 		SellTransactionCount: 0,
 		Symbol:               "",
-		Symbol_fiat:          "",
-		Symbol_fiat_funds:    0,
+		SymbolFiat:           "",
+		SymbolFiatFunds:      0,
 		LastBuyTransactTime:  time.Time{},
 		LastSellCanceledTime: time.Time{},
 		ConfigTemplate:       0,
@@ -306,7 +306,7 @@ func execution(
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol option */
-		sessionData.Symbol_fiat = sessionData.Symbol[3:7]
+		sessionData.SymbolFiat = sessionData.Symbol[3:7]
 
 		functions.Logger(
 			configData,
@@ -333,7 +333,7 @@ func execution(
 
 		/* Select the symbol coin to be used from Config option */
 		sessionData.Symbol = configData.Symbol.(string)
-		sessionData.Symbol_fiat = configData.Symbol_fiat.(string)
+		sessionData.SymbolFiat = configData.SymbolFiat.(string)
 
 		functions.Logger(
 			configData,
@@ -397,7 +397,7 @@ func execution(
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.Symbol_fiat_funds, _ = exchange.GetSymbolFunds(
+	if sessionData.SymbolFiatFunds, _ = exchange.GetSymbolFunds(
 		configData,
 		sessionData); err == nil {
 		_ = mysql.UpdateSession(
@@ -412,9 +412,9 @@ func execution(
 	for {
 
 		/* Check start/stop times of operation */
-		if configData.Time_enforce.(string) == "true" {
+		if configData.TimeEnforce.(string) == "true" {
 
-			for !functions.IsInTimeRange(configData.Time_start.(string), configData.Time_stop.(string)) {
+			for !functions.IsInTimeRange(configData.TimeStart.(string), configData.TimeStop.(string)) {
 
 				functions.Logger(
 					configData,
@@ -594,8 +594,8 @@ func loadSessionDataAdditionalComponents(
 
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = functions.Float64ToStr(sessionData.SellTransactionCount, 0)
-	sessiondata.Session.SymbolFiat = sessionData.Symbol_fiat
-	sessiondata.Session.SymbolFiatFunds = functions.Float64ToStr(sessionData.Symbol_fiat_funds, 2)
+	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
+	sessiondata.Session.SymbolFiatFunds = functions.Float64ToStr(sessionData.SymbolFiatFunds, 2)
 
 	if profit, err := mysql.GetProfit(sessionData); err == nil {
 		sessiondata.Session.Profit = functions.Float64ToStr(profit, 2)

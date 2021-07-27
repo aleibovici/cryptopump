@@ -237,8 +237,8 @@ func UpdateSession(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName.(string),
-		sessionData.Symbol_fiat,
-		sessionData.Symbol_fiat_funds); err != nil {
+		sessionData.SymbolFiat,
+		sessionData.SymbolFiatFunds); err != nil {
 
 		functions.Logger(
 			configData,
@@ -272,8 +272,8 @@ func SaveSession(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName.(string),
-		sessionData.Symbol_fiat,
-		sessionData.Symbol_fiat_funds); err != nil {
+		sessionData.SymbolFiat,
+		sessionData.SymbolFiatFunds); err != nil {
 
 		functions.Logger(
 			configData,

@@ -274,7 +274,7 @@ func IsFundsAvailable(
 	configData *types.Config,
 	sessionData *types.Session) bool {
 
-	return (sessionData.Symbol_fiat_funds - StrToFloat64(configData.Symbol_fiat_stash.(string))) >= StrToFloat64(configData.Buy_quantity_fiat_down.(string))
+	return (sessionData.SymbolFiatFunds - StrToFloat64(configData.SymbolFiatStash.(string))) >= StrToFloat64(configData.BuyQuantityFiatDown.(string))
 
 }
 
@@ -622,42 +622,42 @@ func loadConfigData(
 	sessionData *types.Session) *types.Config {
 
 	configData := &types.Config{
-		ThreadID:                         sessionData.ThreadID, /* For index.html population */
-		Apikey:                           viper.GetString("config.apiKey"),
-		Secretkey:                        viper.GetString("config.secretKey"),
-		ApikeyTestNet:                    viper.GetString("config.apiKeyTestNet"),    /* API key for exchange test network, used with launch.json */
-		SecretkeyTestNet:                 viper.GetString("config.secretKeyTestNet"), /* Secret key for exchange test network, used with launch.json */
-		Buy_24hs_highprice_entry:         viper.GetString("config.buy_24hs_highprice_entry"),
-		Buy_direction_down:               viper.GetString("config.buy_direction_down"),
-		Buy_direction_up:                 viper.GetString("config.buy_direction_up"),
-		Buy_quantity_fiat_up:             viper.GetString("config.buy_quantity_fiat_up"),
-		Buy_quantity_fiat_down:           viper.GetString("config.buy_quantity_fiat_down"),
-		Buy_quantity_fiat_init:           viper.GetString("config.buy_quantity_fiat_init"),
-		Buy_repeat_threshold_down:        viper.GetString("config.buy_repeat_threshold_down"),
-		Buy_repeat_threshold_down_second: viper.GetString("config.buy_repeat_threshold_down_second"),
-		Buy_repeat_threshold_down_second_start_count: viper.GetString("config.buy_repeat_threshold_down_second_start_count"),
-		Buy_repeat_threshold_up:                      viper.GetString("config.buy_repeat_threshold_up"),
-		Buy_rsi7_entry:                               viper.GetString("config.buy_rsi7_entry"),
-		Buy_wait:                                     viper.GetString("config.buy_wait"),
-		Exchange_comission:                           viper.GetString("config.exchange_comission"),
-		ExchangeName:                                 viper.GetString("config.exchangename"),
-		Profit_min:                                   viper.GetString("config.profit_min"),
-		SellWaitBeforeCancel:                         viper.GetString("config.sellwaitbeforecancel"),
-		SellWaitAfterCancel:                          viper.GetString("config.sellwaitaftercancel"),
-		SellToCover:                                  viper.GetString("config.selltocover"),
-		SellHoldOnRSI3:                               viper.GetString("config.sellholdonrsi3"),
-		Symbol_fiat:                                  viper.GetString("config.symbol_fiat"),
-		Symbol_fiat_stash:                            viper.GetString("config.symbol_fiat_stash"),
-		Symbol:                                       viper.GetString("config.symbol"),
-		Time_enforce:                                 viper.GetString("config.time_enforce"),
-		Time_start:                                   viper.GetString("config.time_start"),
-		Time_stop:                                    viper.GetString("config.time_stop"),
-		TgBotApikey:                                  viper.GetString("config.tgbotapikey"),
-		Debug:                                        viper.GetString("config.debug"),
-		Exit:                                         viper.GetString("config.exit"),
-		DryRun:                                       viper.GetString("config.dryrun"),
-		NewSession:                                   viper.GetString("config.newsession"),
-		ConfigTemplateList:                           getConfigTemplateList(sessionData),
+		ThreadID:                               sessionData.ThreadID, /* For index.html population */
+		Apikey:                                 viper.GetString("config.apiKey"),
+		Secretkey:                              viper.GetString("config.secretKey"),
+		ApikeyTestNet:                          viper.GetString("config.apiKeyTestNet"),    /* API key for exchange test network, used with launch.json */
+		SecretkeyTestNet:                       viper.GetString("config.secretKeyTestNet"), /* Secret key for exchange test network, used with launch.json */
+		Buy24hsHighpriceEntry:                  viper.GetString("config.buy_24hs_highprice_entry"),
+		BuyDirectionDown:                       viper.GetString("config.buy_direction_down"),
+		BuyDirectionUp:                         viper.GetString("config.buy_direction_up"),
+		BuyQuantityFiatUp:                      viper.GetString("config.buy_quantity_fiat_up"),
+		BuyQuantityFiatDown:                    viper.GetString("config.buy_quantity_fiat_down"),
+		BuyQuantityFiatInit:                    viper.GetString("config.buy_quantity_fiat_init"),
+		BuyRepeatThresholdDown:                 viper.GetString("config.buy_repeat_threshold_down"),
+		BuyRepeatThresholdDownSecond:           viper.GetString("config.buy_repeat_threshold_down_second"),
+		BuyRepeatThresholdDownSecondStartCount: viper.GetString("config.buy_repeat_threshold_down_second_start_count"),
+		BuyRepeatThresholdUp:                   viper.GetString("config.buy_repeat_threshold_up"),
+		BuyRsi7Entry:                           viper.GetString("config.buy_rsi7_entry"),
+		BuyWait:                                viper.GetString("config.buy_wait"),
+		ExchangeComission:                      viper.GetString("config.exchange_comission"),
+		ExchangeName:                           viper.GetString("config.exchangename"),
+		ProfitMin:                              viper.GetString("config.profit_min"),
+		SellWaitBeforeCancel:                   viper.GetString("config.sellwaitbeforecancel"),
+		SellWaitAfterCancel:                    viper.GetString("config.sellwaitaftercancel"),
+		SellToCover:                            viper.GetString("config.selltocover"),
+		SellHoldOnRSI3:                         viper.GetString("config.sellholdonrsi3"),
+		SymbolFiat:                             viper.GetString("config.symbol_fiat"),
+		SymbolFiatStash:                        viper.GetString("config.symbol_fiat_stash"),
+		Symbol:                                 viper.GetString("config.symbol"),
+		TimeEnforce:                            viper.GetString("config.time_enforce"),
+		TimeStart:                              viper.GetString("config.time_start"),
+		TimeStop:                               viper.GetString("config.time_stop"),
+		TgBotApikey:                            viper.GetString("config.tgbotapikey"),
+		Debug:                                  viper.GetString("config.debug"),
+		Exit:                                   viper.GetString("config.exit"),
+		DryRun:                                 viper.GetString("config.dryrun"),
+		NewSession:                             viper.GetString("config.newsession"),
+		ConfigTemplateList:                     getConfigTemplateList(sessionData),
 	}
 
 	return configData
@@ -669,31 +669,31 @@ func SaveConfigData(
 	r *http.Request,
 	sessionData *types.Session) {
 
-	viper.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy_24hs_highprice_entry"))
-	viper.Set("config.buy_direction_down", r.PostFormValue("buy_direction_down"))
-	viper.Set("config.buy_direction_up", r.PostFormValue("buy_direction_up"))
-	viper.Set("config.buy_quantity_fiat_up", r.PostFormValue("buy_quantity_fiat_up"))
-	viper.Set("config.buy_quantity_fiat_down", r.PostFormValue("buy_quantity_fiat_down"))
-	viper.Set("config.buy_quantity_fiat_init", r.PostFormValue("buy_quantity_fiat_init"))
-	viper.Set("config.buy_rsi7_entry", r.PostFormValue("buy_rsi7_entry"))
-	viper.Set("config.buy_wait", r.PostFormValue("buy_wait"))
-	viper.Set("config.buy_repeat_threshold_down", r.PostFormValue("buy_repeat_threshold_down"))
-	viper.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buy_repeat_threshold_down_second"))
-	viper.Set("config.buy_repeat_threshold_down_second_start_count", r.PostFormValue("buy_repeat_threshold_down_second_start_count"))
-	viper.Set("config.buy_repeat_threshold_up", r.PostFormValue("buy_repeat_threshold_up"))
-	viper.Set("config.exchange_comission", r.PostFormValue("exchange_comission"))
+	viper.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy24hsHighpriceEntry"))
+	viper.Set("config.buy_direction_down", r.PostFormValue("buyDirectionDown"))
+	viper.Set("config.buy_direction_up", r.PostFormValue("buyDirectionUp"))
+	viper.Set("config.buy_quantity_fiat_up", r.PostFormValue("buyQuantityFiatUp"))
+	viper.Set("config.buy_quantity_fiat_down", r.PostFormValue("buyQuantityFiatDown"))
+	viper.Set("config.buy_quantity_fiat_init", r.PostFormValue("buyQuantityFiatInit"))
+	viper.Set("config.buy_rsi7_entry", r.PostFormValue("buyRsi7Entry"))
+	viper.Set("config.buy_wait", r.PostFormValue("buyWait"))
+	viper.Set("config.buy_repeat_threshold_down", r.PostFormValue("buyRepeatThresholdDown"))
+	viper.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buyRepeatThresholdDownSecond"))
+	viper.Set("config.buy_repeat_threshold_down_second_start_count", r.PostFormValue("buyRepeatThresholdDownSecondStartCount"))
+	viper.Set("config.buy_repeat_threshold_up", r.PostFormValue("buyRepeatThresholdUp"))
+	viper.Set("config.exchange_comission", r.PostFormValue("exchangeComission"))
 	viper.Set("config.exchangename", r.PostFormValue("exchangename"))
-	viper.Set("config.profit_min", r.PostFormValue("profit_min"))
+	viper.Set("config.profit_min", r.PostFormValue("profitMin"))
 	viper.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
 	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
 	viper.Set("config.symbol", r.PostFormValue("symbol"))
 	viper.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
-	viper.Set("config.symbol_fiat_stash", r.PostFormValue("symbol_fiat_stash"))
-	viper.Set("config.time_enforce", r.PostFormValue("time_enforce"))
-	viper.Set("config.time_start", r.PostFormValue("time_start"))
-	viper.Set("config.time_stop", r.PostFormValue("time_stop"))
+	viper.Set("config.symbol_fiat_stash", r.PostFormValue("symbolFiatStash"))
+	viper.Set("config.time_enforce", r.PostFormValue("timeEnforce"))
+	viper.Set("config.time_start", r.PostFormValue("timeStart"))
+	viper.Set("config.time_stop", r.PostFormValue("timeStop"))
 	viper.Set("config.debug", r.PostFormValue("debug"))
 	viper.Set("config.exit", r.PostFormValue("exit"))
 	viper.Set("config.dryrun", r.PostFormValue("dryrun"))
