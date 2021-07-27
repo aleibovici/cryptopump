@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-/* Cleanly exit a Thread */
+// ExitThreadID Cleanly exit a Thread
 func ExitThreadID(
 	sessionData *types.Session) {
 

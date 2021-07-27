@@ -14,20 +14,68 @@
 
         <link href="../static/stylesheets/cryptopump.css" rel="stylesheet" type="text/css" />
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
+
         <!-- Load marketData every 2 seconds -->
         <script>
-            var counter = 1;
+            var json;
             var auto_refresh = setInterval(
             async function() {
-                var json = await fetch(window.location.href + 'market').then(response => response.json()).then((json) => {return json;});
-                $('#divIDRsi3').html(json.Rsi3);
-                $('#divIDRsi7').html(json.Rsi7);
-                $('#divIDRsi14').html(json.Rsi14);
-                $('#divIDMACD').html(json.MACD);
-                $('#divIDPrice').html(json.Price);
-                $('#divIDDirection').html(json.Direction);
-                counter++;
-            }, 2000);
+                json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
+                    .then(response => response.json())
+                    .then((json) => {return json;});
+                $('#divIDRsi3').html(json.Market.Rsi3);
+                $('#divIDRsi7').html(json.Market.Rsi7);
+                $('#divIDRsi14').html(json.Market.Rsi14);
+                $('#divIDMACD').html(json.Market.MACD);
+                $('#divIDPrice').html(json.Market.Price);
+                $('#divIDDirection').html(json.Market.Direction);
+                $('#divIDSessionThreadID').html(json.Session.ThreadID);
+                $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
+                $('#divIDSessionSymbol_fiat').html(json.Session.SymbolFiat);
+                $('#divIDSessionSymbol_fiat_funds').html(json.Session.SymbolFiatFunds);
+                $('#divIDSessionProfit').html(json.Session.Profit);
+                $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
+                $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
+                $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
+                $('#divIDSessionOrders').html(json.Session.Orders);
+
+                function buildHtmlTable(selector) {
+                    var columns = addAllColumnHeaders(json.Session.Orders, selector);
+
+                    for (var i = 0; i < json.Session.Orders.length; i++) {
+                        var row$ = $('<tr/>');
+                        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                        var cellValue = json.Session.Orders[i][columns[colIndex]];
+                        if (cellValue == null) cellValue = "";
+                        row$.append($('<td/>').html(cellValue));
+                        }
+                        $(selector).append(row$);
+                    }
+                }
+
+                function addAllColumnHeaders(myList, selector) {
+                    var columnSet = [];
+                    var headerTr$ = $('<tr/>');
+
+                        for (var i = 0; i < myList.length; i++) {
+                            var rowHash = myList[i];
+                            for (var key in rowHash) {
+                            if ($.inArray(key, columnSet) == -1) {
+                                columnSet.push(key);
+                                headerTr$.append($('<th/>').html(key));
+                            }
+                            }
+                        }
+                    $(selector).append(headerTr$);
+                    return columnSet;
+                }
+            
+                $('#excelDataTable').empty();
+                buildHtmlTable('#excelDataTable')
+                
+            }, 1000);
         </script>
 
     </head>
@@ -46,22 +94,23 @@
                         <div class="row">
 
                             <div class="col-2" style="border: 1px solid none">
-                                <span class="badge badge-warning">{{ .ThreadID }}</span> &nbsp;&nbsp;
+                                <span class="badge badge-warning" id="divIDSessionThreadID"></span> &nbsp;&nbsp;
                                 <span class="badge badge-warning">Threads</span>
-                                <span class="label label-default">{{ .ThreadCount }}</span>
+                                <span class="label label-default" id="divIDSessionThreadCount"></span>
                             </div>
 
                             <div class="col-5 text-center" style="border: 1px solid none">
                                 <span class="badge badge-warning">Profit $</span>
-                                <span class="label label-default">{{ .Profit }}</span> &nbsp;
+                                <span class="label label-default" id="divIDSessionProfit"></span> &nbsp;
                                 <span class="badge badge-warning">Deployed $</span>
-                                <span class="label label-default">{{ .ThreadAmount }}</span> &nbsp;
+                                <span class="label label-default" id="divIDSessionThreadAmount"></span> &nbsp;
                                 <span class="badge badge-warning">Funds</span>
-                                <span class="label label-default">{{ .Symbol_fiat }} {{ .FiatFunds }}</span>  &nbsp;
-                                <span class="badge badge-warning">Thread Profit</span>
-                                <span class="label label-default">$ {{ .ProfitThreadID }}</span> &nbsp;
+                                <span class="label label-default" id="divIDSessionSymbol_fiat"></span>
+                                <span class="label label-default" id="divIDSessionSymbol_fiat_funds"></span>  &nbsp;
+                                <span class="badge badge-warning">Thread Profit $</span>
+                                <span class="label label-default" id="divIDSessionProfitThreadID"></span> &nbsp;
                                 <span class="badge badge-warning">Transactions/h</span>
-                                <span class="label label-default">{{ .SellTransactionCount }}</span>
+                                <span class="label label-default" id="divIDSessionSellTransactionCount"></span>
                             </div>
 
                             <div class="col text-center" style="border: 1px solid none">
@@ -92,32 +141,12 @@
                 </div>
 
                 <div class="row">
-
-                    <div class="col text-center" style="border: 1px solid none">
-                        {{ .HtmlSnippet }}
-                    </div>
+                    <div class="col text-center" style="border: 1px solid none" >{{ .HTMLSnippet }}</div>
                     
                     <div class="col-md-auto text-center" style="border: 1px solid none">
                         <p></p>
                         <div class="table-wrapper">
-                            <table class="table-sm table-striped">
-                                <thead>
-                                    <tr>
-                                        <th><span class="badge badge-secondary">OrderID</span></th>
-                                        <th><span class="badge badge-secondary">Quote</span></th>
-                                        <th><span class="badge badge-secondary">Price</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{ range .Orders }}
-                                        <tr>
-                                        <td>{{ .OrderID }}</td>
-                                        <td>{{ .CummulativeQuoteQuantity }}</td>
-                                        <td>{{ .Price }}</td>
-                                        </tr>
-                                    {{ end }}
-                                </tbody>
-                            </table>
+                            <table class="table-sm table-striped" id="excelDataTable"></table>
                         </div>
                     </div>
 
@@ -143,176 +172,155 @@
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_up">Buy Quantity FIAT Upmarket</label>
+                                        for="buyQuantityFiatUp">Buy Quantity FIAT Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_quantity_fiat_up"
-                                        name="buy_quantity_fiat_up" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyQuantityFiatUp"
+                                        name="buyQuantityFiatUp" data-toggle="tooltip"
                                         title='Quantity to buy in each Upmarket transaction (decimal)' maxlength="10"
-                                        value="{{ .Buy_quantity_fiat_up }}" />
+                                        value="{{ .BuyQuantityFiatUp }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_down">Buy Quantity FIAT Downmarket</label>
+                                        for="buyQuantityFiatDown">Buy Quantity FIAT Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_quantity_fiat_down"
-                                        name="buy_quantity_fiat_down" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyQuantityFiatDown"
+                                        name="buyQuantityFiatDown" data-toggle="tooltip"
                                         title='Quantity to buy in each Downmarket transaction (decimal)' maxlength="10"
-                                        value="{{ .Buy_quantity_fiat_down }}" />
+                                        value="{{ .BuyQuantityFiatDown }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_quantity_fiat_init">Buy Quantity FIAT Initial</label>
+                                        for="buyQuantityFiatInit">Buy Quantity FIAT Initial</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_quantity_fiat_init"
-                                        name="buy_quantity_fiat_init" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyQuantityFiatInit"
+                                        name="buyQuantityFiatInit" data-toggle="tooltip"
                                         title='Quantity to buy in initial transaction (decimal)' maxlength="10"
-                                        value="{{ .Buy_quantity_fiat_init }}" />
+                                        value="{{ .BuyQuantityFiatInit }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_direction_up">Buy Direction Upmarket</label>
+                                    <label class="col-form-label" for="buyDirectionUp">Buy Direction Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_direction_up"
-                                        name="buy_direction_up" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyDirectionUp"
+                                        name="buyDirectionUp" data-toggle="tooltip"
                                         title='Minimum volume direction to buy on upmarket' maxlength="3"
-                                        value="{{ .Buy_direction_up }}" />
+                                        value="{{ .BuyDirectionUp }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_direction_down">Buy Direction Downmarket</label>
+                                    <label class="col-form-label" for="buyDirectionDown">Buy Direction Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_direction_down"
-                                        name="buy_direction_down" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyDirectionDown"
+                                        name="buyDirectionDown" data-toggle="tooltip"
                                         title='Minimum volume direction to buy on downmarket' maxlength="3"
-                                        value="{{ .Buy_direction_down }}" />
+                                        value="{{ .BuyDirectionDown }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_rsi7_entry">Buy on RSI7</label>
+                                    <label class="col-form-label" for="buyRsi7Entry">Buy on RSI7</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_rsi7_entry" name="buy_rsi7_entry"
+                                    <input type="text" class="form-control" id="buyRsi7Entry" name="buyRsi7Entry"
                                         data-toggle="tooltip" title='Buy if RSI7 lower than (x)' maxlength="3"
-                                        value="{{ .Buy_rsi7_entry }}" />
+                                        value="{{ .BuyRsi7Entry }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_24hs_highprice_entry">Buy 24hs HighPrice Entry</label>
+                                        for="buy24hsHighpriceEntry">Buy 24hs HighPrice Entry</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_24hs_highprice_entry"
-                                        name="buy_24hs_highprice_entry" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buy24hsHighpriceEntry"
+                                        name="buy24hsHighpriceEntry" data-toggle="tooltip"
                                         title='Maximum entrypoint in relation to 24hs highPrice (decimal)' maxlength="10"
-                                        value="{{ .Buy_24hs_highprice_entry }}" />
+                                        value="{{ .Buy24hsHighpriceEntry }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_repeat_threshold_up">Buy Repeat Threshold Up</label>
+                                        for="buyRepeatThresholdUp">Buy Repeat Threshold Up</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_repeat_threshold_up"
-                                        name="buy_repeat_threshold_up" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyRepeatThresholdUp"
+                                        name="buyRepeatThresholdUp" data-toggle="tooltip"
                                         title='Minimum percentual threshold before repeat buy on upmarket (decimal)'
-                                        maxlength="10" value="{{ .Buy_repeat_threshold_up }}" />
+                                        maxlength="10" value="{{ .BuyRepeatThresholdUp }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_repeat_threshold_down">Buy Repeat Threshold Down</label>
+                                        for="buyRepeatThresholdDown">Buy Repeat Threshold Down</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_repeat_threshold_down"
-                                        name="buy_repeat_threshold_down" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyRepeatThresholdDown"
+                                        name="buyRepeatThresholdDown" data-toggle="tooltip"
                                         title='Minimum percentual threshold before repeat buy on downmarket(decimal)'
-                                        maxlength="10" value="{{ .Buy_repeat_threshold_down }}" />
+                                        maxlength="10" value="{{ .BuyRepeatThresholdDown }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_repeat_threshold_down_second">Buy Repeat Threshold 2nd Down</label>
+                                        for="buyRepeatThresholdDownSecond">Buy Repeat Threshold 2nd Down</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_repeat_threshold_down_second"
-                                        name="buy_repeat_threshold_down_second" data-toggle="tooltip"
+                                    <input type="text" class="form-control" id="buyRepeatThresholdDownSecond"
+                                        name="buyRepeatThresholdDownSecond" data-toggle="tooltip"
                                         title='Minimum percentage threshold before second repeat buy on downmarket(decimal)'
-                                        maxlength="10" value="{{ .Buy_repeat_threshold_down_second }}" />
+                                        maxlength="10" value="{{ .BuyRepeatThresholdDownSecond }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
                                     <label class="col-form-label"
-                                        for="buy_repeat_threshold_down_second_start_count">Buy Repeat Threshold 2nd Down Start Count</label>
+                                        for="buyRepeatThresholdDownSecondStartCount">Buy Repeat Threshold 2nd Down Start Count</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
                                     <input type="text" class="form-control"
-                                        id="buy_repeat_threshold_down_second_start_count"
-                                        name="buy_repeat_threshold_down_second_start_count" data-toggle="tooltip"
-                                        title='Thread count when to start Buy_repeat_threshold_down_second pricing '
-                                        maxlength="2" value="{{ .Buy_repeat_threshold_down_second_start_count }}" />
+                                        id="buyRepeatThresholdDownSecondStartCount"
+                                        name="buyRepeatThresholdDownSecondStartCount" data-toggle="tooltip"
+                                        title='Thread count when to start BuyRepeatThresholdDownSecond pricing '
+                                        maxlength="2" value="{{ .BuyRepeatThresholdDownSecondStartCount }}" />
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col">
-                                    <label class="col-form-label" for="buy_wait">Buy Wait</label>
+                                    <label class="col-form-label" for="buyWait">Buy Wait</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="text" class="form-control" id="buy_wait" name="buy_wait"
+                                    <input type="text" class="form-control" id="buyWait" name="buyWait"
                                         data-toggle="tooltip" title='minimum wait time between buys (seconds)'
-                                        maxlength="3" value="{{ .Buy_wait }}" />
+                                        maxlength="3" value="{{ .BuyWait }}" />
                                 </div>
                             </div>
 
-                            <!-- Load  Config Template -->
-                            <div class="container col-lg-6">
-                                <div class="row">
-                                    <div class="col">
-                                        <label class="col-form-label" for="template">Template</label>
-                                    </div>
-                                    <div class="col input-group input-group-sm">
-                                        <select class="form-control form-control-sm" style="width: 250px;"
-                                            id="configTemplateList" name="configTemplateList"
-                                            onchange="document.getElementById('submitselect').value='configTemplate';this.form.submit()">
-                                            {{range $key, $value := .ConfigTemplateList}}
-                                            <option value="{{ $key }}">{{ $value }}</option>
-                                            {{end}}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                        <div class="col container-input ml-2">
+                            <br>
 
                             <div class="container-fluid">
                                 <p class="lead" style="text-align: center;">Sell</p>
@@ -322,13 +330,13 @@
 
                                 <div class="row">
                                     <div class="col">
-                                        <label class="col-form-label" for="profit_min">Minimum Profit</label>
+                                        <label class="col-form-label" for="profitMin">Minimum Profit</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="profit_min" name="profit_min"
+                                        <input type="text" class="form-control" id="profitMin" name="profitMin"
                                             data-toggle="tooltip"
                                             title='Minimum average profit percentage before selling (decimal)'
-                                            maxlength="10" value="{{ .Profit_min }}" />
+                                            maxlength="10" value="{{ .ProfitMin }}" />
                                     </div>
                                 </div>
 
@@ -386,7 +394,9 @@
 
                             </div>
 
-                            <br>
+                        </div>
+
+                        <div class="col container-input ml-2">
 
                             <div class="container-fluid">
 
@@ -409,12 +419,12 @@
                                 <div class="row">
                                     <div class="col">
                                         <label class="col-form-label"
-                                            for="exchange_comission">Exchange Commission</label>
+                                            for="exchangeComission">Exchange Commission</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="exchange_comission"
-                                            name="exchange_comission" data-toggle="tooltip" title='Time to stop cycles'
-                                            maxlength="10" value="{{ .Exchange_comission }}" />
+                                        <input type="text" class="form-control" id="exchangeComission"
+                                            name="exchangeComission" data-toggle="tooltip" title='Time to stop cycles'
+                                            maxlength="10" value="{{ .ExchangeComission }}" />
                                     </div>
                                 </div>
 
@@ -426,19 +436,19 @@
                                         <input type="text" class="form-control" id="symbol_fiat"
                                             name="symbol_fiat" data-toggle="tooltip"
                                             title='Quantity to stash away (decimal)' maxlength="4"
-                                            value="{{ .Symbol_fiat }}" />
+                                            value="{{ .SymbolFiat }}" />
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
-                                        <label class="col-form-label" for="symbol_fiat_stash">Symbol FIAT Stash</label>
+                                        <label class="col-form-label" for="symbolFiatStash">Symbol FIAT Stash</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="symbol_fiat_stash"
-                                            name="symbol_fiat_stash" data-toggle="tooltip"
+                                        <input type="text" class="form-control" id="symbolFiatStash"
+                                            name="symbolFiatStash" data-toggle="tooltip"
                                             title='Quantity to stash away (decimal)' maxlength="10"
-                                            value="{{ .Symbol_fiat_stash }}" />
+                                            value="{{ .SymbolFiatStash }}" />
                                     </div>
                                 </div>
 
@@ -456,34 +466,34 @@
 
                                 <div class="row">
                                     <div class="col">
-                                        <label class="col-form-label" for="time_enforce">Enforce Time</label>
+                                        <label class="col-form-label" for="timeEnforce">Enforce Time</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="time_enforce" name="time_enforce"
-                                            data-toggle="tooltip" title='Enforce time_start and time_stop' maxlength="7"
-                                            value="{{ .Time_enforce }}" />
+                                        <input type="text" class="form-control" id="timeEnforce" name="timeEnforce"
+                                            data-toggle="tooltip" title='Enforce timeStart and timeStop' maxlength="7"
+                                            value="{{ .TimeEnforce }}" />
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
-                                        <label class="col-form-label" for="time_start">Start Time</label>
+                                        <label class="col-form-label" for="timeStart">Start Time</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="time_start" name="time_start"
+                                        <input type="text" class="form-control" id="timeStart" name="timeStart"
                                             data-toggle="tooltip" title='Time to start cycles' maxlength="7"
-                                            value="{{ .Time_start }}" />
+                                            value="{{ .TimeStart }}" />
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col">
-                                        <label class="col-form-label" for="time_stop">Stop Time</label>
+                                        <label class="col-form-label" for="timeStop">Stop Time</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="time_stop" name="time_stop"
+                                        <input type="text" class="form-control" id="timeStop" name="timeStop"
                                             data-toggle="tooltip" title='Time to stop cycles' maxlength="7"
-                                            value="{{ .Time_stop }}" />
+                                            value="{{ .TimeStop }}" />
                                     </div>
                                 </div>
                             </div>
@@ -541,6 +551,27 @@
                                 </div>
 
                             </div>
+
+                            <br>
+
+                            <!-- Load  Config Template -->
+                            <div class="container col-lg-6">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="col-form-label" for="template">Template</label>
+                                    </div>
+                                    <div class="col input-group input-group-sm">
+                                        <select class="form-control form-control-sm" style="width: 250px;"
+                                            id="configTemplateList" name="configTemplateList"
+                                            onchange="document.getElementById('submitselect').value='configTemplate';this.form.submit()">
+                                            {{range $key, $value := .ConfigTemplateList}}
+                                            <option value="{{ $key }}">{{ $value }}</option>
+                                            {{end}}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

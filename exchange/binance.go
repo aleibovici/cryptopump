@@ -16,7 +16,7 @@ func binanceMapOrder(from *binance.Order) (to *types.Order) {
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
@@ -33,7 +33,7 @@ func binanceMapCreateOrderResponse(from *binance.CreateOrderResponse) (to *types
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
@@ -51,7 +51,7 @@ func binanceMapCancelOrderResponse(from *binance.CancelOrderResponse) (to *types
 	to = &types.Order{}
 	to.ClientOrderID = from.ClientOrderID
 	to.OrderID = int(from.OrderID)
-	to.CummulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
+	to.CumulativeQuoteQuantity = functions.StrToFloat64(from.CummulativeQuoteQuantity)
 	to.ExecutedQuantity = functions.StrToFloat64(from.ExecutedQuantity)
 	to.Price = functions.StrToFloat64(from.Price)
 	to.Side = string(from.Side)
@@ -86,7 +86,7 @@ func binanceMapKline(from []*binance.Kline) (to []*types.Kline) {
 
 }
 
-/* Map binance.WsKline types to WsKline type */
+// BinanceMapWsKline Map binance.WsKline types to WsKline type
 func BinanceMapWsKline(from binance.WsKline) (to types.WsKline) {
 
 	to = types.WsKline{}
@@ -159,7 +159,7 @@ func binanceGetClient(
 	binance.WebsocketTimeout = time.Second * 30
 
 	/* Exchange test network, used with launch.json */
-	if functions.MustGetenv("TESTNET") == "True" {
+	if functions.MustGetenv("TESTNET") == "true" {
 
 		binance.UseTestnet = true
 		return binance.NewClient(configData.ApikeyTestNet.(string), configData.SecretkeyTestNet.(string))
@@ -253,7 +253,7 @@ func binanceGetSymbolFunds(
 
 	for key := range account.Balances {
 
-		if account.Balances[key].Asset == sessionData.Symbol_fiat {
+		if account.Balances[key].Asset == sessionData.SymbolFiat {
 
 			return functions.StrToFloat64(account.Balances[key].Free), err
 

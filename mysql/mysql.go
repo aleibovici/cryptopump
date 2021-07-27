@@ -115,12 +115,12 @@ func InitTCPConnectionPool() (*sql.DB, error) {
 	var (
 		dbUser    = functions.MustGetenv("DB_USER")
 		dbPwd     = functions.MustGetenv("DB_PASS")
-		dbTcpHost = functions.MustGetenv("DB_TCP_HOST")
+		dbTCPHost = functions.MustGetenv("DB_TCP_HOST")
 		dbPort    = functions.MustGetenv("DB_PORT")
 		dbName    = functions.MustGetenv("DB_NAME")
 	)
 
-	var dbURI = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPwd, dbTcpHost, dbPort, dbName)
+	var dbURI = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPwd, dbTCPHost, dbPort, dbName)
 
 	// dbPool is the pool of database connections.
 
@@ -138,11 +138,11 @@ func InitTCPConnectionPool() (*sql.DB, error) {
 	// [END cloud_sql_mysql_databasesql_create_tcp]
 }
 
-/* Save order to database */
+// SaveOrder Save order to database
 func SaveOrder(
 	sessionData *types.Session,
-	ClientOrderId string,
-	CummulativeQuoteQuantity float64,
+	ClientOrderID string,
+	CumulativeQuoteQuantity float64,
 	ExecutedQuantity float64,
 	OrderID int64,
 	Price float64,
@@ -154,8 +154,8 @@ func SaveOrder(
 	var rows *sql.Rows
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?)",
-		ClientOrderId,
-		CummulativeQuoteQuantity,
+		ClientOrderID,
+		CumulativeQuoteQuantity,
 		ExecutedQuantity,
 		OrderID,
 		Price,
@@ -187,11 +187,11 @@ func SaveOrder(
 
 }
 
-/* Update order */
+// UpdateOrder Update order
 func UpdateOrder(
 	sessionData *types.Session,
 	OrderID int64,
-	CummulativeQuoteQuantity float64,
+	CumulativeQuoteQuantity float64,
 	ExecutedQuantity float64,
 	Price float64,
 	Status string) (err error) {
@@ -200,7 +200,7 @@ func UpdateOrder(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.UpdateOrder(?,?,?,?,?)",
 		OrderID,
-		CummulativeQuoteQuantity,
+		CumulativeQuoteQuantity,
 		ExecutedQuantity,
 		Price,
 		Status); err != nil {
@@ -226,7 +226,7 @@ func UpdateOrder(
 
 }
 
-/* Update existing session on Session table */
+// UpdateSession Update existing session on Session table
 func UpdateSession(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
@@ -237,8 +237,8 @@ func UpdateSession(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName.(string),
-		sessionData.Symbol_fiat,
-		sessionData.Symbol_fiat_funds); err != nil {
+		sessionData.SymbolFiat,
+		sessionData.SymbolFiatFunds); err != nil {
 
 		functions.Logger(
 			configData,
@@ -261,7 +261,7 @@ func UpdateSession(
 
 }
 
-/* Save new session to Session table. */
+// SaveSession Save new session to Session table.
 func SaveSession(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
@@ -272,8 +272,8 @@ func SaveSession(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName.(string),
-		sessionData.Symbol_fiat,
-		sessionData.Symbol_fiat_funds); err != nil {
+		sessionData.SymbolFiat,
+		sessionData.SymbolFiatFunds); err != nil {
 
 		functions.Logger(
 			configData,
@@ -296,7 +296,7 @@ func SaveSession(
 
 }
 
-/* Delete session from Session table */
+// DeleteSession Delete session from Session table
 func DeleteSession(
 	sessionData *types.Session) (err error) {
 
@@ -326,11 +326,11 @@ func DeleteSession(
 
 }
 
-/* Save Thread cycle to database */
+// SaveThreadTransaction Save Thread cycle to database
 func SaveThreadTransaction(
 	sessionData *types.Session,
 	OrderID int64,
-	CummulativeQuoteQuantity float64,
+	CumulativeQuoteQuantity float64,
 	Price float64,
 	ExecutedQuantity float64) (err error) {
 
@@ -340,7 +340,7 @@ func SaveThreadTransaction(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		OrderID,
-		CummulativeQuoteQuantity,
+		CumulativeQuoteQuantity,
 		Price,
 		ExecutedQuantity); err != nil {
 
@@ -365,7 +365,7 @@ func SaveThreadTransaction(
 
 }
 
-/* DeleteThreadTransactionByOrderID */
+// DeleteThreadTransactionByOrderID function
 func DeleteThreadTransactionByOrderID(
 	sessionData *types.Session,
 	orderID int) (err error) {
@@ -396,7 +396,7 @@ func DeleteThreadTransactionByOrderID(
 
 }
 
-/* Get Thread count */
+// GetThreadTransactionCount Get Thread count
 func GetThreadTransactionCount(
 	sessionData *types.Session) (count int, err error) {
 
@@ -430,7 +430,7 @@ func GetThreadTransactionCount(
 
 }
 
-/* Get time for last transaction the ThreadID */
+// GetLastOrderTransactionPrice Get time for last transaction the ThreadID
 func GetLastOrderTransactionPrice(
 	sessionData *types.Session,
 	Side string) (price float64, err error) {
@@ -466,7 +466,7 @@ func GetLastOrderTransactionPrice(
 
 }
 
-/* Get Side for last transaction the ThreadID */
+// GetLastOrderTransactionSide Get Side for last transaction the ThreadID
 func GetLastOrderTransactionSide(
 	sessionData *types.Session) (side string, err error) {
 
@@ -500,6 +500,7 @@ func GetLastOrderTransactionSide(
 
 }
 
+// GetOrderTransactionSideLastTwo function
 func GetOrderTransactionSideLastTwo(
 	sessionData *types.Session) (side1 string, side2 string, err error) {
 
@@ -533,7 +534,7 @@ func GetOrderTransactionSideLastTwo(
 
 }
 
-/* Get symbol for ThreadID */
+// GetOrderSymbol Get symbol for ThreadID
 func GetOrderSymbol(
 	sessionData *types.Session) (symbol string, err error) {
 
@@ -567,7 +568,7 @@ func GetOrderSymbol(
 
 }
 
-/* Get Thread Distinct */
+// GetThreadTransactionDistinct Get Thread Distinct
 func GetThreadTransactionDistinct(
 	sessionData *types.Session) (threadID string, threadIDSession string, err error) {
 
@@ -613,7 +614,7 @@ func GetThreadTransactionDistinct(
 
 }
 
-/* Get 1 order with pending FILLED status */
+// GetOrderTransactionPending Get 1 order with pending FILLED status
 func GetOrderTransactionPending(
 	sessionData *types.Session) (orderID int64, symbol string, err error) {
 
@@ -649,10 +650,10 @@ func GetOrderTransactionPending(
 
 }
 
-/* GetThreadTransactionByPrice */
+// GetThreadTransactionByPrice function
 func GetThreadTransactionByPrice(
 	marketData *types.Market,
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cummulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
 
 	var rows *sql.Rows
 
@@ -677,7 +678,7 @@ func GetThreadTransactionByPrice(
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cummulativeQuoteQty,
+			&cumulativeQuoteQty,
 			&orderID,
 			&price,
 			&executedQuantity,
@@ -686,13 +687,13 @@ func GetThreadTransactionByPrice(
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cummulativeQuoteQty, transactTime, err
+	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
 
 }
 
-/* Return the last 'active' BUY transaction for a Thread */
+// GetThreadLastTransaction Return the last 'active' BUY transaction for a Thread
 func GetThreadLastTransaction(
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cummulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
 
 	var rows *sql.Rows
 
@@ -716,7 +717,7 @@ func GetThreadLastTransaction(
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cummulativeQuoteQty,
+			&cumulativeQuoteQty,
 			&orderID,
 			&price,
 			&executedQuantity,
@@ -725,11 +726,11 @@ func GetThreadLastTransaction(
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cummulativeQuoteQty, transactTime, err
+	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
 
 }
 
-/* GetThreadTransactiontUpmarketPriceCount */
+// GetThreadTransactiontUpmarketPriceCount function
 func GetThreadTransactiontUpmarketPriceCount(
 	sessionData *types.Session,
 	price float64) (count int, err error) {
@@ -765,7 +766,7 @@ func GetThreadTransactiontUpmarketPriceCount(
 
 }
 
-/* Retrieve transaction count by Side and minutes */
+// GetOrderTransactionCount Retrieve transaction count by Side and minutes
 func GetOrderTransactionCount(
 	sessionData *types.Session,
 	side string) (count float64, err error) {
@@ -802,7 +803,7 @@ func GetOrderTransactionCount(
 
 }
 
-/* Retrieve transaction count by Side and minutes */
+// GetThreadTransactionByThreadID  Retrieve transaction count by Side and minutes
 func GetThreadTransactionByThreadID(
 	sessionData *types.Session) (orders []types.Order, err error) {
 
@@ -831,11 +832,11 @@ func GetThreadTransactionByThreadID(
 	for rows.Next() {
 
 		var orderID int
-		var cummulativeQuoteQty, price string
-		err = rows.Scan(&orderID, &cummulativeQuoteQty, &price)
+		var cumulativeQuoteQty, price string
+		err = rows.Scan(&orderID, &cumulativeQuoteQty, &price)
 
 		order.OrderID = orderID
-		order.CummulativeQuoteQuantity = math.Round(functions.StrToFloat64(cummulativeQuoteQty)*100) / 100
+		order.CumulativeQuoteQuantity = math.Round(functions.StrToFloat64(cumulativeQuoteQty)*100) / 100
 		order.Price = math.Round(functions.StrToFloat64(price)*1000) / 1000
 		orders = append(orders, order)
 
@@ -847,7 +848,7 @@ func GetThreadTransactionByThreadID(
 
 }
 
-/* Retrieve thread profit */
+// GetProfitByThreadID Retrieve thread profit
 func GetProfitByThreadID(
 	sessionData *types.Session) (profit float64, err error) {
 
@@ -881,7 +882,7 @@ func GetProfitByThreadID(
 
 }
 
-/* Retrieve total profit */
+// GetProfit Retrieve total profit
 func GetProfit(
 	sessionData *types.Session) (profit float64, err error) {
 
@@ -914,7 +915,7 @@ func GetProfit(
 
 }
 
-/* Retrieve Running Thread Count */
+// GetThreadCount Retrieve Running Thread Count
 func GetThreadCount(
 	sessionData *types.Session) (count int, err error) {
 
@@ -947,7 +948,7 @@ func GetThreadCount(
 
 }
 
-/* Retrieve Thread Dollar Amount */
+// GetThreadAmount Retrieve Thread Dollar Amount
 func GetThreadAmount(
 	sessionData *types.Session) (amount float64, err error) {
 

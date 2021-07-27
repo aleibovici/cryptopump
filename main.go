@@ -14,7 +14,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"math"
 	"math/rand"
 	"net/http"
 	"os"
@@ -72,8 +71,8 @@ func main() {
 		ThreadCount:          0,
 		SellTransactionCount: 0,
 		Symbol:               "",
-		Symbol_fiat:          "",
-		Symbol_fiat_funds:    0,
+		SymbolFiat:           "",
+		SymbolFiatFunds:      0,
 		LastBuyTransactTime:  time.Time{},
 		LastSellCanceledTime: time.Time{},
 		ConfigTemplate:       0,
@@ -127,29 +126,12 @@ func main() {
 
 }
 
-/* Load dynamic components into configData interface for html output */
-func loadConfigDataAdditionalComponents(
-	configData *types.Config,
-	sessionData *types.Session,
-	marketData *types.Market) {
-
-	configData.HtmlSnippet = plotter.Plot(sessionData)
-	configData.Orders, _ = mysql.GetThreadTransactionByThreadID(sessionData)   /* Update open orders for html output */
-	configData.FiatFunds = math.Round(sessionData.Symbol_fiat_funds*100) / 100 /* Store fiat currency funds for html output */
-	configData.Profit, _ = mysql.GetProfit(sessionData)                        /* Update total profit for html output */
-	configData.ProfitThreadID, _ = mysql.GetProfitByThreadID(sessionData)      /* Update thread profit for html output */
-	configData.SellTransactionCount = sessionData.SellTransactionCount         /* Store Number of SELL transactions in the last 60 minutes for html output */
-	configData.ThreadCount, _ = mysql.GetThreadCount(sessionData)              /* Store thread count for html output */
-	configData.ThreadAmount, _ = mysql.GetThreadAmount(sessionData)            /* Store thread cost amount for html output */
-
-}
-
 func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("X-Content-Type-Options", "nosniff") // Add X-Content-Type-Options header
+	w.Header().Set("X-Content-Type-Options", "nosniff") /* Add X-Content-Type-Options header */
 	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-	w.Header().Add("X-Frame-Options", "DENY") // Prevent page from being displayed in an iframe
+	w.Header().Add("X-Frame-Options", "DENY") /* Prevent page from being displayed in an frame */
 
 	fh.configData = functions.GetConfigData(fh.sessionData)
 
@@ -160,35 +142,17 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
 
-			/* Load dynamic components into configData interface for html output */
-			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
+			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData) /* Load dynamic components in configData */
 
-			/* This is the template execution for 'index' */
-			functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+			functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
 
-		case "/market":
+		case "/sessiondata":
 
-			/* This handler provides market data for the javascript auto-loader  */
-
-			type Market struct {
-				Rsi3      string /* Relative Strength Index for 3 periods */
-				Rsi7      string /* Relative Strength Index for 7 periods */
-				Rsi14     string /* Relative Strength Index for 14 periods */
-				MACD      string /* Moving average convergence divergence */
-				Price     string /* Market Price */
-				Direction string /* Market Direction */
-			}
-
-			marketData := Market{}
-			marketData.Rsi3 = functions.Float64ToStr(fh.marketData.Rsi3, 2)
-			marketData.Rsi7 = functions.Float64ToStr(fh.marketData.Rsi7, 2)
-			marketData.Rsi14 = functions.Float64ToStr(fh.marketData.Rsi14, 2)
-			marketData.MACD = functions.Float64ToStr(fh.marketData.MACD, 4)
-			marketData.Price = functions.Float64ToStr(fh.marketData.Price, 3)
-			marketData.Direction = strconv.Itoa(fh.marketData.Direction)
+			/* Load dynamic components for javascript autoloader for html output */
 
 			w.Header().Set("Content-Type", "application/json")
-			tmp, _ := json.Marshal(marketData)
+
+			tmp, _ := loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData)
 
 			if _, err := w.Write(tmp); err != nil {
 
@@ -254,8 +218,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 					log.Println(err)
 				}
 
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
 
 			case "start":
 
@@ -264,58 +227,38 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 					fh.sessionData,
 					fh.marketData)
 
-				/* Load dynamic components into configData interface for html output */
-				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
-
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+				time.Sleep(2 * time.Second)          /* Sleep time to wait for ThreadID to start */
+				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
 
 			case "stop":
 
-				/* Cleanly exit ThreadID */
-				threads.ExitThreadID(fh.sessionData)
+				threads.ExitThreadID(fh.sessionData) /* Cleanly exit ThreadID */
 
 			case "update":
 
-				/* Save updated config */
-				functions.SaveConfigData(r, fh.sessionData)
+				functions.SaveConfigData(r, fh.sessionData) /* Save updated config */
 
-				/* Load dynamic components into configData interface for html output */
-				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
-
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
 
 			case "buy":
 
 				fh.sessionData.ForceBuy = true
 
-				/* Load dynamic components into configData interface for html output */
-				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
-
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
 
 			case "sell":
 
 				fh.sessionData.ForceSell = true
 
-				/* Load dynamic components into configData interface for html output */
-				loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData)
-
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)
+				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
 
 			case "configTemplate":
 
-				/* Retrieve Configuration Template Key selection */
-				fh.sessionData.ConfigTemplate = functions.StrToInt(r.PostFormValue("configTemplateList"))
+				fh.sessionData.ConfigTemplate = functions.StrToInt(r.PostFormValue("configTemplateList")) /* Retrieve Configuration Template Key selection */
 
-				/* Load and populate html with Configuration Template */
-				configData := functions.LoadConfigTemplate(fh.sessionData)
+				configData := functions.LoadConfigTemplate(fh.sessionData) /* Load and populate html with Configuration Template */
 
-				/* This is the template execution for 'index' */
-				functions.ExecuteTemplate(w, configData, fh.sessionData)
+				functions.ExecuteTemplate(w, configData, fh.sessionData) /* This is the template execution for 'index' */
 
 			}
 		}
@@ -363,7 +306,7 @@ func execution(
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol option */
-		sessionData.Symbol_fiat = sessionData.Symbol[3:7]
+		sessionData.SymbolFiat = sessionData.Symbol[3:7]
 
 		functions.Logger(
 			configData,
@@ -390,7 +333,7 @@ func execution(
 
 		/* Select the symbol coin to be used from Config option */
 		sessionData.Symbol = configData.Symbol.(string)
-		sessionData.Symbol_fiat = configData.Symbol_fiat.(string)
+		sessionData.SymbolFiat = configData.SymbolFiat.(string)
 
 		functions.Logger(
 			configData,
@@ -454,7 +397,7 @@ func execution(
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.Symbol_fiat_funds, _ = exchange.GetSymbolFunds(
+	if sessionData.SymbolFiatFunds, _ = exchange.GetSymbolFunds(
 		configData,
 		sessionData); err == nil {
 		_ = mysql.UpdateSession(
@@ -469,9 +412,9 @@ func execution(
 	for {
 
 		/* Check start/stop times of operation */
-		if configData.Time_enforce.(string) == "true" {
+		if configData.TimeEnforce.(string) == "true" {
 
-			for !functions.IsInTimeRange(configData.Time_start.(string), configData.Time_stop.(string)) {
+			for !functions.IsInTimeRange(configData.TimeStart.(string), configData.TimeStop.(string)) {
 
 				functions.Logger(
 					configData,
@@ -599,5 +542,98 @@ func execution(
 		sum++
 
 	}
+
+}
+
+/* Load dynamic components for javascript autoloader for html output */
+func loadSessionDataAdditionalComponents(
+	sessionData *types.Session,
+	marketData *types.Market,
+	configData *types.Config) ([]byte, error) {
+
+	type Market struct {
+		Rsi3      string /* Relative Strength Index for 3 periods */
+		Rsi7      string /* Relative Strength Index for 7 periods */
+		Rsi14     string /* Relative Strength Index for 14 periods */
+		MACD      string /* Moving average convergence divergence */
+		Price     string /* Market Price */
+		Direction string /* Market Direction */
+	}
+
+	type Order struct {
+		OrderID string
+		Quote   string
+		Price   string
+	}
+
+	type Session struct {
+		ThreadID             string /* Unique session ID for the thread */
+		SellTransactionCount string /* Number of SELL transactions in the last 60 minutes*/
+		SymbolFiat           string /* Fiat currency funds */
+		SymbolFiatFunds      string /* Fiat currency funds */
+		ProfitThreadID       string /* ThreadID profit */
+		Profit               string /* Total profit */
+		ThreadCount          string /* Thread count */
+		ThreadAmount         string /* Thread cost amount */
+		Orders               []Order
+	}
+
+	type Update struct {
+		Market  Market
+		Session Session
+	}
+
+	sessiondata := Update{}
+
+	sessiondata.Market.Rsi3 = functions.Float64ToStr(marketData.Rsi3, 2)
+	sessiondata.Market.Rsi7 = functions.Float64ToStr(marketData.Rsi7, 2)
+	sessiondata.Market.Rsi14 = functions.Float64ToStr(marketData.Rsi14, 2)
+	sessiondata.Market.MACD = functions.Float64ToStr(marketData.MACD, 4)
+	sessiondata.Market.Price = functions.Float64ToStr(marketData.Price, 3)
+	sessiondata.Market.Direction = strconv.Itoa(marketData.Direction)
+
+	sessiondata.Session.ThreadID = sessionData.ThreadID
+	sessiondata.Session.SellTransactionCount = functions.Float64ToStr(sessionData.SellTransactionCount, 0)
+	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
+	sessiondata.Session.SymbolFiatFunds = functions.Float64ToStr(sessionData.SymbolFiatFunds, 2)
+
+	if profit, err := mysql.GetProfit(sessionData); err == nil {
+		sessiondata.Session.Profit = functions.Float64ToStr(profit, 2)
+	}
+	if profitThreadID, err := mysql.GetProfitByThreadID(sessionData); err == nil {
+		sessiondata.Session.ProfitThreadID = functions.Float64ToStr(profitThreadID, 2)
+	}
+	if threadCount, err := mysql.GetThreadCount(sessionData); err == nil {
+		sessiondata.Session.ThreadCount = strconv.Itoa(threadCount)
+	}
+	if threadAmount, err := mysql.GetThreadAmount(sessionData); err == nil {
+		sessiondata.Session.ThreadAmount = functions.Float64ToStr(threadAmount, 2)
+	}
+
+	if orders, err := mysql.GetThreadTransactionByThreadID(sessionData); err == nil {
+
+		for _, key := range orders {
+
+			tmp := Order{}
+			tmp.OrderID = strconv.Itoa(key.OrderID)
+			tmp.Quote = functions.Float64ToStr(key.CumulativeQuoteQuantity, 2)
+			tmp.Price = functions.Float64ToStr(key.Price, 3)
+
+			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
+		}
+
+	}
+
+	return json.Marshal(sessiondata)
+
+}
+
+/* Load dynamic components into configData for html output */
+func loadConfigDataAdditionalComponents(
+	configData *types.Config,
+	sessionData *types.Session,
+	marketData *types.Market) {
+
+	configData.HTMLSnippet = plotter.Plot(sessionData)
 
 }
