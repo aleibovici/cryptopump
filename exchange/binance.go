@@ -86,7 +86,7 @@ func binanceMapKline(from []*binance.Kline) (to []*types.Kline) {
 
 }
 
-/* Map binance.WsKline types to WsKline type */
+// BinanceMapWsKline Map binance.WsKline types to WsKline type
 func BinanceMapWsKline(from binance.WsKline) (to types.WsKline) {
 
 	to = types.WsKline{}
@@ -253,7 +253,7 @@ func binanceGetSymbolFunds(
 
 	for key := range account.Balances {
 
-		if account.Balances[key].Asset == sessionData.Symbol_fiat {
+		if account.Balances[key].Asset == sessionData.SymbolFiat {
 
 			return functions.StrToFloat64(account.Balances[key].Free), err
 

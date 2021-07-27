@@ -31,7 +31,7 @@ func calculate(
 
 }
 
-/* Retrieve RealTime Kline Data */
+// LoadKlineData Retrieve RealTime Kline Data
 func LoadKlineData(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -62,7 +62,7 @@ func LoadKlineData(
 
 }
 
-/* Retrieve Old Kline Data */
+// LoadKlineDataPast Retrieve Old Kline Data
 func LoadKlineDataPast(
 	configData *types.Config,
 	marketData *types.Market,

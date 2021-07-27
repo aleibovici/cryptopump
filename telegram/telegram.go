@@ -61,7 +61,7 @@ func send(
 
 }
 
-/* Check for Telegram bot updates */
+// CheckUpdates Check for Telegram bot updates
 func CheckUpdates(
 	configData *types.Config,
 	sessionData *types.Session,
@@ -148,7 +148,7 @@ func CheckUpdates(
 
 		case "/funds":
 
-			tmp := sessionData.Symbol_fiat + " " + functions.Float64ToStr(sessionData.Symbol_fiat_funds, 2)
+			tmp := sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2)
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
 			msg.ReplyToMessageID = update.Message.MessageID
 			send(msg, sessionData)
