@@ -679,7 +679,7 @@ func WsBookTicker(
 			functions.GetFunctionName()+" - "+err.Error())
 
 		switch {
-		case strings.Contains(err.Error(), "-1006"):
+		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
 
