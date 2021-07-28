@@ -14,6 +14,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/rand"
 	"net/http"
 	"os"
@@ -552,29 +553,29 @@ func loadSessionDataAdditionalComponents(
 	configData *types.Config) ([]byte, error) {
 
 	type Market struct {
-		Rsi3      string /* Relative Strength Index for 3 periods */
-		Rsi7      string /* Relative Strength Index for 7 periods */
-		Rsi14     string /* Relative Strength Index for 14 periods */
-		MACD      string /* Moving average convergence divergence */
-		Price     string /* Market Price */
-		Direction string /* Market Direction */
+		Rsi3      float64 /* Relative Strength Index for 3 periods */
+		Rsi7      float64 /* Relative Strength Index for 7 periods */
+		Rsi14     float64 /* Relative Strength Index for 14 periods */
+		MACD      float64 /* Moving average convergence divergence */
+		Price     float64 /* Market Price */
+		Direction int     /* Market Direction */
 	}
 
 	type Order struct {
 		OrderID string
-		Quote   string
-		Price   string
+		Quote   float64
+		Price   float64
 	}
 
 	type Session struct {
-		ThreadID             string /* Unique session ID for the thread */
-		SellTransactionCount string /* Number of SELL transactions in the last 60 minutes*/
-		SymbolFiat           string /* Fiat currency funds */
-		SymbolFiatFunds      string /* Fiat currency funds */
-		ProfitThreadID       string /* ThreadID profit */
-		Profit               string /* Total profit */
-		ThreadCount          string /* Thread count */
-		ThreadAmount         string /* Thread cost amount */
+		ThreadID             string  /* Unique session ID for the thread */
+		SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes*/
+		SymbolFiat           string  /* Fiat currency funds */
+		SymbolFiatFunds      float64 /* Fiat currency funds */
+		ProfitThreadID       float64 /* ThreadID profit */
+		Profit               float64 /* Total profit */
+		ThreadCount          int     /* Thread count */
+		ThreadAmount         float64 /* Thread cost amount */
 		Orders               []Order
 	}
 
@@ -585,29 +586,29 @@ func loadSessionDataAdditionalComponents(
 
 	sessiondata := Update{}
 
-	sessiondata.Market.Rsi3 = functions.Float64ToStr(marketData.Rsi3, 2)
-	sessiondata.Market.Rsi7 = functions.Float64ToStr(marketData.Rsi7, 2)
-	sessiondata.Market.Rsi14 = functions.Float64ToStr(marketData.Rsi14, 2)
-	sessiondata.Market.MACD = functions.Float64ToStr(marketData.MACD, 4)
-	sessiondata.Market.Price = functions.Float64ToStr(marketData.Price, 3)
-	sessiondata.Market.Direction = strconv.Itoa(marketData.Direction)
+	sessiondata.Market.Rsi3 = math.Round(marketData.Rsi3*100) / 100
+	sessiondata.Market.Rsi7 = math.Round(marketData.Rsi7*100) / 100
+	sessiondata.Market.Rsi14 = math.Round(marketData.Rsi14*100) / 100
+	sessiondata.Market.MACD = math.Round(marketData.MACD*10000) / 10000
+	sessiondata.Market.Price = math.Round(marketData.Price*1000) / 1000
+	sessiondata.Market.Direction = marketData.Direction
 
 	sessiondata.Session.ThreadID = sessionData.ThreadID
-	sessiondata.Session.SellTransactionCount = functions.Float64ToStr(sessionData.SellTransactionCount, 0)
+	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
-	sessiondata.Session.SymbolFiatFunds = functions.Float64ToStr(sessionData.SymbolFiatFunds, 2)
+	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 
 	if profit, err := mysql.GetProfit(sessionData); err == nil {
-		sessiondata.Session.Profit = functions.Float64ToStr(profit, 2)
+		sessiondata.Session.Profit = math.Round(profit*100) / 100
 	}
 	if profitThreadID, err := mysql.GetProfitByThreadID(sessionData); err == nil {
-		sessiondata.Session.ProfitThreadID = functions.Float64ToStr(profitThreadID, 2)
+		sessiondata.Session.ProfitThreadID = math.Round(profitThreadID*100) / 100
 	}
 	if threadCount, err := mysql.GetThreadCount(sessionData); err == nil {
-		sessiondata.Session.ThreadCount = strconv.Itoa(threadCount)
+		sessiondata.Session.ThreadCount = threadCount
 	}
 	if threadAmount, err := mysql.GetThreadAmount(sessionData); err == nil {
-		sessiondata.Session.ThreadAmount = functions.Float64ToStr(threadAmount, 2)
+		sessiondata.Session.ThreadAmount = math.Round(threadAmount*100) / 100
 	}
 
 	if orders, err := mysql.GetThreadTransactionByThreadID(sessionData); err == nil {
@@ -616,8 +617,8 @@ func loadSessionDataAdditionalComponents(
 
 			tmp := Order{}
 			tmp.OrderID = strconv.Itoa(key.OrderID)
-			tmp.Quote = functions.Float64ToStr(key.CumulativeQuoteQuantity, 2)
-			tmp.Price = functions.Float64ToStr(key.Price, 3)
+			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
+			tmp.Price = math.Round(key.Price*10000) / 10000
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 		}
