@@ -2,8 +2,10 @@ package telegram
 
 import (
 	"cryptopump/functions"
+	"cryptopump/mysql"
 	"cryptopump/threads"
 	"cryptopump/types"
+	"strconv"
 	"sync"
 	"time"
 
@@ -156,6 +158,29 @@ func CheckUpdates(
 		case "/master":
 
 			tmp := "Master " + sessionData.ThreadID
+			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
+			msg.ReplyToMessageID = update.Message.MessageID
+			send(msg, sessionData)
+
+		case "/report":
+
+			var profit float64
+			var threadCount int
+			var err error
+
+			if profit, err = mysql.GetProfit(sessionData); err != nil {
+				return
+			}
+
+			if threadCount, err = mysql.GetThreadCount(sessionData); err != nil {
+				return
+			}
+
+			tmp := "\f" + "Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
+				"Profit: " + functions.Float64ToStr(profit, 2) + "\n" +
+				"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
+				"Master: " + sessionData.ThreadID
+
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
 			msg.ReplyToMessageID = update.Message.MessageID
 			send(msg, sessionData)
