@@ -142,7 +142,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
 
-			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData, fh.marketData) /* Load dynamic components in configData */
+			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData) /* Load dynamic components in configData */
 
 			functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
 
@@ -281,7 +281,7 @@ func execution(
 	var threadIDSessionDB string
 	sessionData.ThreadID, threadIDSessionDB, _ = mysql.GetThreadTransactionDistinct(sessionData)
 
-	if sessionData.ThreadID != "" && configData.NewSession == "false" {
+	if sessionData.ThreadID != "" && !configData.NewSession {
 
 		configData = functions.GetConfigData(sessionData)
 
@@ -332,8 +332,8 @@ func execution(
 		}
 
 		/* Select the symbol coin to be used from Config option */
-		sessionData.Symbol = configData.Symbol.(string)
-		sessionData.SymbolFiat = configData.SymbolFiat.(string)
+		sessionData.Symbol = configData.Symbol
+		sessionData.SymbolFiat = configData.SymbolFiat
 
 		functions.Logger(
 			configData,
@@ -412,9 +412,9 @@ func execution(
 	for {
 
 		/* Check start/stop times of operation */
-		if configData.TimeEnforce.(string) == "true" {
+		if configData.TimeEnforce {
 
-			for !functions.IsInTimeRange(configData.TimeStart.(string), configData.TimeStop.(string)) {
+			for !functions.IsInTimeRange(configData.TimeStart, configData.TimeStop) {
 
 				functions.Logger(
 					configData,
@@ -631,8 +631,7 @@ func loadSessionDataAdditionalComponents(
 /* Load dynamic components into configData for html output */
 func loadConfigDataAdditionalComponents(
 	configData *types.Config,
-	sessionData *types.Session,
-	marketData *types.Market) {
+	sessionData *types.Session) {
 
 	configData.HTMLSnippet = plotter.Plot(sessionData)
 

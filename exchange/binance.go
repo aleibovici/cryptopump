@@ -162,11 +162,11 @@ func binanceGetClient(
 	if functions.MustGetenv("TESTNET") == "true" {
 
 		binance.UseTestnet = true
-		return binance.NewClient(configData.ApikeyTestNet.(string), configData.SecretkeyTestNet.(string))
+		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
 
 	}
 
-	return binance.NewClient(configData.Apikey.(string), configData.Secretkey.(string))
+	return binance.NewClient(configData.Apikey, configData.Secretkey)
 
 }
 

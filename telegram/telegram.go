@@ -18,7 +18,7 @@ func connect(
 
 	var err error
 
-	if tgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey.(string)); err != nil {
+	if tgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
 
 		functions.Logger(
 			configData,
@@ -72,7 +72,7 @@ func CheckUpdates(
 	var updates tgbotapi.UpdatesChannel
 
 	/* Exit if no API key found */
-	if configData.TgBotApikey.(string) == "" {
+	if configData.TgBotApikey == "" {
 
 		return
 
