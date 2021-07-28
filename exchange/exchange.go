@@ -18,7 +18,7 @@ func GetClient(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		sessionData.Clients.Binance = binanceGetClient(configData)
@@ -33,7 +33,7 @@ func GetOrder(
 	sessionData *types.Session,
 	orderID int64) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetOrder(sessionData, orderID)
@@ -50,7 +50,7 @@ func BuyOrder(
 	sessionData *types.Session,
 	quantity string) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceBuyOrder(sessionData, quantity)
@@ -68,7 +68,7 @@ func SellOrder(
 	sessionData *types.Session,
 	quantity string) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceSellOrder(marketData, sessionData, quantity)
@@ -85,7 +85,7 @@ func CancelOrder(
 	sessionData *types.Session,
 	orderID int64) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceCancelOrder(sessionData, orderID)
@@ -101,7 +101,7 @@ func GetInfo(
 	configData *types.Config,
 	sessionData *types.Session) (info *types.ExchangeInfo, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetInfo(sessionData)
@@ -134,7 +134,7 @@ func GetSymbolFunds(
 	configData *types.Config,
 	sessionData *types.Session) (balance float64, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetSymbolFunds(sessionData)
@@ -150,7 +150,7 @@ func GetKlines(
 	configData *types.Config,
 	sessionData *types.Session) (klines []*types.Kline, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		tmp, err := binanceGetKlines(sessionData)
@@ -173,7 +173,7 @@ func GetPriceChangeStats(
 	sessionData *types.Session,
 	marketData *types.Market) (priceChangeStats []*types.PriceChangeStats, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetPriceChangeStats(sessionData)
@@ -208,7 +208,7 @@ func GetUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (listenKey string, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetUserStreamServiceListenKey(sessionData)
@@ -224,7 +224,7 @@ func KeepAliveUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceKeepAliveUserStreamServiceListenKey(sessionData)
@@ -240,7 +240,7 @@ func NewSetServerTimeService(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceNewSetServerTimeService(sessionData)
@@ -258,7 +258,7 @@ func WsBookTickerServe(
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsBookTickerServe(sessionData, wsHandler, errHandler)
@@ -276,7 +276,7 @@ func WsKlineServe(
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsKlineServe(sessionData, wsHandler, errHandler)
@@ -294,7 +294,7 @@ func WsUserDataServe(
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsUserDataServe(sessionData, wsHandler, errHandler)
@@ -324,7 +324,7 @@ func BuyTicker(
 	}()
 
 	/* Exit if DryRun mode set to true */
-	if configData.DryRun == "true" {
+	if configData.DryRun {
 
 		return
 
@@ -491,7 +491,7 @@ func SellTicker(
 	}()
 
 	/* Exit if DryRun mode set to true */
-	if configData.DryRun == "true" {
+	if configData.DryRun {
 
 		return
 
@@ -658,7 +658,7 @@ S:
 			/* Wait time between iterations (i++). There are ten iterations and the total waiting time define the amount od time before an order is canceled. configData.SellWaitBeforeCancel is divided by then converted into seconds. */
 			time.Sleep(
 				time.Duration(
-					functions.StrToInt(configData.SellWaitBeforeCancel.(string))/10) * time.Second)
+					configData.SellWaitBeforeCancel/10) * time.Second)
 
 		}
 

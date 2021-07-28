@@ -24,7 +24,7 @@ func calculateProfit(
 	configData *types.Config,
 	sessionData *types.Session) (profit float64) {
 
-	profit = functions.StrToFloat64(configData.ProfitMin.(string))
+	profit = configData.ProfitMin
 
 	switch {
 	case sessionData.SellTransactionCount <= 2:
@@ -96,7 +96,7 @@ func is24hsHighPrice(
 	marketData *types.Market,
 	sessionData *types.Session) bool {
 
-	return marketData.Price >= (marketData.PriceChangeStatsHighPrice * (1 - functions.StrToFloat64(configData.Buy24hsHighpriceEntry.(string))))
+	return marketData.Price >= (marketData.PriceChangeStatsHighPrice * (1 - configData.Buy24hsHighpriceEntry))
 
 }
 
@@ -126,21 +126,21 @@ func isBuyUpmarket(
 	var order types.Order
 
 	/* If BUY UP amount is 0 do not buy */
-	if functions.StrToFloat64(configData.BuyQuantityFiatUp.(string)) == 0 {
+	if configData.BuyQuantityFiatUp == 0 {
 
 		return false, 0
 
 	}
 
 	/* Validate RSI7 lower than buy_rsi7_entry */
-	if marketData.Rsi7 > functions.StrToFloat64(configData.BuyRsi7Entry.(string)) {
+	if marketData.Rsi7 > configData.BuyRsi7Entry {
 
 		return false, 0
 
 	}
 
 	/* If Market Direction is less than configData.BuyDirectionUp do not buy. Defined in WsKline. */
-	if marketData.Direction < functions.StrToInt(configData.BuyDirectionUp.(string)) {
+	if marketData.Direction < configData.BuyDirectionUp {
 
 		return false, 0
 
@@ -155,8 +155,7 @@ func isBuyUpmarket(
 	}
 
 	/* Test if event price is lower than last Sell price plus threshold up */
-	buyRepeatThresholdUp := functions.StrToFloat64(configData.BuyRepeatThresholdUp.(string))
-	if marketData.Price < lastOrderTransactionPrice*(1+buyRepeatThresholdUp) {
+	if marketData.Price < lastOrderTransactionPrice*(1+configData.BuyRepeatThresholdUp) {
 
 		return false, 0
 
@@ -193,12 +192,12 @@ func isBuyUpmarket(
 
 	/* See comment above */
 	if marketData.Price > order.Price &&
-		marketData.Price < (order.Price*(1+(functions.StrToFloat64(configData.ProfitMin.(string))/2))) {
+		marketData.Price < (order.Price*(1+(configData.ProfitMin/2))) {
 
 		return false, 0
 
 	} else if marketData.Price < order.Price &&
-		marketData.Price > (order.Price*(1-(functions.StrToFloat64(configData.ProfitMin.(string))/2))) {
+		marketData.Price > (order.Price*(1-(configData.ProfitMin/2))) {
 
 		return false, 0
 
@@ -208,7 +207,7 @@ func isBuyUpmarket(
 	   		It servers the purpose of ensuring the algorithm does not buy above the biggest buy. If more more than 1 transaction will not execute buy. */
 	if threadTransactiontUpmarketPriceCount, err = mysql.GetThreadTransactiontUpmarketPriceCount(
 		sessionData,
-		(marketData.Price * (1 + buyRepeatThresholdUp))); err != nil {
+		(marketData.Price * (1 + configData.BuyRepeatThresholdUp))); err != nil {
 
 		return false, 0
 
@@ -236,16 +235,16 @@ func isBuyUpmarket(
 	case sessionData.ThreadCount == 1:
 
 		/* Stop  large transactions at the top os the order book. */
-		return true, functions.StrToFloat64(configData.BuyQuantityFiatInit.(string))
+		return true, configData.BuyQuantityFiatInit
 
-	case sessionData.ThreadCount > functions.StrToInt(configData.BuyRepeatThresholdDownSecondStartCount.(string)):
+	case sessionData.ThreadCount > configData.BuyRepeatThresholdDownSecondStartCount:
 
 		/* Stop large transactions if count is bigger than specified in config. */
-		return true, functions.StrToFloat64(configData.BuyQuantityFiatInit.(string))
+		return true, configData.BuyQuantityFiatInit
 
 	default:
 
-		return true, functions.StrToFloat64(configData.BuyQuantityFiatUp.(string))
+		return true, configData.BuyQuantityFiatUp
 
 	}
 
@@ -276,14 +275,14 @@ func isBuyDownmarket(
 	}
 
 	/* Validate market direction is uptrend */
-	if marketData.Direction < functions.StrToInt(configData.BuyDirectionDown.(string)) {
+	if marketData.Direction < configData.BuyDirectionDown {
 
 		return false, 0
 
 	}
 
 	/* Ensure funds are not deployed less than buy_repeat_threshold_down from each other */
-	buyRepeatThresholdDown := functions.StrToFloat64(configData.BuyRepeatThresholdDown.(string))
+	buyRepeatThresholdDown := configData.BuyRepeatThresholdDown
 	if lastOrderTransactionPrice, err = mysql.GetLastOrderTransactionPrice(
 		sessionData,
 		"BUY"); err != nil {
@@ -309,7 +308,7 @@ func isBuyDownmarket(
 	if side1 == "BUY" &&
 		side2 == "BUY" {
 
-		buyRepeatThresholdDown = functions.StrToFloat64(configData.BuyRepeatThresholdDownSecond.(string))
+		buyRepeatThresholdDown = configData.BuyRepeatThresholdDownSecond
 
 	}
 
@@ -331,7 +330,7 @@ func isBuyDownmarket(
 		0,
 		"DOWN")
 
-	return true, functions.StrToFloat64(configData.BuyQuantityFiatDown.(string))
+	return true, configData.BuyQuantityFiatDown
 
 }
 
@@ -342,10 +341,10 @@ func isBuyInitial(
 
 	/* Validate RSI7 lower than buy_rsi7_entry */
 	/* Validate RSI3 not negative */
-	if marketData.Rsi7 < functions.StrToFloat64(configData.BuyRsi7Entry.(string)) && marketData.Rsi3 > 0 {
+	if marketData.Rsi7 < configData.BuyRsi7Entry && marketData.Rsi3 > 0 {
 
 		/* Do not log if DryRun mode set to true */
-		if configData.DryRun != "true" {
+		if !configData.DryRun {
 
 			functions.Logger(
 				configData,
@@ -360,7 +359,7 @@ func isBuyInitial(
 
 		}
 
-		return true, functions.StrToFloat64(configData.BuyQuantityFiatInit.(string))
+		return true, configData.BuyQuantityFiatInit
 
 	}
 
@@ -604,7 +603,7 @@ func WsBookTicker(
 		/* If there are 0 ThreadID transactions and configData.Exit is True the ThreadID is gracefully
 		finalized, and the ThreadID is unlocked. */
 		if sessionData.ThreadCount == 0 &&
-			configData.Exit.(string) == "true" {
+			configData.Exit {
 
 			/* Delete configuration file for ThreadID */
 			functions.DeleteConfigFile(sessionData)
@@ -723,12 +722,12 @@ func BuyDecisionTree(
 
 		sessionData.ForceBuy = false
 
-		return true, functions.StrToFloat64(configData.BuyQuantityFiatInit.(string))
+		return true, configData.BuyQuantityFiatInit
 
 	}
 
 	/* If configData.Exit is True stop BUY. */
-	if configData.Exit.(string) == "true" {
+	if configData.Exit {
 
 		return false, 0
 
@@ -743,7 +742,7 @@ func BuyDecisionTree(
 
 	/* 	If last buy is less than configData.BuyWait seconds return false
 	   	This function protects against sequential buys when there's too much volatility */
-	if time.Duration(time.Since(sessionData.LastBuyTransactTime).Seconds()) < time.Duration(functions.StrToFloat64(configData.BuyWait.(string))) {
+	if time.Duration(time.Since(sessionData.LastBuyTransactTime).Seconds()) < time.Duration(configData.BuyWait) {
 
 		return false, 0
 
@@ -847,7 +846,7 @@ func SellDecisionTree(
 
 	/* 	If last canceled transaction (LastSellCanceledTime) is less than (configData.SellWaitAfterCancel) seconds return false
 	   	This function protects against sequential seeling with same pricing */
-	if time.Duration(time.Since(sessionData.LastSellCanceledTime).Seconds()) < time.Duration(functions.StrToInt(configData.SellWaitAfterCancel.(string))) {
+	if time.Duration(time.Since(sessionData.LastSellCanceledTime).Seconds()) < time.Duration(configData.SellWaitAfterCancel) {
 
 		return false, order
 
@@ -855,10 +854,10 @@ func SellDecisionTree(
 
 	/* Sell-to-Cover - Sell if Fiat funds are lower than buy qty and ticker price is below last thread transaction.
 	This will sell at loss, but make funds available for new buy transactions */
-	if configData.Exit.(string) != "true" && /* Doesn't force sell if system is in Exit mode */
-		configData.SellToCover.(string) == "true" { /* Doesn't force sell if SellToCover is False */
+	if !configData.Exit && /* Doesn't force sell if system is in Exit mode */
+		configData.SellToCover { /* Doesn't force sell if SellToCover is False */
 
-		if (sessionData.SymbolFiatFunds - functions.StrToFloat64(configData.SymbolFiatStash.(string))) < functions.StrToFloat64(configData.BuyQuantityFiatDown.(string)) {
+		if (sessionData.SymbolFiatFunds - configData.SymbolFiatStash) < configData.BuyQuantityFiatDown {
 
 			/* Retrieve the last 'active' BUY transaction for a Thread */
 			order.OrderID,
@@ -868,7 +867,7 @@ func SellDecisionTree(
 				order.TransactTime,
 				_ = mysql.GetThreadLastTransaction(sessionData)
 
-			if marketData.Price < (order.Price * (1 - functions.StrToFloat64(configData.BuyRepeatThresholdDown.(string)))) {
+			if marketData.Price < (order.Price * (1 - configData.BuyRepeatThresholdDown)) {
 
 				return true, order
 
@@ -909,13 +908,13 @@ func SellDecisionTree(
 
 	/* Current price is higher than BUY price + profits */
 	/* Modify profit based on sell transaction count  */
-	if (marketData.Price*(1+functions.StrToFloat64(configData.ExchangeComission.(string)))) >=
+	if (marketData.Price*(1+configData.ExchangeComission)) >=
 		(order.Price*(1+calculateProfit(configData, sessionData))) &&
 		order.OrderID != 0 {
 
 		/* Hold sale if RSI3 above defined threshold.
 		The objective of this setting is to extend the holding as long as possible while ticker price is climbing */
-		if marketData.Rsi3 > functions.StrToFloat64(configData.SellHoldOnRSI3.(string)) {
+		if marketData.Rsi3 > configData.SellHoldOnRSI3 {
 
 			return false, order
 

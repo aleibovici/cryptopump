@@ -236,7 +236,7 @@ func UpdateSession(
 	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
-		configData.ExchangeName.(string),
+		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds); err != nil {
 
@@ -271,7 +271,7 @@ func SaveSession(
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
-		configData.ExchangeName.(string),
+		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds); err != nil {
 

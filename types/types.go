@@ -129,42 +129,42 @@ type Market struct {
 
 // Config struct for configuration
 type Config struct {
-	ThreadID                               interface{} /* For index.html population */
-	Apikey                                 interface{} /* Exchange API Key */
-	Secretkey                              interface{} /* Exchange Secret Key */
-	ApikeyTestNet                          interface{} /* API key for exchange test network, used with launch.json */
-	SecretkeyTestNet                       interface{} /* Secret key for exchange test network, used with launch.json */
-	Buy24hsHighpriceEntry                  interface{}
-	BuyDirectionDown                       interface{}
-	BuyDirectionUp                         interface{}
-	BuyQuantityFiatUp                      interface{}
-	BuyQuantityFiatDown                    interface{}
-	BuyQuantityFiatInit                    interface{}
-	BuyRepeatThresholdDown                 interface{}
-	BuyRepeatThresholdDownSecond           interface{}
-	BuyRepeatThresholdDownSecondStartCount interface{}
-	BuyRepeatThresholdUp                   interface{}
-	BuyRsi7Entry                           interface{}
-	BuyWait                                interface{} /* Wait time between BUY transactions in seconds */
-	ExchangeComission                      interface{}
-	ProfitMin                              interface{}
-	SellWaitBeforeCancel                   interface{} /* Wait time before cancelling a sale in seconds */
-	SellWaitAfterCancel                    interface{} /* Wait time before selling after a cancel in seconds */
-	SellToCover                            interface{} /* Define if will sell to cover low funds */
-	SellHoldOnRSI3                         interface{} /* Hold sale if RSI3 above defined threshold */
-	SymbolFiat                             interface{}
-	SymbolFiatStash                        interface{}
-	Symbol                                 interface{}
-	TimeEnforce                            interface{}
-	TimeStart                              interface{}
-	TimeStop                               interface{}
-	Debug                                  interface{}
-	Exit                                   interface{}
-	DryRun                                 interface{} /* Dry Run mode */
-	NewSession                             interface{} /* Force a new session instead of resume */
+	ThreadID                               string /* For index.html population */
+	Apikey                                 string /* Exchange API Key */
+	Secretkey                              string /* Exchange Secret Key */
+	ApikeyTestNet                          string /* API key for exchange test network, used with launch.json */
+	SecretkeyTestNet                       string /* Secret key for exchange test network, used with launch.json */
+	Buy24hsHighpriceEntry                  float64
+	BuyDirectionDown                       int
+	BuyDirectionUp                         int
+	BuyQuantityFiatUp                      float64
+	BuyQuantityFiatDown                    float64
+	BuyQuantityFiatInit                    float64
+	BuyRepeatThresholdDown                 float64
+	BuyRepeatThresholdDownSecond           float64
+	BuyRepeatThresholdDownSecondStartCount int
+	BuyRepeatThresholdUp                   float64
+	BuyRsi7Entry                           float64
+	BuyWait                                int /* Wait time between BUY transactions in seconds */
+	ExchangeComission                      float64
+	ProfitMin                              float64
+	SellWaitBeforeCancel                   int     /* Wait time before cancelling a sale in seconds */
+	SellWaitAfterCancel                    int     /* Wait time before selling after a cancel in seconds */
+	SellToCover                            bool    /* Define if will sell to cover low funds */
+	SellHoldOnRSI3                         float64 /* Hold sale if RSI3 above defined threshold */
+	SymbolFiat                             string
+	SymbolFiatStash                        float64
+	Symbol                                 string
+	TimeEnforce                            bool
+	TimeStart                              string
+	TimeStop                               string
+	Debug                                  bool
+	Exit                                   bool
+	DryRun                                 bool        /* Dry Run mode */
+	NewSession                             bool        /* Force a new session instead of resume */
 	ConfigTemplateList                     interface{} /* List of configuration templates available in ./config folder */
-	ExchangeName                           interface{} /* Exchange name */
-	TgBotApikey                            interface{} /* Telegram bot API key */
+	ExchangeName                           string      /* Exchange name */
+	TgBotApikey                            string      /* Telegram bot API key */
 	HTMLSnippet                            interface{} /* Store kline plotter graph for html output */
 }
 
