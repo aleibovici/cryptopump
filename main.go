@@ -620,7 +620,7 @@ func loadSessionDataAdditionalComponents(
 			tmp.OrderID = strconv.Itoa(key.OrderID)
 			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
 			tmp.Price = math.Round(key.Price*10000) / 10000
-			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*100) / 100
+			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 		}
