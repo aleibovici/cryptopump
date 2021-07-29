@@ -17,67 +17,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
 
-            <!-- Load marketData every 2 seconds -->
-            <script>
-                var json;
-                var auto_refresh = setInterval(
-                async function() {
-                    json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
-                    .then(response => response.json())
-                    .then((json) => {return json;});
-                    $('#divIDRsi3').html(json.Market.Rsi3);
-                    $('#divIDRsi7').html(json.Market.Rsi7);
-                    $('#divIDRsi14').html(json.Market.Rsi14);
-                    $('#divIDMACD').html(json.Market.MACD);
-                    $('#divIDPrice').html(json.Market.Price);
-                    $('#divIDDirection').html(json.Market.Direction);
-                    $('#divIDSessionThreadID').html(json.Session.ThreadID);
-                    $('#divIDSessionSellTransactionCount').html(json.Session.SellTransactionCount);
-                    $('#divIDSessionSymbol_fiat').html(json.Session.SymbolFiat);
-                    $('#divIDSessionSymbol_fiat_funds').html(json.Session.SymbolFiatFunds);
-                    $('#divIDSessionProfit').html(json.Session.Profit);
-                    $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
-                    $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
-                    $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
-                    $('#divIDSessionOrders').html(json.Session.Orders);
-    
-                    function buildHtmlTable(selector) {
-                        var columns = addAllColumnHeaders(json.Session.Orders, selector);
-    
-                        for (var i = 0; i < json.Session.Orders.length; i++) {
-                            var row$ = $('<tr/>');
-                            for (var colIndex = 0; colIndex < columns.length; colIndex++) {
-                            var cellValue = json.Session.Orders[i][columns[colIndex]];
-                            if (cellValue == null) cellValue = "";
-                            row$.append($('<td/>').html(cellValue));
-                            }
-                            $(selector).append(row$);
-                        }
-                    }
-    
-                    function addAllColumnHeaders(myList, selector) {
-                        var columnSet = [];
-                        var headerTr$ = $('<tr/>');
-    
-                            for (var i = 0; i < myList.length; i++) {
-                                var rowHash = myList[i];
-                                for (var key in rowHash) {
-                                if ($.inArray(key, columnSet) == -1) {
-                                    columnSet.push(key);
-                                    headerTr$.append($('<th/>').html(key));
-                                }
-                                }
-                            }
-                        $(selector).append(headerTr$);
-                        return columnSet;
-                    }
-                
-                    $('#excelDataTable').empty();
-                    buildHtmlTable('#excelDataTable')
-                    
-                }, 1000);
-            </script>
-
     </head>
 
     <body class="html">
@@ -146,7 +85,7 @@
                         <div class="col-md-auto text-center" style="border: 1px solid none">
                             <p></p>
                             <div class="table-wrapper">
-                                <table class="table-sm table-striped" id="excelDataTable"></table>
+                                <table class="table table-sm" id="excelDataTable"></table>
                             </div>
                         </div>
     
@@ -175,9 +114,9 @@
                                         for="buyQuantityFiatUp">Buy Quantity FIAT Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyQuantityFiatUp"
+                                    <input type="number" step="0.01" class="form-control" id="buyQuantityFiatUp"
                                         name="buyQuantityFiatUp" data-toggle="tooltip"
-                                        title='Quantity to buy in each Upmarket transaction (decimal)' maxlength="10"
+                                        title='Quantity to buy in each Upmarket transaction (decimal)' 
                                         value="{{ .BuyQuantityFiatUp }}" />
                                 </div>
                             </div>
@@ -188,9 +127,9 @@
                                         for="buyQuantityFiatDown">Buy Quantity FIAT Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyQuantityFiatDown"
+                                    <input type="number" step="0.01" class="form-control" id="buyQuantityFiatDown"
                                         name="buyQuantityFiatDown" data-toggle="tooltip"
-                                        title='Quantity to buy in each Downmarket transaction (decimal)' maxlength="10"
+                                        title='Quantity to buy in each Downmarket transaction (decimal)' 
                                         value="{{ .BuyQuantityFiatDown }}" />
                                 </div>
                             </div>
@@ -201,9 +140,9 @@
                                         for="buyQuantityFiatInit">Buy Quantity FIAT Initial</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyQuantityFiatInit"
+                                    <input type="number" step="0.01" class="form-control" id="buyQuantityFiatInit"
                                         name="buyQuantityFiatInit" data-toggle="tooltip"
-                                        title='Quantity to buy in initial transaction (decimal)' maxlength="10"
+                                        title='Quantity to buy in initial transaction (decimal)' 
                                         value="{{ .BuyQuantityFiatInit }}" />
                                 </div>
                             </div>
@@ -213,9 +152,9 @@
                                     <label class="col-form-label" for="buyDirectionUp">Buy Direction Upmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyDirectionUp"
+                                    <input type="number" step="1" class="form-control" id="buyDirectionUp"
                                         name="buyDirectionUp" data-toggle="tooltip"
-                                        title='Minimum volume direction to buy on upmarket' maxlength="3"
+                                        title='Minimum volume direction to buy on upmarket' 
                                         value="{{ .BuyDirectionUp }}" />
                                 </div>
                             </div>
@@ -225,9 +164,9 @@
                                     <label class="col-form-label" for="buyDirectionDown">Buy Direction Downmarket</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyDirectionDown"
+                                    <input type="number" step="1" class="form-control" id="buyDirectionDown"
                                         name="buyDirectionDown" data-toggle="tooltip"
-                                        title='Minimum volume direction to buy on downmarket' maxlength="3"
+                                        title='Minimum volume direction to buy on downmarket'
                                         value="{{ .BuyDirectionDown }}" />
                                 </div>
                             </div>
@@ -237,8 +176,8 @@
                                     <label class="col-form-label" for="buyRsi7Entry">Buy on RSI7</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyRsi7Entry" name="buyRsi7Entry"
-                                        data-toggle="tooltip" title='Buy if RSI7 lower than (x)' maxlength="3"
+                                    <input type="number" step="1" class="form-control" id="buyRsi7Entry" name="buyRsi7Entry"
+                                        data-toggle="tooltip" title='Buy if RSI7 lower than (x)' 
                                         value="{{ .BuyRsi7Entry }}" />
                                 </div>
                             </div>
@@ -249,9 +188,9 @@
                                         for="buy24hsHighpriceEntry">Buy 24hs HighPrice Entry</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buy24hsHighpriceEntry"
+                                    <input type="number" step="0.0001" class="form-control" id="buy24hsHighpriceEntry"
                                         name="buy24hsHighpriceEntry" data-toggle="tooltip"
-                                        title='Maximum entrypoint in relation to 24hs highPrice (decimal)' maxlength="10"
+                                        title='Maximum entrypoint in relation to 24hs highPrice (decimal)' 
                                         value="{{ .Buy24hsHighpriceEntry }}" />
                                 </div>
                             </div>
@@ -262,10 +201,10 @@
                                         for="buyRepeatThresholdUp">Buy Repeat Threshold Up</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" step="0.00001" class="form-control" id="buyRepeatThresholdUp"
+                                    <input type="number" step="0.0001" class="form-control" id="buyRepeatThresholdUp"
                                         name="buyRepeatThresholdUp" data-toggle="tooltip"
                                         title='Minimum percentage threshold before repeat buy on upmarket (decimal)'
-                                        maxlength="10" value="{{ .BuyRepeatThresholdUp }}" />
+                                        min="0.0001" value="{{ .BuyRepeatThresholdUp }}" />
                                 </div>
                             </div>
 
@@ -275,7 +214,7 @@
                                         for="buyRepeatThresholdDown">Buy Repeat Threshold Down</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyRepeatThresholdDown"
+                                    <input type="number" step="0.0001" class="form-control" id="buyRepeatThresholdDown"
                                         name="buyRepeatThresholdDown" data-toggle="tooltip"
                                         title='Minimum percentage threshold before repeat buy on downmarket(decimal)'
                                         maxlength="10" value="{{ .BuyRepeatThresholdDown }}" />
@@ -288,7 +227,7 @@
                                         for="buyRepeatThresholdDownSecond">Buy Repeat Threshold 2nd Down</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyRepeatThresholdDownSecond"
+                                    <input type="number" step="0.0001" class="form-control" id="buyRepeatThresholdDownSecond"
                                         name="buyRepeatThresholdDownSecond" data-toggle="tooltip"
                                         title='Minimum percentage threshold before second repeat buy on downmarket(decimal)'
                                         maxlength="10" value="{{ .BuyRepeatThresholdDownSecond }}" />
@@ -301,7 +240,7 @@
                                         for="buyRepeatThresholdDownSecondStartCount">Buy Repeat Threshold 2nd Down Start Count</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control"
+                                    <input type="number" step="1" class="form-control"
                                         id="buyRepeatThresholdDownSecondStartCount"
                                         name="buyRepeatThresholdDownSecondStartCount" data-toggle="tooltip"
                                         title='Thread count when to start BuyRepeatThresholdDownSecond pricing '
@@ -314,9 +253,9 @@
                                     <label class="col-form-label" for="buyWait">Buy Wait</label>
                                 </div>
                                 <div class="col input-group input-group-sm">
-                                    <input type="number" class="form-control" id="buyWait" name="buyWait"
+                                    <input type="number" step="1" class="form-control" id="buyWait" name="buyWait"
                                         data-toggle="tooltip" title='minimum wait time between buys (seconds)'
-                                        maxlength="3" value="{{ .BuyWait }}" />
+                                        value="{{ .BuyWait }}" />
                                 </div>
                             </div>
 
@@ -333,7 +272,7 @@
                                         <label class="col-form-label" for="profitMin">Minimum Profit</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="number" class="form-control" id="profitMin" name="profitMin"
+                                        <input type="number" step="0.0001" class="form-control" id="profitMin" name="profitMin"
                                             data-toggle="tooltip"
                                             title='Minimum average profit percentage before selling (decimal)'
                                             maxlength="10" value="{{ .ProfitMin }}" />
@@ -346,9 +285,9 @@
                                             for="sellwaitaftercancel">Wait After Cancel</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="number" class="form-control" id="sellwaitaftercancel"
+                                        <input type="number" step="1" class="form-control" id="sellwaitaftercancel"
                                             name="sellwaitaftercancel" data-toggle="tooltip"
-                                            title='Do not sell before (x) seconds after cancel' maxlength="2"
+                                            title='Do not sell before (x) seconds after cancel' 
                                             value="{{ .SellWaitAfterCancel }}" />
                                     </div>
                                 </div>
@@ -359,9 +298,9 @@
                                             for="sellwaitbeforecancel">Wait Before Cancel</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="number" class="form-control" id="sellwaitbeforecancel"
+                                        <input type="number" step="1" class="form-control" id="sellwaitbeforecancel"
                                             name="sellwaitbeforecancel" data-toggle="tooltip"
-                                            title='Cancel sell  after (x) seconds' maxlength="2"
+                                            title='Cancel sell  after (x) seconds' 
                                             value="{{ .SellWaitBeforeCancel }}" />
                                     </div>
                                 </div>
@@ -374,7 +313,7 @@
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="selltocover"
                                             name="selltocover" data-toggle="tooltip"
-                                            title='Sell lowest transaction to cover low funds at "Buy Repeat Threshold Down"' maxlength="5"
+                                            title='Sell lowest transaction to cover low funds at "Buy Repeat Threshold Down"' 
                                             value="{{ .SellToCover }}"/>
                                     </div>
                                 </div>
@@ -385,7 +324,7 @@
                                             for="sellholdonrsi3">Hold Sale on RSI3</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="number" class="form-control" id="sellholdonrsi3"
+                                        <input type="number" step="1" class="form-control" id="sellholdonrsi3"
                                             name="sellholdonrsi3" data-toggle="tooltip"
                                             title='Hold sale if RSI3 higher than (x)' maxlength="5"
                                             value="{{ .SellHoldOnRSI3 }}" required/>
@@ -445,9 +384,9 @@
                                         <label class="col-form-label" for="symbolFiatStash">Symbol FIAT Stash</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="number" class="form-control" id="symbolFiatStash"
+                                        <input type="number" step="0.01" class="form-control" id="symbolFiatStash"
                                             name="symbolFiatStash" data-toggle="tooltip"
-                                            title='Quantity to stash away (decimal)' maxlength="10"
+                                            title='Quantity to stash away (decimal)'
                                             value="{{ .SymbolFiatStash }}" />
                                     </div>
                                 </div>
@@ -458,7 +397,7 @@
                                     </div>
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="symbol" name="symbol"
-                                            data-toggle="tooltip" title='symbol' maxlength="25"
+                                            data-toggle="tooltip" title='symbol' maxlength="7"
                                             value="{{ .Symbol }}" />
                                     </div>
                                 </div>
@@ -470,7 +409,7 @@
                                     </div>
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="timeEnforce" name="timeEnforce"
-                                            data-toggle="tooltip" title='Enforce timeStart and timeStop' maxlength="7"
+                                            data-toggle="tooltip" title='Enforce timeStart and timeStop' 
                                             value="{{ .TimeEnforce }}" />
                                     </div>
                                 </div>
@@ -481,7 +420,7 @@
                                     </div>
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="timeStart" name="timeStart"
-                                            data-toggle="tooltip" title='Time to start cycles' maxlength="7"
+                                            data-toggle="tooltip" title='Time to start cycles' 
                                             value="{{ .TimeStart }}" />
                                     </div>
                                 </div>
@@ -492,7 +431,7 @@
                                     </div>
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="timeStop" name="timeStop"
-                                            data-toggle="tooltip" title='Time to stop cycles' maxlength="7"
+                                            data-toggle="tooltip" title='Time to stop cycles' 
                                             value="{{ .TimeStop }}" />
                                     </div>
                                 </div>
@@ -512,7 +451,7 @@
                                     </div>
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="debug" name="debug"
-                                            data-toggle="tooltip" title='Enable debug logging' maxlength="5"
+                                            data-toggle="tooltip" title='Enable debug logging' 
                                             value="{{ .Debug }}" required/>
                                     </div>
                                 </div>
