@@ -684,6 +684,10 @@ func WsBookTicker(
 
 			return
 
+		case strings.Contains(err.Error(), "connection reset by peer"):
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
 		}
 
 		stopChannels(stopC, wg, configData, sessionData)
