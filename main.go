@@ -275,8 +275,24 @@ func execution(
 
 	var err error
 
-	/* Define Exchange to be used */
-	exchange.GetClient(configData, sessionData)
+	/* Connect to Exchange */
+	if err = exchange.GetClient(configData, sessionData); err != nil {
+
+		functions.Logger(
+			configData,
+			nil,
+			sessionData,
+			log.DebugLevel,
+			0,
+			0,
+			0,
+			0,
+			err.Error())
+
+		/* Cleanly exit ThreadID */
+		threads.ExitThreadID(sessionData)
+
+	}
 
 	/* Routine to resume operations */
 	var threadIDSessionDB string

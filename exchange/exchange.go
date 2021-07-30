@@ -1,6 +1,7 @@
 package exchange
 
 import (
+	"errors"
 	"math"
 	"strings"
 	"time"
@@ -16,14 +17,17 @@ import (
 // GetClient Define the exchange to be used
 func GetClient(
 	configData *types.Config,
-	sessionData *types.Session) {
+	sessionData *types.Session) (err error) {
 
 	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		sessionData.Clients.Binance = binanceGetClient(configData)
+		return nil
 
 	}
+
+	return errors.New("Invalid Exchange Name")
 
 }
 
