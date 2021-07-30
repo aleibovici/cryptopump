@@ -701,6 +701,13 @@ func BuyDecisionTree(
 	marketData *types.Market,
 	sessionData *types.Session) (bool, float64) {
 
+	/* Protect against the exchange sending zeroed ticker pricing (seen in few occasions with Binance TestNet)*/
+	if marketData.Price == 0 {
+
+		return false, 0
+
+	}
+
 	/* Validate available funds to buy */
 	if !functions.IsFundsAvailable(
 		configData,
