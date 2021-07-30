@@ -2,21 +2,22 @@ config:
   apikey: 
   apikeytestnet: 
   buy_24hs_highprice_entry: "0.0005"
+  buy_24hs_highprice_entry_macd: "20"
   buy_direction_down: "20"
   buy_direction_up: "10"
-  buy_quantity_fiat_down: "50.00"
-  buy_quantity_fiat_init: "50.00"
-  buy_quantity_fiat_up: "50.00"
+  buy_macd_entry: "-30"
+  buy_macd_upmarket: "10"
+  buy_quantity_fiat_down: "50"
+  buy_quantity_fiat_init: "50"
+  buy_quantity_fiat_up: "50"
   buy_repeat_threshold_down: "0.002"
   buy_repeat_threshold_down_second: "0.002"
   buy_repeat_threshold_down_second_start_count: "2"
-  buy_repeat_threshold_up: "0.00001"
+  buy_repeat_threshold_up: "0.0001"
   buy_rsi7_entry: "40"
   buy_wait: "60"
   debug: "false"
-  debug_forcebuy: "false"
-  debug_forcesell: "false"
-  dryrun: "false"
+  dryrun: "true"
   exchange_comission: "0.00075"
   exchangename: BINANCE
   exit: "false"
@@ -30,8 +31,9 @@ config:
   sellwaitbeforecancel: "20"
   symbol: BTCUSDT
   symbol_fiat: USDT
-  symbol_fiat_stash: "500.00"
+  symbol_fiat_stash: "100"
+  testnet: "false"
   tgbotapikey: 
   time_enforce: "false"
   time_start: 04:00AM
-  time_stop: 08:00PM
+  time_stop: 07:00PM

@@ -13,12 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-/* Define the exchange to be used */
+// GetClient Define the exchange to be used
 func GetClient(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		sessionData.Clients.Binance = binanceGetClient(configData)
@@ -27,13 +27,13 @@ func GetClient(
 
 }
 
-/* Retrieve Order Status */
+// GetOrder Retrieve Order Status
 func GetOrder(
 	configData *types.Config,
 	sessionData *types.Session,
 	orderID int64) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetOrder(sessionData, orderID)
@@ -44,13 +44,13 @@ func GetOrder(
 
 }
 
-/* Create order to BUY */
+// BuyOrder Create order to BUY
 func BuyOrder(
 	configData *types.Config,
 	sessionData *types.Session,
 	quantity string) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceBuyOrder(sessionData, quantity)
@@ -61,14 +61,14 @@ func BuyOrder(
 
 }
 
-/* Create order to SELL */
+// SellOrder Create order to SELL
 func SellOrder(
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session,
 	quantity string) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceSellOrder(marketData, sessionData, quantity)
@@ -79,13 +79,13 @@ func SellOrder(
 
 }
 
-/* CANCEL an order */
+// CancelOrder CANCEL an order
 func CancelOrder(
 	configData *types.Config,
 	sessionData *types.Session,
 	orderID int64) (order *types.Order, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceCancelOrder(sessionData, orderID)
@@ -96,12 +96,12 @@ func CancelOrder(
 
 }
 
-/* Retrieve exchange information */
+// GetInfo Retrieve exchange information
 func GetInfo(
 	configData *types.Config,
 	sessionData *types.Session) (info *types.ExchangeInfo, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetInfo(sessionData)
@@ -112,31 +112,29 @@ func GetInfo(
 
 }
 
-/* Retrieve Lot Size specs */
+// GetLotSize Retrieve Lot Size specs
 func GetLotSize(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	if info, err := GetInfo(configData, sessionData); err != nil {
-
-		return
-
-	} else {
+	if info, err := GetInfo(configData, sessionData); err == nil {
 
 		sessionData.MaxQuantity = functions.StrToFloat64(info.MaxQuantity)
 		sessionData.MinQuantity = functions.StrToFloat64(info.MinQuantity)
 		sessionData.StepSize = functions.StrToFloat64(info.StepSize)
 
+		return
+
 	}
 
 }
 
-/* Retrieve funds available */
+// GetSymbolFunds Retrieve funds available
 func GetSymbolFunds(
 	configData *types.Config,
 	sessionData *types.Session) (balance float64, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetSymbolFunds(sessionData)
@@ -147,12 +145,12 @@ func GetSymbolFunds(
 
 }
 
-/* Retrieve KLines via REST API */
+// GetKlines Retrieve KLines via REST API
 func GetKlines(
 	configData *types.Config,
 	sessionData *types.Session) (klines []*types.Kline, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		tmp, err := binanceGetKlines(sessionData)
@@ -169,13 +167,13 @@ func GetKlines(
 
 }
 
-/* Retrieve 24hs Rolling Price Statistics */
+// GetPriceChangeStats Retrieve 24hs Rolling Price Statistics
 func GetPriceChangeStats(
 	configData *types.Config,
 	sessionData *types.Session,
 	marketData *types.Market) (priceChangeStats []*types.PriceChangeStats, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetPriceChangeStats(sessionData)
@@ -205,12 +203,12 @@ func getBuyQuantity(
 
 }
 
-/* Retrieve listen key for user stream service */
+// GetUserStreamServiceListenKey Retrieve listen key for user stream service
 func GetUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (listenKey string, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceGetUserStreamServiceListenKey(sessionData)
@@ -221,12 +219,12 @@ func GetUserStreamServiceListenKey(
 
 }
 
-/* Keep user stream service alive */
+// KeepAliveUserStreamServiceListenKey Keep user stream service alive
 func KeepAliveUserStreamServiceListenKey(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceKeepAliveUserStreamServiceListenKey(sessionData)
@@ -237,12 +235,12 @@ func KeepAliveUserStreamServiceListenKey(
 
 }
 
-/* Synchronize time */
+// NewSetServerTimeService Synchronize time
 func NewSetServerTimeService(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceNewSetServerTimeService(sessionData)
@@ -253,14 +251,14 @@ func NewSetServerTimeService(
 
 }
 
-/* WsBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for a specified symbol. */
+// WsBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for a specified symbol.
 func WsBookTickerServe(
 	configData *types.Config,
 	sessionData *types.Session,
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsBookTickerServe(sessionData, wsHandler, errHandler)
@@ -271,14 +269,14 @@ func WsBookTickerServe(
 
 }
 
-/* WsKlineServe serve websocket kline handler */
+// WsKlineServe serve websocket kline handler
 func WsKlineServe(
 	configData *types.Config,
 	sessionData *types.Session,
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsKlineServe(sessionData, wsHandler, errHandler)
@@ -289,14 +287,14 @@ func WsKlineServe(
 
 }
 
-/* WsUserDataServe serve user data handler with listen key */
+// WsUserDataServe serve user data handler with listen key
 func WsUserDataServe(
 	configData *types.Config,
 	sessionData *types.Session,
 	wsHandler *types.WsHandler,
 	errHandler func(err error)) (doneC chan struct{}, stopC chan struct{}, err error) {
 
-	switch strings.ToLower(configData.ExchangeName.(string)) {
+	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		return binanceWsUserDataServe(sessionData, wsHandler, errHandler)
@@ -307,7 +305,7 @@ func WsUserDataServe(
 
 }
 
-/* Buy Ticker */
+// BuyTicker Buy Ticker
 func BuyTicker(
 	quantity float64,
 	configData *types.Config,
@@ -326,7 +324,7 @@ func BuyTicker(
 	}()
 
 	/* Exit if DryRun mode set to true */
-	if configData.DryRun == "true" {
+	if configData.DryRun {
 
 		return
 
@@ -346,7 +344,7 @@ func BuyTicker(
 	}
 
 	/* Check if result is nil and set as zero */
-	if orderPrice = orderResponse.CummulativeQuoteQuantity / orderResponse.ExecutedQuantity; math.IsNaN(orderPrice) {
+	if orderPrice = orderResponse.CumulativeQuoteQuantity / orderResponse.ExecutedQuantity; math.IsNaN(orderPrice) {
 		orderPrice = 0
 	}
 
@@ -356,7 +354,7 @@ func BuyTicker(
 	if err := mysql.SaveOrder(
 		sessionData,
 		orderResponse.ClientOrderID,
-		orderResponse.CummulativeQuoteQuantity,
+		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
 		orderPrice,
@@ -400,7 +398,7 @@ S:
 		switch orderStatus.Status {
 		case "FILLED", "PARTIALLY_FILLED":
 
-			orderPrice = orderStatus.CummulativeQuoteQuantity / orderStatus.ExecutedQuantity
+			orderPrice = orderStatus.CumulativeQuoteQuantity / orderStatus.ExecutedQuantity
 
 			orderExecutedQuantity = orderStatus.ExecutedQuantity
 
@@ -408,7 +406,7 @@ S:
 			if err := mysql.UpdateOrder(
 				sessionData,
 				int64(orderResponse.OrderID),
-				orderResponse.CummulativeQuoteQuantity,
+				orderResponse.CumulativeQuoteQuantity,
 				orderResponse.ExecutedQuantity,
 				orderPrice,
 				string(orderStatus.Status)); err != nil {
@@ -434,7 +432,7 @@ S:
 		if err := mysql.SaveThreadTransaction(
 			sessionData,
 			int64(orderResponse.OrderID),
-			orderResponse.CummulativeQuoteQuantity,
+			orderResponse.CumulativeQuoteQuantity,
 			orderPrice,
 			orderExecutedQuantity); err != nil {
 
@@ -471,7 +469,7 @@ S:
 
 }
 
-/* Sell Ticker */
+// SellTicker Sell Ticker
 func SellTicker(
 	order types.Order,
 	configData *types.Config,
@@ -480,7 +478,7 @@ func SellTicker(
 
 	var orderResponse *types.Order
 	var orderStatus *types.Order
-	var cummulativeQuoteQuantity float64
+	var cumulativeQuoteQuantity float64
 	var cancelOrderResponse *types.Order
 	var isCanceled bool
 	var err error
@@ -493,7 +491,7 @@ func SellTicker(
 	}()
 
 	/* Exit if DryRun mode set to true */
-	if configData.DryRun == "true" {
+	if configData.DryRun {
 
 		return
 
@@ -517,7 +515,7 @@ func SellTicker(
 	if err := mysql.SaveOrder(
 		sessionData,
 		orderResponse.ClientOrderID,
-		orderResponse.CummulativeQuoteQuantity,
+		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
 		marketData.Price,
@@ -535,7 +533,7 @@ S:
 	switch orderResponse.Status {
 	case "FILLED":
 
-		cummulativeQuoteQuantity = orderResponse.CummulativeQuoteQuantity
+		cumulativeQuoteQuantity = orderResponse.CumulativeQuoteQuantity
 
 	case "CANCELED":
 
@@ -660,17 +658,17 @@ S:
 			/* Wait time between iterations (i++). There are ten iterations and the total waiting time define the amount od time before an order is canceled. configData.SellWaitBeforeCancel is divided by then converted into seconds. */
 			time.Sleep(
 				time.Duration(
-					functions.StrToInt(configData.SellWaitBeforeCancel.(string))/10) * time.Second)
+					configData.SellWaitBeforeCancel/10) * time.Second)
 
 		}
 
-		cummulativeQuoteQuantity = orderStatus.CummulativeQuoteQuantity
+		cumulativeQuoteQuantity = orderStatus.CumulativeQuoteQuantity
 
 		/* Update order status and price */
 		if err := mysql.UpdateOrder(
 			sessionData,
 			int64(orderResponse.OrderID),
-			orderStatus.CummulativeQuoteQuantity,
+			orderStatus.CumulativeQuoteQuantity,
 			orderStatus.ExecutedQuantity,
 			marketData.Price,
 			string(orderStatus.Status)); err != nil {
@@ -702,7 +700,7 @@ S:
 			order.OrderID,
 			int64(orderResponse.OrderID),
 			marketData.Price,
-			functions.GetProfitResult(order.CummulativeQuoteQuantity, cummulativeQuoteQuantity),
+			functions.GetProfitResult(order.CumulativeQuoteQuantity, cumulativeQuoteQuantity),
 			"SELL")
 
 	} else if isCanceled {

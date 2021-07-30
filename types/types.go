@@ -9,20 +9,22 @@ import (
 	"github.com/sdcoffey/techan"
 )
 
+// Order struct define an exchange order
 type Order struct {
-	ClientOrderID            string  `json:"clientOrderId"`
-	CummulativeQuoteQuantity float64 `json:"cummulativeQuoteQty"`
-	ExecutedQuantity         float64 `json:"executedQty"`
-	OrderID                  int     `json:"orderId"`
-	Price                    float64 `json:"price"`
-	Side                     string  `json:"side"`
-	Status                   string  `json:"status"`
-	Symbol                   string  `json:"symbol"`
-	TransactTime             int64   `json:"transactTime"`
-	ThreadID                 int
-	ThreadIDSession          int
+	ClientOrderID           string  `json:"clientOrderId"`
+	CumulativeQuoteQuantity float64 `json:"cumulativeQuoteQty"`
+	ExecutedQuantity        float64 `json:"executedQty"`
+	OrderID                 int     `json:"orderId"`
+	Price                   float64 `json:"price"`
+	Side                    string  `json:"side"`
+	Status                  string  `json:"status"`
+	Symbol                  string  `json:"symbol"`
+	TransactTime            int64   `json:"transactTime"`
+	ThreadID                int
+	ThreadIDSession         int
 }
 
+// Kline struct define a kline
 type Kline struct {
 	OpenTime int64  `json:"openTime"`
 	Open     string `json:"open"`
@@ -32,7 +34,7 @@ type Kline struct {
 	Volume   string `json:"volume"`
 }
 
-/* WsKline define websocket kline */
+// WsKline struct define websocket kline
 type WsKline struct {
 	StartTime            int64  `json:"t"`
 	EndTime              int64  `json:"T"` /* Currently not in use */
@@ -52,27 +54,28 @@ type WsKline struct {
 	ActiveBuyQuoteVolume string `json:"Q"` /* Currently not in use */
 }
 
-/* PriceChangeStats define price change stats */
+// PriceChangeStats define price change stats
 type PriceChangeStats struct {
 	HighPrice string `json:"highPrice"`
 	LowPrice  string `json:"lowPrice"`
 }
 
+// ExchangeInfo define exchange order size
 type ExchangeInfo struct {
 	MaxQuantity string `json:"maxQty"`
 	MinQuantity string `json:"minQty"`
 	StepSize    string `json:"stepSize"`
 }
 
-/* struct for session elements */
+// Session struct define session elements
 type Session struct {
 	ThreadID             string /* Unique session ID for the thread */
 	ThreadIDSession      string
 	ThreadCount          int
 	SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes */
 	Symbol               string
-	Symbol_fiat          string
-	Symbol_fiat_funds    float64
+	SymbolFiat           string
+	SymbolFiatFunds      float64
 	LastBuyTransactTime  time.Time /* This session variable stores the time of the last buy */
 	LastSellCanceledTime time.Time /* This session variable stores the time of the cancelled sell */
 	ConfigTemplate       int
@@ -91,24 +94,26 @@ type Session struct {
 	StepSize             float64          /* Defines the intervals that a quantity can be increased/decreased by exchange */
 }
 
-/* struct for client libraries */
+// Client struct for client libraries
 type Client struct {
 	Binance *binance.Client
 }
 
-/* struct for websocket handlers for exchanges */
+// WsHandler struct for websocket handlers for exchanges
 type WsHandler struct {
 	BinanceWsKline         func(event *binance.WsKlineEvent)      /* WsKlineServe serve websocket kline handler */
 	BinanceWsBookTicker    func(event *binance.WsBookTickerEvent) /* WsBookTicker serve websocket kline handler */
 	BinanceWsUserDataServe func(message []byte)                   /* WsUserDataServe serve user data handler with listen key */
 }
 
+// KlineData struct define kline retention for e-charts plotting
 type KlineData struct {
 	Date    int64
 	Data    [4]float64
 	Volumes float64
 }
 
+// Market struct define realtime market data
 type Market struct {
 	Rsi3                      float64            /* Relative Strength Index for 3 periods */
 	Rsi7                      float64            /* Relative Strength Index for 7 periods */
@@ -122,46 +127,49 @@ type Market struct {
 	Series                    *techan.TimeSeries /* kline data format for technical analysis */
 }
 
+// Config struct for configuration
 type Config struct {
-	ThreadID                                     interface{} /* For index.html population */
-	Apikey                                       interface{} /* Exchange API Key */
-	Secretkey                                    interface{} /* Exchange Secret Key */
-	ApikeyTestNet                                interface{} /* API key for exchange test network, used with launch.json */
-	SecretkeyTestNet                             interface{} /* Secret key for exchange test network, used with launch.json */
-	Buy_24hs_highprice_entry                     interface{}
-	Buy_direction_down                           interface{}
-	Buy_direction_up                             interface{}
-	Buy_quantity_fiat_up                         interface{}
-	Buy_quantity_fiat_down                       interface{}
-	Buy_quantity_fiat_init                       interface{}
-	Buy_repeat_threshold_down                    interface{}
-	Buy_repeat_threshold_down_second             interface{}
-	Buy_repeat_threshold_down_second_start_count interface{}
-	Buy_repeat_threshold_up                      interface{}
-	Buy_rsi7_entry                               interface{}
-	Buy_wait                                     interface{} /* Wait time between BUY transactions in seconds */
-	Exchange_comission                           interface{}
-	Profit_min                                   interface{}
-	SellWaitBeforeCancel                         interface{} /* Wait time before cancelling a sale in seconds */
-	SellWaitAfterCancel                          interface{} /* Wait time before selling after a cancel in seconds */
-	SellToCover                                  interface{} /* Define if will sell to cover low funds */
-	SellHoldOnRSI3                               interface{} /* Hold sale if RSI3 above defined threshold */
-	Symbol_fiat                                  interface{}
-	Symbol_fiat_stash                            interface{}
-	Symbol                                       interface{}
-	Time_enforce                                 interface{}
-	Time_start                                   interface{}
-	Time_stop                                    interface{}
-	Debug                                        interface{}
-	Exit                                         interface{}
-	DryRun                                       interface{} /* Dry Run mode */
-	NewSession                                   interface{} /* Force a new session instead of resume */
-	ConfigTemplateList                           interface{} /* List of configuration templates available in ./config folder */
-	ExchangeName                                 interface{} /* Exchange name */
-	TgBotApikey                                  interface{} /* Telegram bot API key */
+	ThreadID                               string /* For index.html population */
+	Apikey                                 string /* Exchange API Key */
+	Secretkey                              string /* Exchange Secret Key */
+	ApikeyTestNet                          string /* API key for exchange test network, used with launch.json */
+	SecretkeyTestNet                       string /* Secret key for exchange test network, used with launch.json */
+	Buy24hsHighpriceEntry                  float64
+	BuyDirectionDown                       int
+	BuyDirectionUp                         int
+	BuyQuantityFiatUp                      float64
+	BuyQuantityFiatDown                    float64
+	BuyQuantityFiatInit                    float64
+	BuyRepeatThresholdDown                 float64
+	BuyRepeatThresholdDownSecond           float64
+	BuyRepeatThresholdDownSecondStartCount int
+	BuyRepeatThresholdUp                   float64
+	BuyRsi7Entry                           float64
+	BuyWait                                int /* Wait time between BUY transactions in seconds */
+	ExchangeComission                      float64
+	ProfitMin                              float64
+	SellWaitBeforeCancel                   int     /* Wait time before cancelling a sale in seconds */
+	SellWaitAfterCancel                    int     /* Wait time before selling after a cancel in seconds */
+	SellToCover                            bool    /* Define if will sell to cover low funds */
+	SellHoldOnRSI3                         float64 /* Hold sale if RSI3 above defined threshold */
+	SymbolFiat                             string
+	SymbolFiatStash                        float64
+	Symbol                                 string
+	TimeEnforce                            bool
+	TimeStart                              string
+	TimeStop                               string
+	Debug                                  bool
+	Exit                                   bool
+	DryRun                                 bool        /* Dry Run mode */
+	NewSession                             bool        /* Force a new session instead of resume */
+	ConfigTemplateList                     interface{} /* List of configuration templates available in ./config folder */
+	ExchangeName                           string      /* Exchange name */
+	TestNet                                bool        /* Use Exchange TestNet */
+	TgBotApikey                            string      /* Telegram bot API key */
+	HTMLSnippet                            interface{} /* Store kline plotter graph for html output */
 }
 
-/* Struct for User Data Streams for Binance */
+// OutboundAccountPosition Struct for User Data Streams for Binance
 type OutboundAccountPosition struct {
 	EventType  string     `json:"e"` /* Event type */
 	EventTime  int64      `json:"E"` /* Event Time */
@@ -169,13 +177,14 @@ type OutboundAccountPosition struct {
 	Balances   []Balances `json:"B"` /* Balances Array */
 }
 
-/* Struct for User Data Streams for Binance */
+// Balances Struct for User Data Streams for Binance
 type Balances struct {
 	Asset  string `json:"a"` /* Asset */
 	Free   string `json:"f"` /* Free */
 	Locked string `json:"l"` /* Locked */
 }
 
+// ExecutionReport struct define exchange websocket transactions
 type ExecutionReport struct {
 	EventType             string `json:"e"` //Event type
 	EventTime             int64  `json:"E"` //Event Time
@@ -188,14 +197,14 @@ type ExecutionReport struct {
 	Price                 string `json:"p"` //Order price
 	StopPrice             string `json:"P"` //Stop price
 	IcebergQuantity       string `json:"F"` //Iceberg quantity
-	OrderListId           int64  `json:"g"` //OrderListId
+	OrderListID           int64  `json:"g"` //OrderListId
 	OriginalClientOrderID string `json:"C"` //Original client order ID; This is the ID of the order being canceled
 	ExecutionType         string `json:"x"` //Current execution type
 	Status                string `json:"X"` //Current order status
 	OrderRejectReason     string `json:"r"` //Order reject reason; will be an error code.
 	OrderID               int    `json:"i"` //Order ID
 	LastExecutedQuantity  string `json:"l"` //Last executed quantity
-	CummulativeQty        string `json:"z"` //Cumulative filled quantity
+	CumulativeQty         string `json:"z"` //Cumulative filled quantity
 	LastExecutedPrice     string `json:"L"` //Last executed price
 	ComissionAmount       string `json:"n"` //Commission amount
 	ComissionAsset        string `json:"N"` //Commission asset
@@ -206,7 +215,7 @@ type ExecutionReport struct {
 	IsTradeMakerSide      bool   `json:"m"` //Is this trade the maker side?
 	Ignore1               bool   `json:"M"` //Ignore
 	OrderCreationTime     int64  `json:"O"` //Order creation time
-	CummulativeQuoteQty   string `json:"Z"` //Cumulative quote asset transacted quantity
+	CumulativeQuoteQty    string `json:"Z"` //Cumulative quote asset transacted quantity
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
 }

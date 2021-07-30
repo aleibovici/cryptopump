@@ -14,6 +14,7 @@ import (
 	chartrender "github.com/go-echarts/go-echarts/v2/render"
 )
 
+// LoadKlineData load Kline into long term retention for plotter
 func LoadKlineData(
 	sessionData *types.Session,
 	kline types.WsKline) {
@@ -36,7 +37,7 @@ func LoadKlineData(
 
 }
 
-func renderToHtml(c interface{}) template.HTML {
+func renderToHTML(c interface{}) template.HTML {
 	var buf bytes.Buffer
 	r := c.(chartrender.Renderer)
 	err := r.Render(&buf)
@@ -48,6 +49,7 @@ func renderToHtml(c interface{}) template.HTML {
 	return template.HTML(buf.String())
 }
 
+// Plot is responsible for rending e-chart
 func Plot(sessionData *types.Session) (
 	htmlSnippet template.HTML) {
 
@@ -96,6 +98,18 @@ func Plot(sessionData *types.Session) (
 				Formatter: "{value}\n",
 			},
 		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Type:       "inside",
+			Start:      60,
+			End:        100,
+			XAxisIndex: []int{0},
+		}),
+		charts.WithDataZoomOpts(opts.DataZoom{
+			Type:       "slider",
+			Start:      60,
+			End:        100,
+			XAxisIndex: []int{0},
+		}),
 		charts.WithInitializationOpts(opts.Initialization{
 			PageTitle: "CryptoPump",
 			Width:     "1900px",
@@ -134,5 +148,5 @@ func Plot(sessionData *types.Session) (
 			}),
 		)
 
-	return renderToHtml(kline)
+	return renderToHTML(kline)
 }

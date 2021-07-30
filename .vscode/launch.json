@@ -15,8 +15,7 @@
                 "DB_PASS": "",
                 "DB_TCP_HOST": "127.0.0.1",
                 "DB_PORT": "3306",
-                "DB_NAME": "cryptopump",
-                "TESTNET": "False"
+                "DB_NAME": "cryptopump"
               }
         }
     ]
