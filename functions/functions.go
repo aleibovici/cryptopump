@@ -651,6 +651,7 @@ func loadConfigData(
 		TimeEnforce:                            viper.GetBool("config.time_enforce"),
 		TimeStart:                              viper.GetString("config.time_start"),
 		TimeStop:                               viper.GetString("config.time_stop"),
+		TestNet:                                viper.GetBool("config.testnet"),
 		TgBotApikey:                            viper.GetString("config.tgbotapikey"),
 		Debug:                                  viper.GetBool("config.debug"),
 		Exit:                                   viper.GetBool("config.exit"),
@@ -693,6 +694,7 @@ func SaveConfigData(
 	viper.Set("config.time_enforce", r.PostFormValue("timeEnforce"))
 	viper.Set("config.time_start", r.PostFormValue("timeStart"))
 	viper.Set("config.time_stop", r.PostFormValue("timeStop"))
+	viper.Set("config.testnet", r.PostFormValue("testnet"))
 	viper.Set("config.debug", r.PostFormValue("debug"))
 	viper.Set("config.exit", r.PostFormValue("exit"))
 	viper.Set("config.dryrun", r.PostFormValue("dryrun"))

@@ -164,6 +164,7 @@ type Config struct {
 	NewSession                             bool        /* Force a new session instead of resume */
 	ConfigTemplateList                     interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                           string      /* Exchange name */
+	TestNet                                bool        /* Use Exchange TestNet */
 	TgBotApikey                            string      /* Telegram bot API key */
 	HTMLSnippet                            interface{} /* Store kline plotter graph for html output */
 }

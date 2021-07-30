@@ -159,7 +159,7 @@ func binanceGetClient(
 	binance.WebsocketTimeout = time.Second * 30
 
 	/* Exchange test network, used with launch.json */
-	if functions.MustGetenv("TESTNET") == "true" {
+	if configData.TestNet {
 
 		binance.UseTestnet = true
 		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
