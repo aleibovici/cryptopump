@@ -1,8 +1,12 @@
-# cryptopump
+# CryptoPump
+
+CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed and flexibility.
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/aleibovici/cryptopump)](https://goreportcard.com/report/github.com/aleibovici/cryptopump)
 
 ![](https://github.com/aleibovici/img/blob/main/cryptopump_screen.png?raw=true)
 
-- CryptoPump is a cryptocurrency trading bot that focuses on extremely high speed and flexibility. The algorithms utilize Go Language and the exchange WebSockets to react in real-time to market movements based on Bollinger statistical analysis and pre-defined profit margins.
+- CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed and flexibility. The algorithms utilize Go Language and the exchange WebSockets to react in real-time to market movements based on Bollinger statistical analysis and pre-defined profit margins.
 
 - CryptoPump calculates the Relative Strength Index (3,7,14), MACD index, and Market Volume Direction, allowing users to configure buying, selling, and holding thresholds.
 
