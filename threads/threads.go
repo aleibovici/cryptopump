@@ -33,16 +33,14 @@ func ExitThreadID(
 	/* Delete session from Session table */
 	_ = mysql.DeleteSession(sessionData)
 
-	functions.Logger(
-		nil,
-		nil,
-		sessionData,
-		log.InfoLevel,
-		0,
-		0,
-		0,
-		0,
-		"Clean Shutdown")
+	functions.Logger(&types.LogEntry{
+		Config:   nil,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Clean Shutdown",
+		LogLevel: log.InfoLevel,
+	})
 
 	os.Exit(1)
 
@@ -56,16 +54,14 @@ func unlockThreadID(
 
 	if err := os.Remove(filename); err != nil {
 
-		functions.Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 

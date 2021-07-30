@@ -32,16 +32,14 @@ func GetRole(
 
 		if file, err = os.Create(filename); err != nil {
 
-			functions.Logger(
-				nil,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		}
 
@@ -64,16 +62,14 @@ func ReleaseRole(
 
 		if err := os.Remove(filename); err != nil {
 
-			functions.Logger(
-				nil,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		}
 

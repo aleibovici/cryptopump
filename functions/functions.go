@@ -52,13 +52,6 @@ func IntToFloat64(value int) float64 {
 
 }
 
-// GetProfitResult calculate profit
-func GetProfitResult(buyPrice float64, sellPrice float64) float64 {
-
-	return (sellPrice - buyPrice) / buyPrice
-
-}
-
 // StrToInt convert string to int
 func StrToInt(value string) (r int) {
 
@@ -75,16 +68,7 @@ func StrToInt(value string) (r int) {
 }
 
 // Logger is responsible for all system logging
-func Logger(
-	configData *types.Config,
-	marketData *types.Market,
-	sessionData *types.Session,
-	logLevel log.Level,
-	orderIDThread int,
-	orderID int64,
-	orderPrice float64,
-	profit float64,
-	message string) {
+func Logger(LogEntry *types.LogEntry) {
 
 	var err error
 	var filename string
@@ -98,91 +82,88 @@ func Logger(
 		DisableSorting:  false,
 	})
 
-	// Only log the warning severity or above.
-	log.SetLevel(logLevel)
+	// Define the log level for the entry
+	log.SetLevel(LogEntry.LogLevel)
 
 	switch {
-	case logLevel == log.InfoLevel:
+	case LogEntry.LogLevel == log.InfoLevel:
 
 		filename = "cryptopump.log"
 
-	case logLevel == log.DebugLevel:
+	case LogEntry.LogLevel == log.DebugLevel:
 
 		filename = "cryptopump_debug.log"
 
 	}
 
-	// You could set this to any `io.Writer` such as a file
+	/* io.Writer output set for file */
 	if file, err = os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666); err != nil {
 
 		log.Fatal(err)
 
 	}
 
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
 	log.SetOutput(file)
 
 	switch {
-	case logLevel == log.InfoLevel:
+	case LogEntry.LogLevel == log.InfoLevel:
 
-		switch message {
+		switch LogEntry.Message {
 		case "UP", "DOWN", "INIT":
 
 			log.WithFields(log.Fields{
-				"threadID":  sessionData.ThreadID,
-				"rsi3":      fmt.Sprintf("%.2f", marketData.Rsi3),
-				"rsi7":      fmt.Sprintf("%.2f", marketData.Rsi7),
-				"rsi14":     fmt.Sprintf("%.2f", marketData.Rsi14),
-				"MACD":      fmt.Sprintf("%.2f", marketData.MACD),
-				"high":      marketData.PriceChangeStatsHighPrice,
-				"direction": marketData.Direction,
-			}).Info(message)
+				"threadID":  LogEntry.Session.ThreadID,
+				"rsi3":      fmt.Sprintf("%.2f", LogEntry.Market.Rsi3),
+				"rsi7":      fmt.Sprintf("%.2f", LogEntry.Market.Rsi7),
+				"rsi14":     fmt.Sprintf("%.2f", LogEntry.Market.Rsi14),
+				"MACD":      fmt.Sprintf("%.2f", LogEntry.Market.MACD),
+				"high":      LogEntry.Market.PriceChangeStatsHighPrice,
+				"direction": LogEntry.Market.Direction,
+			}).Info(LogEntry.Message)
 
 		case "BUY":
 
 			log.WithFields(log.Fields{
-				"threadID":   sessionData.ThreadID,
-				"orderID":    orderID,
-				"orderPrice": fmt.Sprintf("%.4f", orderPrice),
-			}).Info(message)
+				"threadID":   LogEntry.Session.ThreadID,
+				"orderID":    LogEntry.Order.OrderID,
+				"orderPrice": fmt.Sprintf("%.4f", LogEntry.Order.Price),
+			}).Info(LogEntry.Message)
 
 		case "SELL":
 
 			log.WithFields(log.Fields{
-				"threadID":      sessionData.ThreadID,
-				"orderIDThread": orderIDThread,
-				"orderID":       orderID,
-				"orderPrice":    fmt.Sprintf("%.4f", orderPrice),
-				"profit":        fmt.Sprintf("%.4f", profit),
-			}).Info(message)
+				"threadID":      LogEntry.Session.ThreadID,
+				"OrderIDSource": LogEntry.Order.OrderIDSource,
+				"orderID":       LogEntry.Order.OrderID,
+				"orderPrice":    fmt.Sprintf("%.4f", LogEntry.Order.Price),
+			}).Info(LogEntry.Message)
 
 		case "CANCELED":
 
-			if configData.Debug {
+			if LogEntry.Config.Debug {
 
 				log.WithFields(log.Fields{
-					"threadID":      sessionData.ThreadID,
-					"orderIDThread": orderIDThread,
-					"orderID":       orderID,
-				}).Info(message)
+					"threadID":      LogEntry.Session.ThreadID,
+					"OrderIDSource": LogEntry.Order.OrderIDSource,
+					"orderID":       LogEntry.Order.OrderID,
+				}).Info(LogEntry.Message)
 
 			}
 
 		default:
 
 			log.WithFields(log.Fields{
-				"threadID": sessionData.ThreadID,
-			}).Info(message)
+				"threadID": LogEntry.Session.ThreadID,
+			}).Info(LogEntry.Message)
 
 		}
 
-	case logLevel == log.DebugLevel:
+	case LogEntry.LogLevel == log.DebugLevel:
 
 		log.WithFields(log.Fields{
-			"threadID": sessionData.ThreadID,
-			"orderID":  orderID,
-		}).Debug(message)
+			"threadID": LogEntry.Session.ThreadID,
+			"orderID":  LogEntry.Order.OrderID,
+		}).Debug(LogEntry.Message)
 
 	}
 
@@ -227,16 +208,14 @@ func stringToTime(str string) (r time.Time) {
 
 	if r, err = time.Parse(time.Kitchen, str); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			nil,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -314,16 +293,14 @@ func ExecuteTemplate(
 
 	if tlp, err = template.ParseGlob("./templates/*"); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		os.Exit(1)
 
@@ -331,16 +308,14 @@ func ExecuteTemplate(
 
 	if err = tlp.ExecuteTemplate(wr, selectTemplate(sessionData), data); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		os.Exit(1)
 
@@ -424,16 +399,14 @@ func DeleteConfigFile(sessionData *types.Session) {
 
 	if err := os.Remove(path + filename); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		return
 
@@ -459,16 +432,14 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				Logger(
-					nil,
-					nil,
-					sessionData,
-					log.DebugLevel,
-					0,
-					0,
-					0,
-					0,
-					GetFunctionName()+" - "+err.Error())
+				Logger(&types.LogEntry{
+					Config:   nil,
+					Market:   nil,
+					Session:  nil,
+					Order:    &types.Order{},
+					Message:  GetFunctionName() + " - " + err.Error(),
+					LogLevel: log.DebugLevel,
+				})
 
 			}
 
@@ -479,16 +450,14 @@ func GetConfigData(
 			/* Create new ThreadID config file and load configuration */
 			if err := viper.WriteConfigAs(writePath + filename); err != nil {
 
-				Logger(
-					nil,
-					nil,
-					sessionData,
-					log.DebugLevel,
-					0,
-					0,
-					0,
-					0,
-					GetFunctionName()+" - "+err.Error())
+				Logger(&types.LogEntry{
+					Config:   nil,
+					Market:   nil,
+					Session:  nil,
+					Order:    &types.Order{},
+					Message:  GetFunctionName() + " - " + err.Error(),
+					LogLevel: log.DebugLevel,
+				})
 
 			}
 
@@ -496,16 +465,14 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				Logger(
-					nil,
-					nil,
-					sessionData,
-					log.DebugLevel,
-					0,
-					0,
-					0,
-					0,
-					GetFunctionName()+" - "+err.Error())
+				Logger(&types.LogEntry{
+					Config:   nil,
+					Market:   nil,
+					Session:  nil,
+					Order:    &types.Order{},
+					Message:  GetFunctionName() + " - " + err.Error(),
+					LogLevel: log.DebugLevel,
+				})
 
 			}
 
@@ -538,16 +505,14 @@ func getConfigTemplateList(sessionData *types.Session) []string {
 
 	if err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		os.Exit(1)
 
@@ -580,16 +545,14 @@ func LoadConfigTemplate(
 	viper.SetConfigFile("./config/" + filename)
 	if err := viper.ReadInConfig(); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -599,16 +562,14 @@ func LoadConfigTemplate(
 	viper.SetConfigFile(filenameOld)
 	if err := viper.ReadInConfig(); err != nil {
 
-		Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -702,16 +663,14 @@ func SaveConfigData(
 
 	if err := viper.WriteConfig(); err != nil {
 
-		Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			GetFunctionName()+" - "+err.Error())
+		Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		os.Exit(1)
 	}

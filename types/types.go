@@ -7,6 +7,7 @@ import (
 	"github.com/adshao/go-binance/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sdcoffey/techan"
+	log "github.com/sirupsen/logrus"
 )
 
 // Order struct define an exchange order
@@ -22,6 +23,7 @@ type Order struct {
 	TransactTime            int64   `json:"transactTime"`
 	ThreadID                int
 	ThreadIDSession         int
+	OrderIDSource           int /* Used for logging purposes to define source OrderID for a sale */
 }
 
 // Kline struct define a kline
@@ -218,4 +220,14 @@ type ExecutionReport struct {
 	CumulativeQuoteQty    string `json:"Z"` //Cumulative quote asset transacted quantity
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
+}
+
+// Logger entry struct
+type LogEntry struct {
+	Config   *Config
+	Market   *Market
+	Session  *Session
+	Order    *Order
+	Message  string
+	LogLevel log.Level
 }

@@ -47,16 +47,14 @@ func init() {
 
 	if err := viper.ReadInConfig(); err != nil {
 
-		functions.Logger(
-			nil,
-			nil,
-			nil,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -149,24 +147,20 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 		case "/sessiondata":
 
-			/* Load dynamic components for javascript autoloader for html output */
-
 			w.Header().Set("Content-Type", "application/json")
 
-			tmp, _ := loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData)
+			tmp, _ := loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData) /* Load dynamic components for javascript autoloader for html output */
 
 			if _, err := w.Write(tmp); err != nil {
 
-				functions.Logger(
-					fh.configData,
-					nil,
-					fh.sessionData,
-					log.DebugLevel,
-					0,
-					0,
-					0,
-					0,
-					functions.GetFunctionName()+" - "+err.Error())
+				functions.Logger(&types.LogEntry{
+					Config:   fh.configData,
+					Market:   nil,
+					Session:  fh.sessionData,
+					Order:    &types.Order{},
+					Message:  functions.GetFunctionName() + " - " + err.Error(),
+					LogLevel: log.DebugLevel,
+				})
 
 				return
 
@@ -178,22 +172,19 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 		/* Determine the URI path to de taken */
 		switch r.URL.Path {
-
 		case "/":
 
 			/* This function reads and parse the html form */
 			if err := r.ParseForm(); err != nil {
 
-				functions.Logger(
-					fh.configData,
-					nil,
-					fh.sessionData,
-					log.DebugLevel,
-					0,
-					0,
-					0,
-					0,
-					functions.GetFunctionName()+" - "+err.Error())
+				functions.Logger(&types.LogEntry{
+					Config:   fh.configData,
+					Market:   nil,
+					Session:  fh.sessionData,
+					Order:    &types.Order{},
+					Message:  functions.GetFunctionName() + " - " + err.Error(),
+					LogLevel: log.DebugLevel,
+				})
 
 				return
 
@@ -204,7 +195,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			switch r.PostFormValue("submitselect") {
 			case "new":
 
-				/* Spawn a new CryptoPump process  */
+				/* Spawn a new process  */
 				path, err := os.Executable()
 				if err != nil {
 					log.Println(err)
@@ -278,16 +269,14 @@ func execution(
 	/* Connect to Exchange */
 	if err = exchange.GetClient(configData, sessionData); err != nil {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		/* Cleanly exit ThreadID */
 		threads.ExitThreadID(sessionData)
@@ -306,16 +295,14 @@ func execution(
 
 		if sessionData.Symbol == "" {
 
-			functions.Logger(
-				configData,
-				nil,
-				sessionData,
-				log.InfoLevel,
-				0,
-				0,
-				0,
-				0,
-				"sessionData.Symbol not found")
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "sessionData.Symbol not found",
+				LogLevel: log.DebugLevel,
+			})
 
 			/* Cleanly exit ThreadID */
 			threads.ExitThreadID(sessionData)
@@ -325,16 +312,14 @@ func execution(
 		/* Select the symbol coin to be used from sessionData.Symbol option */
 		sessionData.SymbolFiat = sessionData.Symbol[3:7]
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.InfoLevel,
-			0,
-			0,
-			0,
-			0,
-			"Resuming")
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Resuming",
+			LogLevel: log.InfoLevel,
+		})
 
 	} else {
 
@@ -352,16 +337,14 @@ func execution(
 		sessionData.Symbol = configData.Symbol
 		sessionData.SymbolFiat = configData.SymbolFiat
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.InfoLevel,
-			0,
-			0,
-			0,
-			0,
-			"Initializing")
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Initializing",
+			LogLevel: log.InfoLevel,
+		})
 
 	}
 
@@ -433,16 +416,14 @@ func execution(
 
 			for !functions.IsInTimeRange(configData.TimeStart, configData.TimeStop) {
 
-				functions.Logger(
-					configData,
-					marketData,
-					sessionData,
-					log.InfoLevel,
-					0,
-					0,
-					0,
-					0,
-					"Sleeping")
+				functions.Logger(&types.LogEntry{
+					Config:   configData,
+					Market:   marketData,
+					Session:  sessionData,
+					Order:    &types.Order{},
+					Message:  "Sleeping",
+					LogLevel: log.InfoLevel,
+				})
 
 				time.Sleep(300000 * time.Millisecond)
 

@@ -220,16 +220,14 @@ func isBuyUpmarket(
 
 	}
 
-	functions.Logger(
-		configData,
-		marketData,
-		sessionData,
-		log.InfoLevel,
-		0,
-		0,
-		0,
-		0,
-		"UP")
+	functions.Logger(&types.LogEntry{
+		Config:   configData,
+		Market:   marketData,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "UP",
+		LogLevel: log.InfoLevel,
+	})
 
 	switch {
 	case sessionData.ThreadCount == 1:
@@ -319,16 +317,14 @@ func isBuyDownmarket(
 
 	}
 
-	functions.Logger(
-		configData,
-		marketData,
-		sessionData,
-		log.InfoLevel,
-		0,
-		0,
-		0,
-		0,
-		"DOWN")
+	functions.Logger(&types.LogEntry{
+		Config:   configData,
+		Market:   marketData,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "DOWN",
+		LogLevel: log.InfoLevel,
+	})
 
 	return true, configData.BuyQuantityFiatDown
 
@@ -346,16 +342,14 @@ func isBuyInitial(
 		/* Do not log if DryRun mode set to true */
 		if !configData.DryRun {
 
-			functions.Logger(
-				configData,
-				marketData,
-				sessionData,
-				log.InfoLevel,
-				0,
-				0,
-				0,
-				0,
-				"INIT")
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "INIT",
+				LogLevel: log.InfoLevel,
+			})
 
 		}
 
@@ -410,16 +404,14 @@ func WsUserDataServe(
 		/* Unmarshal and process executionReport */
 		if err := json.Unmarshal(message, &executionReport); err != nil {
 
-			functions.Logger(
-				configData,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		} else if executionReport.EventType == "executionReport" {
 
@@ -430,16 +422,14 @@ func WsUserDataServe(
 		/* Unmarshal and process outboundAccountPosition */
 		if err := json.Unmarshal(message, &outboundAccountPosition); err != nil {
 
-			functions.Logger(
-				configData,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		} else if outboundAccountPosition.EventType == "outboundAccountPosition" {
 
@@ -465,16 +455,14 @@ func WsUserDataServe(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		stopChannels(stopC, wg, configData, sessionData)
 
@@ -550,16 +538,14 @@ func WsKline(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		stopChannels(stopC, wg, configData, sessionData)
 
@@ -666,16 +652,14 @@ func WsBookTicker(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		switch {
 		case strings.Contains(err.Error(), "1006"):
