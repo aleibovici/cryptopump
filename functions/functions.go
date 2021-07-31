@@ -73,7 +73,7 @@ func Logger(LogEntry *types.LogEntry) {
 	var filename string
 	var file *os.File
 
-	// Log as JSON instead of the default ASCII formatter.
+	/* Log as JSON instead of the default ASCII formatter */
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors:   false,
 		TimestampFormat: "2006-01-02 15:04:05",
@@ -81,8 +81,7 @@ func Logger(LogEntry *types.LogEntry) {
 		DisableSorting:  false,
 	})
 
-	// Define the log level for the entry
-	log.SetLevel(LogEntry.LogLevel)
+	log.SetLevel(LogEntry.LogLevel) /* Define the log level for the entry */
 
 	switch {
 	case LogEntry.LogLevel == log.InfoLevel:

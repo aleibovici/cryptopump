@@ -373,9 +373,9 @@ func execution(
 	)
 
 	/* Retrieve initial node role and then every 60 seconds */
-	node.GetRole(sessionData)
+	node.GetRole(configData, sessionData)
 	scheduler.RunTaskAtInterval(
-		func() { node.GetRole(sessionData) },
+		func() { node.GetRole(configData, sessionData) },
 		time.Second*60,
 		time.Second*0)
 
