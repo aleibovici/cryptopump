@@ -464,6 +464,15 @@ func WsUserDataServe(
 			LogLevel: log.DebugLevel,
 		})
 
+		switch {
+		case strings.Contains(err.Error(), "1006"):
+			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
+			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			return
+
+		}
+
 		stopChannels(stopC, wg, configData, sessionData)
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
@@ -546,6 +555,14 @@ func WsKline(
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: log.DebugLevel,
 		})
+
+		switch {
+		case strings.Contains(err.Error(), "unexpected EOF"):
+			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
+
+			return
+
+		}
 
 		stopChannels(stopC, wg, configData, sessionData)
 
