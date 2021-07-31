@@ -197,13 +197,13 @@ func getSellQuantity(
 
 }
 
-/* Calculate the correct quantity to BUY according to the exchange lotSizeMin and lotSizeStep */
+/* Calculate the correct quantity to BUY according to the exchange lotSizeStep */
 func getBuyQuantity(
 	marketData *types.Market,
 	sessionData *types.Session,
 	fiatQuantity float64) (quantity float64) {
 
-	return functions.ConvertFiatToCoin(fiatQuantity, marketData.Price, sessionData.MinQuantity, sessionData.StepSize)
+	return math.Round((fiatQuantity/marketData.Price)/sessionData.StepSize) * sessionData.StepSize
 
 }
 

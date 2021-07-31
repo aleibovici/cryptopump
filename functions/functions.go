@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"math"
 	"net"
 	"net/http"
 	"path/filepath"
@@ -254,13 +253,6 @@ func IsFundsAvailable(
 	sessionData *types.Session) bool {
 
 	return (sessionData.SymbolFiatFunds - configData.SymbolFiatStash) >= configData.BuyQuantityFiatDown
-
-}
-
-// ConvertFiatToCoin Convert Fiat currency to Coin
-func ConvertFiatToCoin(fiatQty float64, tickerPrice float64, lotSizeMin float64, lotSizeStep float64) float64 {
-
-	return math.Round((fiatQty/tickerPrice)/lotSizeStep) * lotSizeStep
 
 }
 
