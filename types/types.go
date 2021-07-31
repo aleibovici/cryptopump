@@ -222,12 +222,12 @@ type ExecutionReport struct {
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
 }
 
-// Logger entry struct
+// LogEntry struct
 type LogEntry struct {
-	Config   *Config
-	Market   *Market
-	Session  *Session
-	Order    *Order
-	Message  string
-	LogLevel log.Level
+	Config   *Config   /* Config struct */
+	Market   *Market   /* Market struct */
+	Session  *Session  /* Session struct */
+	Order    *Order    /* Order struct */
+	Message  string    /* Error message */
+	LogLevel log.Level /* Logrus log level */
 }
