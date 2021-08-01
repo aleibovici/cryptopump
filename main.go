@@ -15,7 +15,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -122,7 +121,7 @@ func main() {
 
 	open.Run("http://localhost:" + port) /* Open URI using the OS's default browser */
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 
 }
 
@@ -199,7 +198,16 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				/* Spawn a new process  */
 				path, err := os.Executable()
 				if err != nil {
-					log.Println(err)
+
+					logger.LogEntry{
+						Config:   fh.configData,
+						Market:   nil,
+						Session:  fh.sessionData,
+						Order:    &types.Order{},
+						Message:  functions.GetFunctionName() + " - " + err.Error(),
+						LogLevel: "DebugLevel",
+					}.Do()
+
 				}
 
 				cmd := exec.Command(path)
@@ -208,7 +216,16 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 				err = cmd.Start()
 				if err != nil {
-					log.Println(err)
+
+					logger.LogEntry{
+						Config:   fh.configData,
+						Market:   nil,
+						Session:  fh.sessionData,
+						Order:    &types.Order{},
+						Message:  functions.GetFunctionName() + " - " + err.Error(),
+						LogLevel: "DebugLevel",
+					}.Do()
+
 				}
 
 				functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */

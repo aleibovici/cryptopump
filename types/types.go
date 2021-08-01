@@ -220,13 +220,3 @@ type ExecutionReport struct {
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
 }
-
-// // LogEntry struct
-// type LogEntry struct {
-// 	Config   *Config   /* Config struct */
-// 	Market   *Market   /* Market struct */
-// 	Session  *Session  /* Session struct */
-// 	Order    *Order    /* Order struct */
-// 	Message  string    /* Error message */
-// 	LogLevel log.Level /* Logrus log level */
-// }

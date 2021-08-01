@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"path/filepath"
@@ -30,7 +29,14 @@ func StrToFloat64(value string) (r float64) {
 
 	if r, err = strconv.ParseFloat(value, 8); err != nil {
 
-		log.Fatal(err)
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -73,7 +79,16 @@ func MustGetenv(k string) string {
 
 	v := os.Getenv(k)
 	if v == "" {
-		log.Fatalf("Warning: %s environment variable not set.\n", k)
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + "Environment variable not set",
+			LogLevel: "DebugLevel",
+		}.Do()
+
 	}
 
 	return strings.ToLower(v)

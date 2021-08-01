@@ -3,9 +3,9 @@ package plotter
 import (
 	"bytes"
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/types"
 	"html/template"
-	"log"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -42,7 +42,16 @@ func renderToHTML(c interface{}) template.HTML {
 	r := c.(chartrender.Renderer)
 	err := r.Render(&buf)
 	if err != nil {
-		log.Printf("Failed to render chart: %s", err)
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
 		return ""
 	}
 

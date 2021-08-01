@@ -6,7 +6,6 @@ import (
 	"cryptopump/types"
 	"database/sql"
 	"fmt"
-	"log"
 	"math"
 	"os"
 
@@ -28,7 +27,14 @@ func DBInit() *sql.DB {
 
 		if db, err = InitTCPConnectionPool(); err != nil {
 
-			log.Fatalf("initTCPConnectionPool: unable to connect: %v", err)
+			logger.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  nil,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
 
 		}
 
@@ -36,7 +42,14 @@ func DBInit() *sql.DB {
 
 		if db, err = InitSocketConnectionPool(); err != nil {
 
-			log.Fatalf("initSocketConnectionPool: unable to connect: %v", err)
+			logger.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  nil,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
 
 		}
 
