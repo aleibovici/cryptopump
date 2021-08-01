@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-/* Establish connectivy to Telegram server */
+/* Establish connectivity to Telegram */
 func connect(
 	configData *types.Config,
 	sessionData *types.Session) (tgBotAPI *tgbotapi.BotAPI) {
@@ -22,16 +22,14 @@ func connect(
 
 	if tgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -48,16 +46,14 @@ func send(
 
 	if _, err := sessionData.TgBotAPI.Send(message); err != nil {
 
-		functions.Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 
@@ -97,16 +93,14 @@ func CheckUpdates(
 
 	if updates, err = sessionData.TgBotAPI.GetUpdatesChan(u); err != nil {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 	}
 

@@ -1,6 +1,7 @@
 package exchange
 
 import (
+	"errors"
 	"math"
 	"strings"
 	"time"
@@ -16,14 +17,17 @@ import (
 // GetClient Define the exchange to be used
 func GetClient(
 	configData *types.Config,
-	sessionData *types.Session) {
+	sessionData *types.Session) (err error) {
 
 	switch strings.ToLower(configData.ExchangeName) {
 	case "binance":
 
 		sessionData.Clients.Binance = binanceGetClient(configData)
+		return nil
 
 	}
+
+	return errors.New("Invalid Exchange Name")
 
 }
 
@@ -193,13 +197,13 @@ func getSellQuantity(
 
 }
 
-/* Calculate the correct quantity to BUY according to the exchange lotSizeMin and lotSizeStep */
+/* Calculate the correct quantity to BUY according to the exchange lotSizeStep */
 func getBuyQuantity(
 	marketData *types.Market,
 	sessionData *types.Session,
 	fiatQuantity float64) (quantity float64) {
 
-	return functions.ConvertFiatToCoin(fiatQuantity, marketData.Price, sessionData.MinQuantity, sessionData.StepSize)
+	return math.Round((fiatQuantity/marketData.Price)/sessionData.StepSize) * sessionData.StepSize
 
 }
 
@@ -441,29 +445,31 @@ S:
 
 		}
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.InfoLevel,
-			0,
-			int64(orderResponse.OrderID),
-			orderPrice,
-			0,
-			"BUY")
+		functions.Logger(&types.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID: int(orderResponse.OrderID),
+				Price:   orderPrice,
+			},
+			Message:  "BUY",
+			LogLevel: log.InfoLevel,
+		})
 
 	} else if isCanceled {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.InfoLevel,
-			0,
-			int64(orderResponse.OrderID),
-			orderPrice,
-			0,
-			"CANCELED")
+		functions.Logger(&types.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID: int(orderResponse.OrderID),
+				Price:   orderPrice,
+			},
+			Message:  "CANCELED",
+			LogLevel: log.InfoLevel,
+		})
 
 	}
 
@@ -478,7 +484,7 @@ func SellTicker(
 
 	var orderResponse *types.Order
 	var orderStatus *types.Order
-	var cumulativeQuoteQuantity float64
+
 	var cancelOrderResponse *types.Order
 	var isCanceled bool
 	var err error
@@ -532,8 +538,6 @@ func SellTicker(
 S:
 	switch orderResponse.Status {
 	case "FILLED":
-
-		cumulativeQuoteQuantity = orderResponse.CumulativeQuoteQuantity
 
 	case "CANCELED":
 
@@ -600,16 +604,16 @@ S:
 
 					default:
 
-						functions.Logger(
-							configData,
-							nil,
-							sessionData,
-							log.DebugLevel,
-							0,
-							int64(orderResponse.OrderID),
-							0,
-							0,
-							err.Error())
+						functions.Logger(&types.LogEntry{
+							Config:  configData,
+							Market:  marketData,
+							Session: sessionData,
+							Order: &types.Order{
+								OrderID: int(orderResponse.OrderID),
+							},
+							Message:  err.Error(),
+							LogLevel: log.DebugLevel,
+						})
 
 						break S
 					}
@@ -638,16 +642,17 @@ S:
 
 				default:
 
-					functions.Logger(
-						configData,
-						nil,
-						sessionData,
-						log.InfoLevel,
-						order.OrderID,
-						int64(orderResponse.OrderID),
-						marketData.Price,
-						0,
-						"FAILED TO CANCEL ORDER")
+					functions.Logger(&types.LogEntry{
+						Config:  configData,
+						Market:  marketData,
+						Session: sessionData,
+						Order: &types.Order{
+							OrderID: int(orderResponse.OrderID),
+							Price:   marketData.Price,
+						},
+						Message:  "FAILED TO CANCEL ORDER",
+						LogLevel: log.InfoLevel,
+					})
 
 					break F
 
@@ -661,8 +666,6 @@ S:
 					configData.SellWaitBeforeCancel/10) * time.Second)
 
 		}
-
-		cumulativeQuoteQuantity = orderStatus.CumulativeQuoteQuantity
 
 		/* Update order status and price */
 		if err := mysql.UpdateOrder(
@@ -692,29 +695,33 @@ S:
 
 		}
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.InfoLevel,
-			order.OrderID,
-			int64(orderResponse.OrderID),
-			marketData.Price,
-			functions.GetProfitResult(order.CumulativeQuoteQuantity, cumulativeQuoteQuantity),
-			"SELL")
+		functions.Logger(&types.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID:       int(orderResponse.OrderID),
+				Price:         marketData.Price,
+				OrderIDSource: order.OrderID,
+			},
+			Message:  "SELL",
+			LogLevel: log.InfoLevel,
+		})
 
 	} else if isCanceled {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.InfoLevel,
-			order.OrderID,
-			int64(orderResponse.OrderID),
-			marketData.Price,
-			0,
-			"CANCELED")
+		functions.Logger(&types.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID:       int(orderResponse.OrderID),
+				Price:         marketData.Price,
+				OrderIDSource: order.OrderID,
+			},
+			Message:  "CANCELED",
+			LogLevel: log.InfoLevel,
+		})
 
 	}
 

@@ -236,16 +236,14 @@ func binanceGetSymbolFunds(
 
 	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
 
-		functions.Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		return 0, err
 
@@ -342,16 +340,14 @@ func binanceBuyOrder(
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeMarket).
 		Quantity(quantity).Do(context.Background()); err != nil {
 
-		functions.Logger(
-			nil,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		return nil, err
 

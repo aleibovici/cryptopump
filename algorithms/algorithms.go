@@ -220,16 +220,14 @@ func isBuyUpmarket(
 
 	}
 
-	functions.Logger(
-		configData,
-		marketData,
-		sessionData,
-		log.InfoLevel,
-		0,
-		0,
-		0,
-		0,
-		"UP")
+	functions.Logger(&types.LogEntry{
+		Config:   configData,
+		Market:   marketData,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "UP",
+		LogLevel: log.InfoLevel,
+	})
 
 	switch {
 	case sessionData.ThreadCount == 1:
@@ -319,16 +317,14 @@ func isBuyDownmarket(
 
 	}
 
-	functions.Logger(
-		configData,
-		marketData,
-		sessionData,
-		log.InfoLevel,
-		0,
-		0,
-		0,
-		0,
-		"DOWN")
+	functions.Logger(&types.LogEntry{
+		Config:   configData,
+		Market:   marketData,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "DOWN",
+		LogLevel: log.InfoLevel,
+	})
 
 	return true, configData.BuyQuantityFiatDown
 
@@ -346,16 +342,14 @@ func isBuyInitial(
 		/* Do not log if DryRun mode set to true */
 		if !configData.DryRun {
 
-			functions.Logger(
-				configData,
-				marketData,
-				sessionData,
-				log.InfoLevel,
-				0,
-				0,
-				0,
-				0,
-				"INIT")
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "INIT",
+				LogLevel: log.InfoLevel,
+			})
 
 		}
 
@@ -410,16 +404,14 @@ func WsUserDataServe(
 		/* Unmarshal and process executionReport */
 		if err := json.Unmarshal(message, &executionReport); err != nil {
 
-			functions.Logger(
-				configData,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		} else if executionReport.EventType == "executionReport" {
 
@@ -430,16 +422,14 @@ func WsUserDataServe(
 		/* Unmarshal and process outboundAccountPosition */
 		if err := json.Unmarshal(message, &outboundAccountPosition); err != nil {
 
-			functions.Logger(
-				configData,
-				nil,
-				sessionData,
-				log.DebugLevel,
-				0,
-				0,
-				0,
-				0,
-				functions.GetFunctionName()+" - "+err.Error())
+			functions.Logger(&types.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: log.DebugLevel,
+			})
 
 		} else if outboundAccountPosition.EventType == "outboundAccountPosition" {
 
@@ -465,16 +455,23 @@ func WsUserDataServe(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			nil,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
+
+		switch {
+		case strings.Contains(err.Error(), "1006"):
+			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
+			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			return
+
+		}
 
 		stopChannels(stopC, wg, configData, sessionData)
 
@@ -550,16 +547,22 @@ func WsKline(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
+
+		switch {
+		case strings.Contains(err.Error(), "unexpected EOF"):
+			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
+
+			return
+
+		}
 
 		stopChannels(stopC, wg, configData, sessionData)
 
@@ -666,21 +669,34 @@ func WsBookTicker(
 
 	errHandler := func(err error) {
 
-		functions.Logger(
-			configData,
-			marketData,
-			sessionData,
-			log.DebugLevel,
-			0,
-			0,
-			0,
-			0,
-			functions.GetFunctionName()+" - "+err.Error())
+		functions.Logger(&types.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: log.DebugLevel,
+		})
 
 		switch {
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			return
+
+		case strings.Contains(err.Error(), "1008"):
+			/* websocket: close 1008 (policy violation): Pong timeout */
+			/* 1008 indicates that an endpoint is terminating the connection
+			because it has received a message that violates its policy.  This
+			is a generic status code that can be returned when there is no
+			other more suitable status code (e.g., 1003 or 1009) or if there
+			is a need to hide specific details about the policy. */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
+		case strings.Contains(err.Error(), "unexpected EOF"):
+			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
 
@@ -711,6 +727,13 @@ func BuyDecisionTree(
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session) (bool, float64) {
+
+	/* Protect against the exchange sending zeroed ticker pricing (seen in few occasions with Binance TestNet)*/
+	if marketData.Price == 0 {
+
+		return false, 0
+
+	}
 
 	/* Validate available funds to buy */
 	if !functions.IsFundsAvailable(
