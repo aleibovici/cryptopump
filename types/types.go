@@ -7,7 +7,6 @@ import (
 	"github.com/adshao/go-binance/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/sdcoffey/techan"
-	log "github.com/sirupsen/logrus"
 )
 
 // Order struct define an exchange order
@@ -222,12 +221,12 @@ type ExecutionReport struct {
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
 }
 
-// LogEntry struct
-type LogEntry struct {
-	Config   *Config   /* Config struct */
-	Market   *Market   /* Market struct */
-	Session  *Session  /* Session struct */
-	Order    *Order    /* Order struct */
-	Message  string    /* Error message */
-	LogLevel log.Level /* Logrus log level */
-}
+// // LogEntry struct
+// type LogEntry struct {
+// 	Config   *Config   /* Config struct */
+// 	Market   *Market   /* Market struct */
+// 	Session  *Session  /* Session struct */
+// 	Order    *Order    /* Order struct */
+// 	Message  string    /* Error message */
+// 	LogLevel log.Level /* Logrus log level */
+// }

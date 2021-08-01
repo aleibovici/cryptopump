@@ -2,11 +2,10 @@ package node
 
 import (
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/types"
 	"os"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // GetRole Define node role Master or Slave
@@ -32,14 +31,14 @@ func GetRole(
 
 		if err != nil {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "DebugLevel",
+			}.Do()
 
 		}
 
@@ -56,14 +55,14 @@ func GetRole(
 
 			if err := os.Remove(filename); err != nil {
 
-				functions.Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   nil,
 					Market:   nil,
 					Session:  sessionData,
 					Order:    &types.Order{},
 					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 			}
 
@@ -74,14 +73,14 @@ func GetRole(
 		var file *os.File
 		if file, err = os.Create(filename); err != nil {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "DebugLevel",
+			}.Do()
 
 		}
 
@@ -104,14 +103,14 @@ func ReleaseRole(
 
 		if err := os.Remove(filename); err != nil {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "DebugLevel",
+			}.Do()
 
 		}
 

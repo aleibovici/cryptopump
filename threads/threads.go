@@ -2,13 +2,12 @@ package threads
 
 import (
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/mysql"
 	"cryptopump/node"
 	"cryptopump/types"
 	"os"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // ExitThreadID Cleanly exit a Thread
@@ -33,14 +32,14 @@ func ExitThreadID(
 	/* Delete session from Session table */
 	_ = mysql.DeleteSession(sessionData)
 
-	functions.Logger(&types.LogEntry{
+	logger.LogEntry{
 		Config:   nil,
 		Market:   nil,
 		Session:  sessionData,
 		Order:    &types.Order{},
 		Message:  "Clean Shutdown",
-		LogLevel: log.InfoLevel,
-	})
+		LogLevel: "InfoLevel",
+	}.Do()
 
 	os.Exit(1)
 
@@ -54,14 +53,14 @@ func unlockThreadID(
 
 	if err := os.Remove(filename); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 

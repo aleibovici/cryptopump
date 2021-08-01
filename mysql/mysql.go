@@ -2,13 +2,13 @@ package mysql
 
 import (
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/types"
 	"database/sql"
 	"fmt"
+	"log"
 	"math"
 	"os"
-
-	log "github.com/sirupsen/logrus"
 
 	_ "github.com/go-sql-driver/mysql" // This blank entry is required to enable mysql connectivity
 )
@@ -166,7 +166,7 @@ func SaveOrder(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -175,8 +175,8 @@ func SaveOrder(
 				Price:   Price,
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -206,7 +206,7 @@ func UpdateOrder(
 		Price,
 		Status); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -215,8 +215,8 @@ func UpdateOrder(
 				Price:   Price,
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -242,14 +242,14 @@ func UpdateSession(
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -275,14 +275,14 @@ func SaveSession(
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -303,14 +303,14 @@ func DeleteSession(
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteSession(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -340,7 +340,7 @@ func SaveThreadTransaction(
 		Price,
 		ExecutedQuantity); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -349,8 +349,8 @@ func SaveThreadTransaction(
 				Price:   Price,
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -372,7 +372,7 @@ func DeleteThreadTransactionByOrderID(
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteThreadTransactionByOrderID(?)",
 		orderID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -380,8 +380,8 @@ func DeleteThreadTransactionByOrderID(
 				OrderID: int(orderID),
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return err
 
@@ -402,14 +402,14 @@ func GetThreadTransactionCount(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionCount(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -436,14 +436,14 @@ func GetLastOrderTransactionPrice(
 		sessionData.ThreadID,
 		Side); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -468,14 +468,14 @@ func GetLastOrderTransactionSide(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetLastOrderTransactionSide(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return "", err
 
@@ -500,14 +500,14 @@ func GetOrderTransactionSideLastTwo(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionSideLastTwo(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return "", "", err
 
@@ -532,14 +532,14 @@ func GetOrderSymbol(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderSymbol(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return "", err
 
@@ -563,14 +563,14 @@ func GetThreadTransactionDistinct(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionDistinct()"); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return "", "", err
 
@@ -608,7 +608,7 @@ func GetOrderTransactionPending(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionPending(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -616,8 +616,8 @@ func GetOrderTransactionPending(
 				OrderID: int(orderID),
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, "", err
 
@@ -646,7 +646,7 @@ func GetThreadTransactionByPrice(
 		sessionData.ThreadID,
 		marketData.Price); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -654,8 +654,8 @@ func GetThreadTransactionByPrice(
 				OrderID: int(orderID),
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, 0, 0, 0, 0, err
 
@@ -685,7 +685,7 @@ func GetThreadLastTransaction(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadLastTransaction(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -693,8 +693,8 @@ func GetThreadLastTransaction(
 				OrderID: int(orderID),
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, 0, 0, 0, 0, err
 
@@ -726,14 +726,14 @@ func GetThreadTransactiontUpmarketPriceCount(
 		sessionData.ThreadID,
 		price); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -761,14 +761,14 @@ func GetOrderTransactionCount(
 		side,
 		(60 * -1)); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -795,14 +795,14 @@ func GetThreadTransactionByThreadID(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByThreadID(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return nil, err
 
@@ -836,14 +836,14 @@ func GetProfitByThreadID(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfitByThreadID(?)",
 		sessionData.ThreadID); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -867,14 +867,14 @@ func GetProfit(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -898,14 +898,14 @@ func GetThreadCount(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadCount()"); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -929,14 +929,14 @@ func GetThreadAmount(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionAmount()"); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 

@@ -3,6 +3,7 @@ package algorithms
 import (
 	"cryptopump/exchange"
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/markets"
 	"cryptopump/mysql"
 	"cryptopump/plotter"
@@ -15,8 +16,6 @@ import (
 	"time"
 
 	"github.com/adshao/go-binance/v2"
-
-	log "github.com/sirupsen/logrus"
 )
 
 /* Modify profit based on sell transaction count  */
@@ -220,14 +219,14 @@ func isBuyUpmarket(
 
 	}
 
-	functions.Logger(&types.LogEntry{
+	logger.LogEntry{
 		Config:   configData,
 		Market:   marketData,
 		Session:  sessionData,
 		Order:    &types.Order{},
 		Message:  "UP",
-		LogLevel: log.InfoLevel,
-	})
+		LogLevel: "InfoLevel",
+	}.Do()
 
 	switch {
 	case sessionData.ThreadCount == 1:
@@ -317,14 +316,14 @@ func isBuyDownmarket(
 
 	}
 
-	functions.Logger(&types.LogEntry{
+	logger.LogEntry{
 		Config:   configData,
 		Market:   marketData,
 		Session:  sessionData,
 		Order:    &types.Order{},
 		Message:  "DOWN",
-		LogLevel: log.InfoLevel,
-	})
+		LogLevel: "InfoLevel",
+	}.Do()
 
 	return true, configData.BuyQuantityFiatDown
 
@@ -342,14 +341,14 @@ func isBuyInitial(
 		/* Do not log if DryRun mode set to true */
 		if !configData.DryRun {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  "INIT",
-				LogLevel: log.InfoLevel,
-			})
+				LogLevel: "InfoLevel",
+			}.Do()
 
 		}
 
@@ -404,14 +403,14 @@ func WsUserDataServe(
 		/* Unmarshal and process executionReport */
 		if err := json.Unmarshal(message, &executionReport); err != nil {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   configData,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "InfoLevel",
+			}.Do()
 
 		} else if executionReport.EventType == "executionReport" {
 
@@ -422,14 +421,14 @@ func WsUserDataServe(
 		/* Unmarshal and process outboundAccountPosition */
 		if err := json.Unmarshal(message, &outboundAccountPosition); err != nil {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   configData,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "InfoLevel",
+			}.Do()
 
 		} else if outboundAccountPosition.EventType == "outboundAccountPosition" {
 
@@ -455,14 +454,14 @@ func WsUserDataServe(
 
 	errHandler := func(err error) {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 		switch {
 		case strings.Contains(err.Error(), "1006"):
@@ -547,14 +546,14 @@ func WsKline(
 
 	errHandler := func(err error) {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
-			Market:   nil,
+			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		switch {
 		case strings.Contains(err.Error(), "1006"):
@@ -675,14 +674,14 @@ func WsBookTicker(
 
 	errHandler := func(err error) {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
-			Market:   nil,
+			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		switch {
 		case strings.Contains(err.Error(), "1006"):

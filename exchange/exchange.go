@@ -7,11 +7,10 @@ import (
 	"time"
 
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/mysql"
 	"cryptopump/threads"
 	"cryptopump/types"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // GetClient Define the exchange to be used
@@ -445,7 +444,7 @@ S:
 
 		}
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -454,12 +453,12 @@ S:
 				Price:   orderPrice,
 			},
 			Message:  "BUY",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	} else if isCanceled {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -468,8 +467,8 @@ S:
 				Price:   orderPrice,
 			},
 			Message:  "CANCELED",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	}
 
@@ -604,7 +603,7 @@ S:
 
 					default:
 
-						functions.Logger(&types.LogEntry{
+						logger.LogEntry{
 							Config:  configData,
 							Market:  marketData,
 							Session: sessionData,
@@ -612,8 +611,8 @@ S:
 								OrderID: int(orderResponse.OrderID),
 							},
 							Message:  err.Error(),
-							LogLevel: log.DebugLevel,
-						})
+							LogLevel: "DebugLevel",
+						}.Do()
 
 						break S
 					}
@@ -642,7 +641,7 @@ S:
 
 				default:
 
-					functions.Logger(&types.LogEntry{
+					logger.LogEntry{
 						Config:  configData,
 						Market:  marketData,
 						Session: sessionData,
@@ -651,8 +650,8 @@ S:
 							Price:   marketData.Price,
 						},
 						Message:  "FAILED TO CANCEL ORDER",
-						LogLevel: log.InfoLevel,
-					})
+						LogLevel: "InfoLevel",
+					}.Do()
 
 					break F
 
@@ -695,7 +694,7 @@ S:
 
 		}
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -705,12 +704,12 @@ S:
 				OrderIDSource: order.OrderID,
 			},
 			Message:  "SELL",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	} else if isCanceled {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -720,8 +719,8 @@ S:
 				OrderIDSource: order.OrderID,
 			},
 			Message:  "CANCELED",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	}
 

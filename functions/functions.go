@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"path/filepath"
@@ -14,10 +15,10 @@ import (
 	"os"
 	"strconv"
 
+	"cryptopump/logger"
 	"cryptopump/types"
 
 	"github.com/rs/xid"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -66,107 +67,6 @@ func StrToInt(value string) (r int) {
 
 }
 
-// Logger is responsible for all system logging
-func Logger(LogEntry *types.LogEntry) {
-
-	var err error
-	var filename string
-	var file *os.File
-
-	/* Log as JSON instead of the default ASCII formatter */
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors:   false,
-		TimestampFormat: "2006-01-02 15:04:05",
-		FullTimestamp:   true,
-		DisableSorting:  false,
-	})
-
-	log.SetLevel(LogEntry.LogLevel) /* Define the log level for the entry */
-
-	switch {
-	case LogEntry.LogLevel == log.InfoLevel:
-
-		filename = "cryptopump.log"
-
-	case LogEntry.LogLevel == log.DebugLevel:
-
-		filename = "cryptopump_debug.log"
-
-	}
-
-	/* io.Writer output set for file */
-	if file, err = os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666); err != nil {
-
-		log.Fatal(err)
-
-	}
-
-	log.SetOutput(file)
-
-	switch {
-	case LogEntry.LogLevel == log.InfoLevel:
-
-		switch LogEntry.Message {
-		case "UP", "DOWN", "INIT":
-
-			log.WithFields(log.Fields{
-				"threadID":  LogEntry.Session.ThreadID,
-				"rsi3":      fmt.Sprintf("%.2f", LogEntry.Market.Rsi3),
-				"rsi7":      fmt.Sprintf("%.2f", LogEntry.Market.Rsi7),
-				"rsi14":     fmt.Sprintf("%.2f", LogEntry.Market.Rsi14),
-				"MACD":      fmt.Sprintf("%.2f", LogEntry.Market.MACD),
-				"high":      LogEntry.Market.PriceChangeStatsHighPrice,
-				"direction": LogEntry.Market.Direction,
-			}).Info(LogEntry.Message)
-
-		case "BUY":
-
-			log.WithFields(log.Fields{
-				"threadID":   LogEntry.Session.ThreadID,
-				"orderID":    LogEntry.Order.OrderID,
-				"orderPrice": fmt.Sprintf("%.4f", LogEntry.Order.Price),
-			}).Info(LogEntry.Message)
-
-		case "SELL":
-
-			log.WithFields(log.Fields{
-				"threadID":      LogEntry.Session.ThreadID,
-				"OrderIDSource": LogEntry.Order.OrderIDSource,
-				"orderID":       LogEntry.Order.OrderID,
-				"orderPrice":    fmt.Sprintf("%.4f", LogEntry.Order.Price),
-			}).Info(LogEntry.Message)
-
-		case "CANCELED":
-
-			if LogEntry.Config.Debug {
-
-				log.WithFields(log.Fields{
-					"threadID":      LogEntry.Session.ThreadID,
-					"OrderIDSource": LogEntry.Order.OrderIDSource,
-					"orderID":       LogEntry.Order.OrderID,
-				}).Info(LogEntry.Message)
-
-			}
-
-		default:
-
-			log.WithFields(log.Fields{
-				"threadID": LogEntry.Session.ThreadID,
-			}).Info(LogEntry.Message)
-
-		}
-
-	case LogEntry.LogLevel == log.DebugLevel:
-
-		log.WithFields(log.Fields{
-			"threadID": LogEntry.Session.ThreadID,
-			"orderID":  LogEntry.Order.OrderID,
-		}).Debug(LogEntry.Message)
-
-	}
-
-}
-
 // MustGetenv is a helper function for getting environment variables.
 // Displays a warning if the environment variable is not set.
 func MustGetenv(k string) string {
@@ -206,14 +106,14 @@ func stringToTime(str string) (r time.Time) {
 
 	if r, err = time.Parse(time.Kitchen, str); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -284,14 +184,14 @@ func ExecuteTemplate(
 
 	if tlp, err = template.ParseGlob("./templates/*"); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		os.Exit(1)
 
@@ -299,14 +199,14 @@ func ExecuteTemplate(
 
 	if err = tlp.ExecuteTemplate(wr, selectTemplate(sessionData), data); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		os.Exit(1)
 
@@ -390,14 +290,14 @@ func DeleteConfigFile(sessionData *types.Session) {
 
 	if err := os.Remove(path + filename); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return
 
@@ -423,14 +323,14 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
 					Order:    &types.Order{},
 					Message:  GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 			}
 
@@ -441,14 +341,14 @@ func GetConfigData(
 			/* Create new ThreadID config file and load configuration */
 			if err := viper.WriteConfigAs(writePath + filename); err != nil {
 
-				Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
 					Order:    &types.Order{},
 					Message:  GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 			}
 
@@ -456,14 +356,14 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
 					Order:    &types.Order{},
 					Message:  GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 			}
 
@@ -496,14 +396,14 @@ func getConfigTemplateList(sessionData *types.Session) []string {
 
 	if err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		os.Exit(1)
 
@@ -536,15 +436,14 @@ func LoadConfigTemplate(
 	viper.SetConfigFile("./config/" + filename)
 	if err := viper.ReadInConfig(); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
-
+			LogLevel: "DebugLevel",
+		}.Do()
 	}
 
 	configData := loadConfigData(sessionData)
@@ -553,14 +452,14 @@ func LoadConfigTemplate(
 	viper.SetConfigFile(filenameOld)
 	if err := viper.ReadInConfig(); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -654,14 +553,14 @@ func SaveConfigData(
 
 	if err := viper.WriteConfig(); err != nil {
 
-		Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		os.Exit(1)
 	}

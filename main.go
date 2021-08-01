@@ -4,6 +4,7 @@ import (
 	"cryptopump/algorithms"
 	"cryptopump/exchange"
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/markets"
 	"cryptopump/mysql"
 	"cryptopump/node"
@@ -14,6 +15,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -29,7 +31,6 @@ import (
 	"github.com/spf13/viper"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	log "github.com/sirupsen/logrus"
 )
 
 type myHandler struct {
@@ -47,14 +48,14 @@ func init() {
 
 	if err := viper.ReadInConfig(); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -153,14 +154,14 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			if _, err := w.Write(tmp); err != nil {
 
-				functions.Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   fh.configData,
 					Market:   nil,
 					Session:  fh.sessionData,
 					Order:    &types.Order{},
 					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 				return
 
@@ -177,14 +178,14 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			/* This function reads and parse the html form */
 			if err := r.ParseForm(); err != nil {
 
-				functions.Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   fh.configData,
 					Market:   nil,
 					Session:  fh.sessionData,
 					Order:    &types.Order{},
 					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: log.DebugLevel,
-				})
+					LogLevel: "DebugLevel",
+				}.Do()
 
 				return
 
@@ -269,14 +270,14 @@ func execution(
 	/* Connect to Exchange */
 	if err = exchange.GetClient(configData, sessionData); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		/* Cleanly exit ThreadID */
 		threads.ExitThreadID(sessionData)
@@ -295,14 +296,14 @@ func execution(
 
 		if sessionData.Symbol == "" {
 
-			functions.Logger(&types.LogEntry{
+			logger.LogEntry{
 				Config:   configData,
 				Market:   nil,
 				Session:  sessionData,
 				Order:    &types.Order{},
 				Message:  "sessionData.Symbol not found",
-				LogLevel: log.DebugLevel,
-			})
+				LogLevel: "DebugLevel",
+			}.Do()
 
 			/* Cleanly exit ThreadID */
 			threads.ExitThreadID(sessionData)
@@ -312,14 +313,14 @@ func execution(
 		/* Select the symbol coin to be used from sessionData.Symbol option */
 		sessionData.SymbolFiat = sessionData.Symbol[3:7]
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  "Resuming",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	} else {
 
@@ -337,14 +338,14 @@ func execution(
 		sessionData.Symbol = configData.Symbol
 		sessionData.SymbolFiat = configData.SymbolFiat
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  "Initializing",
-			LogLevel: log.InfoLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 	}
 
@@ -416,14 +417,14 @@ func execution(
 
 			for !functions.IsInTimeRange(configData.TimeStart, configData.TimeStop) {
 
-				functions.Logger(&types.LogEntry{
+				logger.LogEntry{
 					Config:   configData,
 					Market:   marketData,
 					Session:  sessionData,
 					Order:    &types.Order{},
 					Message:  "Sleeping",
-					LogLevel: log.InfoLevel,
-				})
+					LogLevel: "InfoLevel",
+				}.Do()
 
 				time.Sleep(300000 * time.Millisecond)
 
