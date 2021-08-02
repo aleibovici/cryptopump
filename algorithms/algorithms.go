@@ -700,6 +700,8 @@ func WsBookTicker(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
+			return
+
 		case strings.Contains(err.Error(), "unexpected EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
