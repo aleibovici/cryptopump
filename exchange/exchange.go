@@ -601,6 +601,21 @@ S:
 
 						break F
 
+					case strings.Contains(err.Error(), "connection reset by peer"):
+						/* read tcp 192.168.110.110:54914->65.9.137.130:443: read: connection reset by peer */
+
+						if orderStatus, err = GetOrder(
+							configData,
+							sessionData,
+							int64(orderResponse.OrderID)); err != nil {
+
+							/* Cleanly exit ThreadID */
+							threads.ExitThreadID(sessionData)
+
+						}
+
+						break S
+
 					default:
 
 						logger.LogEntry{
@@ -610,7 +625,7 @@ S:
 							Order: &types.Order{
 								OrderID: int(orderResponse.OrderID),
 							},
-							Message:  err.Error(),
+							Message:  functions.GetFunctionName() + " - " + err.Error(),
 							LogLevel: "DebugLevel",
 						}.Do()
 
