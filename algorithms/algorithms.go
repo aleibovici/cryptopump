@@ -465,6 +465,11 @@ func WsUserDataServe(
 		})
 
 		switch {
+		case strings.Contains(err.Error(), "1001"):
+			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
@@ -561,6 +566,11 @@ func WsKline(
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
+
+		case strings.Contains(err.Error(), "1001"):
+			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 		}
 
