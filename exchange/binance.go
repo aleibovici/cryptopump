@@ -3,11 +3,11 @@ package exchange
 import (
 	"context"
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/types"
 	"time"
 
 	"github.com/adshao/go-binance/v2"
-	log "github.com/sirupsen/logrus"
 )
 
 /* Map binance.Order types to Order type */
@@ -236,14 +236,14 @@ func binanceGetSymbolFunds(
 
 	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -340,14 +340,14 @@ func binanceBuyOrder(
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeMarket).
 		Quantity(quantity).Do(context.Background()); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "InfoLevel",
+		}.Do()
 
 		return nil, err
 

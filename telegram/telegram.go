@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/mysql"
 	"cryptopump/threads"
 	"cryptopump/types"
@@ -10,7 +11,6 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	log "github.com/sirupsen/logrus"
 )
 
 /* Establish connectivity to Telegram */
@@ -22,14 +22,14 @@ func connect(
 
 	if tgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -46,15 +46,14 @@ func send(
 
 	if _, err := sessionData.TgBotAPI.Send(message); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
-
+			LogLevel: "DebugLevel",
+		}.Do()
 	}
 
 }
@@ -93,14 +92,14 @@ func CheckUpdates(
 
 	if updates, err = sessionData.TgBotAPI.GetUpdatesChan(u); err != nil {
 
-		functions.Logger(&types.LogEntry{
+		logger.LogEntry{
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: log.DebugLevel,
-		})
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
