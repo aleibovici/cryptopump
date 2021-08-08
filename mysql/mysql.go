@@ -158,6 +158,7 @@ func SaveOrder(
 	CumulativeQuoteQuantity float64,
 	ExecutedQuantity float64,
 	OrderID int64,
+	OrderIDSource int64, /* OrderIDSource */
 	Price float64,
 	Side string,
 	Status string,
@@ -166,11 +167,12 @@ func SaveOrder(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?,?)",
 		ClientOrderID,
 		CumulativeQuoteQuantity,
 		ExecutedQuantity,
 		OrderID,
+		OrderIDSource, /* OrderIDSource */
 		Price,
 		Side,
 		Status,

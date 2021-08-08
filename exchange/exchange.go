@@ -360,6 +360,7 @@ func BuyTicker(
 		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
+		0, /* OrderIDSource */
 		orderPrice,
 		string(orderResponse.Side),
 		string(orderResponse.Status),
@@ -523,6 +524,7 @@ func SellTicker(
 		orderResponse.CumulativeQuoteQuantity,
 		orderResponse.ExecutedQuantity,
 		int64(orderResponse.OrderID),
+		int64(order.OrderID), /* OrderIDSource */
 		marketData.Price,
 		string(orderResponse.Side),
 		string(orderResponse.Status),
