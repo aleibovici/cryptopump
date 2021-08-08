@@ -1,6 +1,8 @@
+CREATE DATABASE  IF NOT EXISTS `cryptopump` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `cryptopump`;
 -- MySQL dump 10.13  Distrib 8.0.22, for macos10.15 (x86_64)
 --
--- Host: 192.168.110.110    Database: cryptopump
+-- Host: 127.0.0.1    Database: cryptopump
 -- ------------------------------------------------------
 -- Server version	8.0.23
 
@@ -27,6 +29,7 @@ CREATE TABLE `orders` (
   `CummulativeQuoteQty` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   `OrderID` bigint NOT NULL,
+  `OrderIDSource` bigint NOT NULL,
   `Price` float NOT NULL,
   `Side` varchar(45) NOT NULL,
   `Status` varchar(45) NOT NULL,
@@ -55,7 +58,7 @@ CREATE TABLE `session` (
   `FiatFunds` float NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=826 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +77,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6306 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6781 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -626,10 +629,10 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveOrder`(ClientOrderId varchar(45), CummulativeQuoteQty float, ExecutedQuantity float, OrderID bigint, Price float, Side varchar(45), Status varchar(45), Symbol varchar(45), TransactTime bigint, ThreadID varchar(45), ThreadIDSession varchar(45))
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveOrder`(ClientOrderId varchar(45), CummulativeQuoteQty float, ExecutedQuantity float, OrderID bigint, OrderIDSource bigint, Price float, Side varchar(45), Status varchar(45), Symbol varchar(45), TransactTime bigint, ThreadID varchar(45), ThreadIDSession varchar(45))
 BEGIN
-INSERT INTO orders (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession)
-VALUES (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession);
+INSERT INTO orders (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession)
+VALUES (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -735,4 +738,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-17 16:57:00
+-- Dump completed on 2021-08-08 14:09:27
