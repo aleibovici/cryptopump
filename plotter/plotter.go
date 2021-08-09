@@ -6,6 +6,7 @@ import (
 	"cryptopump/logger"
 	"cryptopump/types"
 	"html/template"
+	"math"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -17,13 +18,17 @@ import (
 // LoadKlineData load Kline into long term retention for plotter
 func LoadKlineData(
 	sessionData *types.Session,
+	marketData *types.Market,
 	kline types.WsKline) {
 
 	kd := []types.KlineData{
 		{
 			Date:    kline.EndTime,
 			Data:    [4]float64{functions.StrToFloat64(kline.Open), functions.StrToFloat64(kline.Close), functions.StrToFloat64(kline.Low), functions.StrToFloat64(kline.High)},
-			Volumes: functions.StrToFloat64(kline.Volume)},
+			Volumes: functions.StrToFloat64(kline.Volume),
+			Ma7:     math.Round(marketData.Ma7*100) / 100,
+			Ma14:    math.Round(marketData.Ma14*100) / 100,
+		},
 	}
 
 	/* Maintain klinedata to a maximum of 1440 minutes (24hs) eliminating first item on slice */
@@ -62,17 +67,30 @@ func renderToHTML(c interface{}) template.HTML {
 func Plot(sessionData *types.Session) (
 	htmlSnippet template.HTML) {
 
-	kline := charts.NewKLine()
-
 	x := make([]string, 0)
 	y := make([]opts.KlineData, 0)
-	// v := make([]opts.BarData, 0)
+	v := make([]opts.BarData, 0)
+	ma7 := make([]opts.LineData, 0)  /* Simple Moving Average for 7 periods */
+	ma14 := make([]opts.LineData, 0) /* Simple Moving Average for 14 periods */
 
 	for i := 0; i < len(sessionData.KlineData); i++ {
 		x = append(x, time.Unix((sessionData.KlineData[i].Date/1000), 0).UTC().Local().Format("15:04"))
 		y = append(y, opts.KlineData{Value: sessionData.KlineData[i].Data})
-		// v = append(v, opts.BarData{Value: sessionData.KlineData[i].Volumes})
+		v = append(v, opts.BarData{Value: sessionData.KlineData[i].Volumes})
+		ma7 = append(ma7, opts.LineData{Value: sessionData.KlineData[i].Ma7})    /* Simple Moving Average for 7 periods */
+		ma14 = append(ma14, opts.LineData{Value: sessionData.KlineData[i].Ma14}) /* Simple Moving Average for 14 periods */
 	}
+
+	kline := klineBase("KLINE", x, y)                                 /* Create base kline chart */
+	kline.Overlap(lineBase("MA7", x, ma7), lineBase("MA14", x, ma14)) /* Create overlaping line charts */
+
+	return renderToHTML(kline)
+}
+
+/* Create a base KLine Chart */
+func klineBase(name string, XAxis []string, klineData []opts.KlineData) *charts.Kline {
+
+	kline := charts.NewKLine()
 
 	kline.SetGlobalOptions(
 		charts.WithTitleOpts(opts.Title{
@@ -133,7 +151,7 @@ func Plot(sessionData *types.Session) (
 		}),
 	)
 
-	kline.SetXAxis(x).AddSeries("kline", y).
+	kline.SetXAxis(XAxis).AddSeries(name, klineData).
 		SetSeriesOptions(
 			charts.WithMarkPointNameTypeItemOpts(opts.MarkPointNameTypeItem{
 				Name:     "highest value",
@@ -157,5 +175,22 @@ func Plot(sessionData *types.Session) (
 			}),
 		)
 
-	return renderToHTML(kline)
+	return kline
+
+}
+
+/* Create a base Line Chart */
+func lineBase(name string, XAxis []string, lineData []opts.LineData) *charts.Line {
+
+	line := charts.NewLine()
+	line.SetXAxis(XAxis).
+		AddSeries(name, lineData).
+		SetSeriesOptions(
+			charts.WithLineChartOpts(opts.LineChart{
+				Smooth: true,
+			}),
+			charts.WithLineStyleOpts(opts.LineStyle{}),
+		)
+
+	return line
 }

@@ -23,6 +23,8 @@ func calculate(
 	marketData.Rsi7 = calculateRSI(closePrices, marketData.Series, 7)
 	marketData.Rsi14 = calculateRSI(closePrices, marketData.Series, 14)
 	marketData.MACD = calculateMACD(closePrices, marketData.Series, 12, 26)
+	marketData.Ma7 = calculateMA(closePrices, marketData.Series, 7)
+	marketData.Ma14 = calculateMA(closePrices, marketData.Series, 14)
 	if priceChangeStats != nil {
 		marketData.PriceChangeStatsHighPrice = calculatePriceChangeStatsHighPrice(priceChangeStats)
 		marketData.PriceChangeStatsLowPrice = calculatePriceChangeStatsLowPrice(priceChangeStats)
@@ -121,6 +123,14 @@ func calculateMACD(
 	longwindow int) float64 {
 
 	return techan.NewMACDIndicator(closePrices, shortwindow, longwindow).Calculate(series.LastIndex() - 1).Float()
+}
+
+func calculateMA(
+	closePrices techan.Indicator,
+	series *techan.TimeSeries,
+	window int) float64 {
+
+	return techan.NewSimpleMovingAverage(closePrices, window).Calculate(series.LastIndex() - 1).Float()
 }
 
 /* Calculate High price for 1 period */

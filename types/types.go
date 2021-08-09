@@ -112,6 +112,8 @@ type KlineData struct {
 	Date    int64
 	Data    [4]float64
 	Volumes float64
+	Ma7     float64 /* Simple Moving Average for 7 periods */
+	Ma14    float64 /* Simple Moving Average for 14 periods */
 }
 
 // Market struct define realtime market data
@@ -126,6 +128,8 @@ type Market struct {
 	Direction                 int                /* Market Direction */
 	TimeStamp                 time.Time          /* Time of last retrieved market Data */
 	Series                    *techan.TimeSeries /* kline data format for technical analysis */
+	Ma7                       float64            /* Simple Moving Average for 7 periods */
+	Ma14                      float64            /* Simple Moving Average for 14 periods */
 }
 
 // Config struct for configuration
