@@ -26,8 +26,8 @@ func LoadKlineData(
 			Date:    kline.EndTime,
 			Data:    [4]float64{functions.StrToFloat64(kline.Open), functions.StrToFloat64(kline.Close), functions.StrToFloat64(kline.Low), functions.StrToFloat64(kline.High)},
 			Volumes: functions.StrToFloat64(kline.Volume),
-			Ma7:     math.Round(marketData.Ma7*100) / 100,
-			Ma14:    math.Round(marketData.Ma14*100) / 100,
+			Ma7:     math.Round(marketData.Ma7*10000) / 10000,
+			Ma14:    math.Round(marketData.Ma14*10000) / 10000,
 		},
 	}
 
