@@ -81,8 +81,8 @@ func Plot(sessionData *types.Session) (
 		ma14 = append(ma14, opts.LineData{Value: sessionData.KlineData[i].Ma14}) /* Simple Moving Average for 14 periods */
 	}
 
-	kline := klineBase("KLINE", x, y)                                 /* Create base kline chart */
-	kline.Overlap(lineBase("MA7", x, ma7), lineBase("MA14", x, ma14)) /* Create overlaping line charts */
+	kline := klineBase("KLINE", x, y)                                                   /* Create base kline chart */
+	kline.Overlap(lineBase("MA7", x, ma7, "blue"), lineBase("MA14", x, ma14, "orange")) /* Create overlaping line charts */
 
 	return renderToHTML(kline)
 }
@@ -127,13 +127,13 @@ func klineBase(name string, XAxis []string, klineData []opts.KlineData) *charts.
 		}),
 		charts.WithDataZoomOpts(opts.DataZoom{
 			Type:       "inside",
-			Start:      60,
+			Start:      80,
 			End:        100,
 			XAxisIndex: []int{0},
 		}),
 		charts.WithDataZoomOpts(opts.DataZoom{
 			Type:       "slider",
-			Start:      60,
+			Start:      80,
 			End:        100,
 			XAxisIndex: []int{0},
 		}),
@@ -180,7 +180,7 @@ func klineBase(name string, XAxis []string, klineData []opts.KlineData) *charts.
 }
 
 /* Create a base Line Chart */
-func lineBase(name string, XAxis []string, lineData []opts.LineData) *charts.Line {
+func lineBase(name string, XAxis []string, lineData []opts.LineData, color string) *charts.Line {
 
 	line := charts.NewLine()
 	line.SetXAxis(XAxis).
@@ -189,7 +189,18 @@ func lineBase(name string, XAxis []string, lineData []opts.LineData) *charts.Lin
 			charts.WithLineChartOpts(opts.LineChart{
 				Smooth: true,
 			}),
-			charts.WithLineStyleOpts(opts.LineStyle{}),
+			charts.WithLineStyleOpts(opts.LineStyle{
+				Color:   color,
+				Width:   2,
+				Opacity: 0.5,
+			}),
+			charts.WithItemStyleOpts(opts.ItemStyle{
+				Color:        color,
+				Color0:       color,
+				BorderColor:  color,
+				BorderColor0: color,
+				Opacity:      0.5,
+			}),
 		)
 
 	return line
