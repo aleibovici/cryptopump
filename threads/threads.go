@@ -30,16 +30,29 @@ func ExitThreadID(
 	unlockThreadID(sessionData)
 
 	/* Delete session from Session table */
-	_ = mysql.DeleteSession(sessionData)
+	if err := mysql.DeleteSession(sessionData); err != nil {
 
-	logger.LogEntry{
-		Config:   nil,
-		Market:   nil,
-		Session:  sessionData,
-		Order:    &types.Order{},
-		Message:  "Clean Shutdown",
-		LogLevel: "InfoLevel",
-	}.Do()
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Clean Shutdown Failed",
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	} else {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Clean Shutdown",
+			LogLevel: "InfoLevel",
+		}.Do()
+
+	}
 
 	os.Exit(1)
 

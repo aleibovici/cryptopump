@@ -147,15 +147,31 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 		case "/sessiondata":
 
+			var tmp []byte
+			var err error
+
 			w.Header().Set("Content-Type", "application/json")
 
-			tmp, _ := loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData) /* Load dynamic components for javascript autoloader for html output */
-
-			if _, err := w.Write(tmp); err != nil {
+			if tmp, err = loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData); err != nil { /* Load dynamic components for javascript autoloader for html output */
 
 				logger.LogEntry{
 					Config:   fh.configData,
-					Market:   nil,
+					Market:   fh.marketData,
+					Session:  fh.sessionData,
+					Order:    &types.Order{},
+					Message:  functions.GetFunctionName() + " - " + err.Error(),
+					LogLevel: "DebugLevel",
+				}.Do()
+
+				return
+
+			}
+
+			if _, err := w.Write(tmp); err != nil { /* Write writes the data to the connection as part of an HTTP reply. */
+
+				logger.LogEntry{
+					Config:   fh.configData,
+					Market:   fh.marketData,
 					Session:  fh.sessionData,
 					Order:    &types.Order{},
 					Message:  functions.GetFunctionName() + " - " + err.Error(),
@@ -303,13 +319,42 @@ func execution(
 
 	/* Routine to resume operations */
 	var threadIDSessionDB string
-	sessionData.ThreadID, threadIDSessionDB, _ = mysql.GetThreadTransactionDistinct(sessionData)
+
+	if sessionData.ThreadID, threadIDSessionDB, err = mysql.GetThreadTransactionDistinct(sessionData); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		/* Cleanly exit ThreadID */
+		threads.ExitThreadID(sessionData)
+
+	}
 
 	if sessionData.ThreadID != "" && !configData.NewSession {
 
 		configData = functions.GetConfigData(sessionData)
 
-		sessionData.Symbol, _ = mysql.GetOrderSymbol(sessionData)
+		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+
+			/* Cleanly exit ThreadID */
+			threads.ExitThreadID(sessionData)
+
+		}
 
 		if sessionData.Symbol == "" {
 
@@ -415,7 +460,7 @@ func execution(
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFiatFunds, _ = exchange.GetSymbolFunds(
+	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFunds(
 		configData,
 		sessionData); err == nil {
 		_ = mysql.UpdateSession(
@@ -450,7 +495,18 @@ func execution(
 		}
 
 		/* Update ThreadCount */
-		sessionData.ThreadCount, _ = mysql.GetThreadTransactionCount(sessionData)
+		if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+
+		}
 
 		/* Update Number of Sale Transactions per hour */
 		sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")

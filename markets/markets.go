@@ -3,6 +3,7 @@ package markets
 import (
 	"cryptopump/exchange"
 	"cryptopump/functions"
+	"cryptopump/logger"
 	"cryptopump/types"
 	"fmt"
 	"strconv"
@@ -40,7 +41,25 @@ func LoadKlineData(
 	marketData *types.Market,
 	kline types.WsKline) {
 
-	start, _ := strconv.ParseInt(fmt.Sprint(kline.StartTime), 10, 64)
+	var start int64
+	var err error
+	var priceChangeStats []*types.PriceChangeStats
+
+	if start, err = strconv.ParseInt(fmt.Sprint(kline.StartTime), 10, 64); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return
+
+	}
+
 	period := techan.NewTimePeriod(time.Unix((start/1000), 0).UTC(), time.Minute*1)
 
 	candle := techan.NewCandle(period)
@@ -50,11 +69,26 @@ func LoadKlineData(
 	candle.MinPrice = big.NewFromString(kline.Low)
 	candle.Volume = big.NewFromString(kline.Volume)
 
-	if !marketData.Series.AddCandle(candle) {
+	if !marketData.Series.AddCandle(candle) { /* AddCandle adds the given candle to TimeSeries */
+
 		return
+
 	}
 
-	priceChangeStats, _ := exchange.GetPriceChangeStats(configData, sessionData, marketData)
+	if priceChangeStats, err = exchange.GetPriceChangeStats(configData, sessionData, marketData); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return
+
+	}
 
 	calculate(
 		techan.NewClosePriceIndicator(marketData.Series),
@@ -72,6 +106,7 @@ func LoadKlineDataPast(
 
 	var err error
 	var klines []*types.Kline
+	var priceChangeStats []*types.PriceChangeStats
 
 	if klines, err = exchange.GetKlines(configData, sessionData); err != nil {
 
@@ -81,7 +116,23 @@ func LoadKlineDataPast(
 
 	for _, datum := range klines {
 
-		start, _ := strconv.ParseInt(fmt.Sprint(datum.OpenTime), 10, 64)
+		var start int64
+
+		if start, err = strconv.ParseInt(fmt.Sprint(datum.OpenTime), 10, 64); err != nil {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+
+			return
+
+		}
+
 		period := techan.NewTimePeriod(time.Unix((start/1000), 0).UTC(), time.Minute*1)
 
 		candle := techan.NewCandle(period)
@@ -97,7 +148,20 @@ func LoadKlineDataPast(
 
 	}
 
-	priceChangeStats, _ := exchange.GetPriceChangeStats(configData, sessionData, marketData)
+	if priceChangeStats, err = exchange.GetPriceChangeStats(configData, sessionData, marketData); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return
+
+	}
 
 	calculate(
 		techan.NewClosePriceIndicator(marketData.Series),

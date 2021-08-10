@@ -187,7 +187,7 @@ func lineBase(name string, XAxis []string, lineData []opts.LineData, color strin
 		AddSeries(name, lineData).
 		SetSeriesOptions(
 			charts.WithLineChartOpts(opts.LineChart{
-				Smooth: true,
+				Smooth: false,
 			}),
 			charts.WithLineStyleOpts(opts.LineStyle{
 				Color:   color,

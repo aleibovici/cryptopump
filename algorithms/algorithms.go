@@ -383,7 +383,18 @@ func WsUserDataServe(
 	var err error
 
 	/* Retrieve listen key for user stream service */
-	sessionData.ListenKey, _ = exchange.GetUserStreamServiceListenKey(configData, sessionData)
+	if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
 
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsUserDataServe = func(message []byte) {
@@ -480,7 +491,18 @@ func WsUserDataServe(
 		stopChannels(stopC, wg, configData, sessionData)
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
-		sessionData.ListenKey, _ = exchange.GetUserStreamServiceListenKey(configData, sessionData)
+		if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+
+		}
 
 	}
 
@@ -665,7 +687,18 @@ func WsBookTicker(
 					sessionData)
 
 				/* Update ThreadCount after SELL */
-				sessionData.ThreadCount, _ = mysql.GetThreadTransactionCount(sessionData)
+				if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
+
+					logger.LogEntry{
+						Config:   configData,
+						Market:   marketData,
+						Session:  sessionData,
+						Order:    &types.Order{},
+						Message:  functions.GetFunctionName() + " - " + err.Error(),
+						LogLevel: "DebugLevel",
+					}.Do()
+
+				}
 
 				/* Update Number of Sale Transactions per hour */
 				sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
