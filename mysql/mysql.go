@@ -1,13 +1,14 @@
 package mysql
 
 import (
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/types"
 	"database/sql"
 	"fmt"
 	"math"
 	"os"
+
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/types"
 
 	_ "github.com/go-sql-driver/mysql" // This blank entry is required to enable mysql connectivity
 )

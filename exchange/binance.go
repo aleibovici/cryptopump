@@ -2,10 +2,11 @@ package exchange
 
 import (
 	"context"
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/types"
 	"time"
+
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
 )

@@ -14,8 +14,8 @@ import (
 	"os"
 	"strconv"
 
-	"cryptopump/logger"
-	"cryptopump/types"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/rs/xid"
 	"github.com/spf13/viper"

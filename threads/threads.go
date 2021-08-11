@@ -1,13 +1,14 @@
 package threads
 
 import (
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/mysql"
-	"cryptopump/node"
-	"cryptopump/types"
 	"os"
 	"time"
+
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/mysql"
+	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/types"
 )
 
 // ExitThreadID Cleanly exit a Thread

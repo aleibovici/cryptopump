@@ -1,17 +1,6 @@
 package main
 
 import (
-	"cryptopump/algorithms"
-	"cryptopump/exchange"
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/markets"
-	"cryptopump/mysql"
-	"cryptopump/node"
-	"cryptopump/plotter"
-	"cryptopump/telegram"
-	"cryptopump/threads"
-	"cryptopump/types"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -23,6 +12,18 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/aleibovici/cryptopump/algorithms"
+	"github.com/aleibovici/cryptopump/exchange"
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/markets"
+	"github.com/aleibovici/cryptopump/mysql"
+	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/plotter"
+	"github.com/aleibovici/cryptopump/telegram"
+	"github.com/aleibovici/cryptopump/threads"
+	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/jtaczanowski/go-scheduler"
 	"github.com/sdcoffey/techan"

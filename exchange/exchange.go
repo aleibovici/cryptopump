@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/mysql"
-	"cryptopump/threads"
-	"cryptopump/types"
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/mysql"
+	"github.com/aleibovici/cryptopump/threads"
+	"github.com/aleibovici/cryptopump/types"
 )
 
 // GetClient Define the exchange to be used

@@ -1,19 +1,20 @@
 package algorithms
 
 import (
-	"cryptopump/exchange"
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/markets"
-	"cryptopump/mysql"
-	"cryptopump/plotter"
-	"cryptopump/threads"
-	"cryptopump/types"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/aleibovici/cryptopump/exchange"
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/markets"
+	"github.com/aleibovici/cryptopump/mysql"
+	"github.com/aleibovici/cryptopump/plotter"
+	"github.com/aleibovici/cryptopump/threads"
+	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
 )
