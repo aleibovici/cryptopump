@@ -372,10 +372,11 @@
                                             for="selltocover">Sell-to-Cover Low Funds</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="selltocover"
-                                            name="selltocover" data-toggle="tooltip"
-                                            title='Sell lowest transaction to cover low funds at "Buy Repeat Threshold Down"' 
-                                            value="{{ .SellToCover }}"/>
+                                        <select class="custom-select" id="selltocover" name="selltocover" data-toggle="tooltip" title='Sell lowest transaction to cover low funds at "Buy Repeat Threshold Down'>
+                                            <option selected>{{ .SellToCover }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -410,9 +411,12 @@
                                             for="exchangename">Exchange Name</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="exchangename"
-                                            name="exchangename" data-toggle="tooltip" title='Name of Exchange in use'
-                                            maxlength="20" value="{{ .ExchangeName }}"/>
+                                        <select class="custom-select" id="exchangename" name="exchangename" data-toggle="tooltip" title='Name of Exchange in use' disabled>
+                                            <option selected>{{ .ExchangeName }}</option>
+                                            <option value="Binance">Binance</option>
+                                            <option value="Coinbase">Coinbase</option>
+                                            <option value="Kraken">Kraken</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -436,7 +440,7 @@
                                         <input type="text" class="form-control" id="symbol_fiat"
                                             name="symbol_fiat" data-toggle="tooltip"
                                             title='Quantity to stash away (decimal)' maxlength="4"
-                                            value="{{ .SymbolFiat }}" />
+                                            value="{{ .SymbolFiat }}" disabled/>
                                     </div>
                                 </div>
 
@@ -459,7 +463,7 @@
                                     <div class="col input-group input-group-sm">
                                         <input type="text" class="form-control" id="symbol" name="symbol"
                                             data-toggle="tooltip" title='symbol' maxlength="7"
-                                            value="{{ .Symbol }}" />
+                                            value="{{ .Symbol }}" disabled/>
                                     </div>
                                 </div>
 
@@ -469,9 +473,11 @@
                                         <label class="col-form-label" for="timeEnforce">Enforce Time</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="timeEnforce" name="timeEnforce"
-                                            data-toggle="tooltip" title='Enforce timeStart and timeStop' 
-                                            value="{{ .TimeEnforce }}" />
+                                        <select class="custom-select" id="timeEnforce" name="timeEnforce" data-toggle="tooltip" title='Enforce timeStart and timeStop'>
+                                            <option selected>{{ .TimeEnforce }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -511,9 +517,11 @@
                                         <label class="col-form-label" for="debug">Debug</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="debug" name="debug"
-                                            data-toggle="tooltip" title='Enable debug logging' 
-                                            value="{{ .Debug }}" required/>
+                                        <select class="custom-select" id="debug" name="debug" data-toggle="tooltip" title='Enable debug logging'>
+                                            <option selected>{{ .Debug }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -522,9 +530,11 @@
                                         <label class="col-form-label" for="exit">Exit</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="exit" name="exit"
-                                            data-toggle="tooltip" title='Stop buying and Exit when 0 transactions'
-                                            maxlength="5" value="{{ .Exit }}" required/>
+                                        <select class="custom-select" id="exit" name="exit" data-toggle="tooltip" title='Stop buying and Exit when 0 transactions'>
+                                            <option selected>{{ .Exit }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -533,9 +543,11 @@
                                         <label class="col-form-label" for="dryrun">DryRun</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="dryrun" name="dryrun"
-                                            data-toggle="tooltip" title='DryRun mode' maxlength="5"
-                                            value="{{ .DryRun }}" required/>
+                                        <select class="custom-select" id="dryrun" name="dryrun" data-toggle="tooltip" title='DryRun mode'>
+                                            <option selected>{{ .DryRun }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -544,9 +556,11 @@
                                         <label class="col-form-label" for="newsession">New Session</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="newsession" name="newsession"
-                                            data-toggle="tooltip" title='Force New Session' maxlength="5"
-                                            value="{{ .NewSession }}" required/>
+                                        <select class="custom-select" id="newsession" name="newsession" data-toggle="tooltip" title='Force New Session' disabled>
+                                            <option selected>{{ .NewSession }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 
@@ -555,9 +569,11 @@
                                         <label class="col-form-label" for="newsession">TestNet</label>
                                     </div>
                                     <div class="col input-group input-group-sm">
-                                        <input type="text" class="form-control" id="testnet" name="testnet"
-                                            data-toggle="tooltip" title='Use TestNet if available in exchange' maxlength="5"
-                                            value="{{ .TestNet }}" disabled/>
+                                        <select class="custom-select" id="testnet" name="testnet" data-toggle="tooltip" title='Use TestNet if available in exchange' disabled>
+                                            <option selected>{{ .TestNet }}</option>
+                                            <option value="false">false</option>
+                                            <option value="true">true</option>
+                                          </select>
                                     </div>
                                 </div>
 

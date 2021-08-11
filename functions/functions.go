@@ -548,23 +548,33 @@ func SaveConfigData(
 	viper.Set("config.buy_repeat_threshold_down_second_start_count", r.PostFormValue("buyRepeatThresholdDownSecondStartCount"))
 	viper.Set("config.buy_repeat_threshold_up", r.PostFormValue("buyRepeatThresholdUp"))
 	viper.Set("config.exchange_comission", r.PostFormValue("exchangeComission"))
-	viper.Set("config.exchangename", r.PostFormValue("exchangename"))
+	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
+		viper.Set("config.exchangename", r.PostFormValue("exchangename"))
+	}
 	viper.Set("config.profit_min", r.PostFormValue("profitMin"))
 	viper.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
 	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
-	viper.Set("config.symbol", r.PostFormValue("symbol"))
-	viper.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
+	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
+		viper.Set("config.symbol", r.PostFormValue("symbol"))
+	}
+	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
+		viper.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
+	}
 	viper.Set("config.symbol_fiat_stash", r.PostFormValue("symbolFiatStash"))
 	viper.Set("config.time_enforce", r.PostFormValue("timeEnforce"))
 	viper.Set("config.time_start", r.PostFormValue("timeStart"))
 	viper.Set("config.time_stop", r.PostFormValue("timeStop"))
-	viper.Set("config.testnet", r.PostFormValue("testnet"))
+	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
+		viper.Set("config.testnet", r.PostFormValue("testnet"))
+	}
 	viper.Set("config.debug", r.PostFormValue("debug"))
 	viper.Set("config.exit", r.PostFormValue("exit"))
 	viper.Set("config.dryrun", r.PostFormValue("dryrun"))
-	viper.Set("config.newsession", r.PostFormValue(("newsession")))
+	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
+		viper.Set("config.newsession", r.PostFormValue(("newsession")))
+	}
 
 	if err := viper.WriteConfig(); err != nil {
 
