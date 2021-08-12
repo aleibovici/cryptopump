@@ -494,6 +494,11 @@ func WsUserDataServe(
 
 			return
 
+		case strings.Contains(err.Error(), "read: operation timed out"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
+
+			return
+
 		}
 
 		stopChannels(stopC, wg, configData, sessionData)
@@ -762,6 +767,11 @@ func WsBookTicker(
 		case strings.Contains(err.Error(), "connection reset by peer"):
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
+		case strings.Contains(err.Error(), "read: operation timed out"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
+
+			return
 
 		}
 
