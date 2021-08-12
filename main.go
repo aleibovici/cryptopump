@@ -461,12 +461,28 @@ func execution(
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFunds(
+	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFiatFunds(
 		configData,
 		sessionData); err == nil {
 		_ = mysql.UpdateSession(
 			configData,
 			sessionData)
+	}
+
+	/* Retrieve available symbol funds
+	This is only used for retrieving balances for the first time, ans is then followed by
+	the Websocket routine to retrieve realtime user data  */
+	if sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
 	}
 
 	/* Retrieve exchange lot size for ticker and store in sessionData */

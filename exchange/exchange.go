@@ -132,7 +132,23 @@ func GetLotSize(
 
 }
 
-// GetSymbolFunds Retrieve funds available
+// GetSymbolFiatFunds Retrieve symbol fiat funds available
+func GetSymbolFiatFunds(
+	configData *types.Config,
+	sessionData *types.Session) (balance float64, err error) {
+
+	switch strings.ToLower(configData.ExchangeName) {
+	case "binance":
+
+		return binanceGetSymbolFiatFunds(sessionData)
+
+	}
+
+	return
+
+}
+
+// GetSymbolFunds Retrieve symbol funds available
 func GetSymbolFunds(
 	configData *types.Config,
 	sessionData *types.Session) (balance float64, err error) {
@@ -512,6 +528,18 @@ func SellTicker(
 	/* Test orderResponse for  errors */
 	if (orderResponse == nil && err != nil) ||
 		(orderResponse == nil && err == nil) {
+
+		logger.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID:       int(orderResponse.OrderID),
+				OrderIDSource: int(order.OrderID),
+			},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return
 

@@ -73,10 +73,11 @@ type Session struct {
 	ThreadID             string /* Unique session ID for the thread */
 	ThreadIDSession      string
 	ThreadCount          int
-	SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes */
-	Symbol               string
-	SymbolFiat           string
-	SymbolFiatFunds      float64
+	SellTransactionCount float64   /* Number of SELL transactions in the last 60 minutes */
+	Symbol               string    /* Symbol */
+	SymbolFunds          float64   /* Available crypto funds in exchange */
+	SymbolFiat           string    /* Fiat symbol */
+	SymbolFiatFunds      float64   /* Available fiat funds in exchange */
 	LastBuyTransactTime  time.Time /* This session variable stores the time of the last buy */
 	LastSellCanceledTime time.Time /* This session variable stores the time of the cancelled sell */
 	ConfigTemplate       int

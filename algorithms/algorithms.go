@@ -456,6 +456,13 @@ func WsUserDataServe(
 
 				}
 
+				/* Update Available crypto funds in exchange */
+				if outboundAccountPosition.Balances[key].Asset == sessionData.Symbol[0:3] {
+
+					sessionData.SymbolFunds = functions.StrToFloat64(outboundAccountPosition.Balances[key].Free)
+
+				}
+
 			}
 
 			return
@@ -980,6 +987,22 @@ func SellDecisionTree(
 	This function help to avoid issue when a sale happen in the same second as the Buy transaction.
 	Duration must be provided in seconds */
 	if !isOrderInTimeRangeToSell(order, 60) {
+
+		return false, order
+
+	}
+
+	/* Test if symbol funds are available for the order */
+	if sessionData.SymbolFunds < order.ExecutedQuantity {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Not enough " + sessionData.Symbol[0:3] + " funds available",
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return false, order
 
