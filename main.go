@@ -687,7 +687,7 @@ func loadSessionDataAdditionalComponents(
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
-	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds*marketData.Price)*100) / 100
+	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*100000000) / 100000000
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 
