@@ -1002,22 +1002,6 @@ func SellDecisionTree(
 
 	}
 
-	/* Test if symbol funds are available for the order */
-	if sessionData.SymbolFunds < order.ExecutedQuantity {
-
-		logger.LogEntry{
-			Config:   configData,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  "Not enough " + sessionData.Symbol[0:3] + " funds available",
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		return false, order
-
-	}
-
 	/* Current price is higher than BUY price + profits */
 	/* Modify profit based on sell transaction count  */
 	if (marketData.Price*(1+configData.ExchangeComission)) >=
@@ -1029,6 +1013,15 @@ func SellDecisionTree(
 		if marketData.Rsi3 > configData.SellHoldOnRSI3 {
 
 			return false, order
+
+		}
+
+		/* Test if symbol funds are available for the order, and change ExecutedQuantity.
+		Sometimes due to decimal changes in transactions or transaction failures there could be divergences.
+		This test function mitigates the problem. */
+		if sessionData.SymbolFunds < order.ExecutedQuantity {
+
+			order.ExecutedQuantity = sessionData.SymbolFunds
 
 		}
 
