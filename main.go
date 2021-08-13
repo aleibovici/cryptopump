@@ -650,10 +650,11 @@ func loadSessionDataAdditionalComponents(
 	}
 
 	type Order struct {
-		OrderID string
-		Quote   float64
-		Price   float64
-		Target  float64
+		OrderID  string
+		Quantity float64
+		Quote    float64
+		Price    float64
+		Target   float64
 	}
 
 	type Session struct {
@@ -710,6 +711,7 @@ func loadSessionDataAdditionalComponents(
 
 			tmp := Order{}
 			tmp.OrderID = strconv.Itoa(key.OrderID)
+			tmp.Quantity = key.ExecutedQuantity
 			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
 			tmp.Price = math.Round(key.Price*10000) / 10000
 			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000

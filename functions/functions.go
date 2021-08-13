@@ -38,6 +38,8 @@ func StrToFloat64(value string) (r float64) {
 			LogLevel: "DebugLevel",
 		}.Do()
 
+		return 0
+
 	}
 
 	return r
