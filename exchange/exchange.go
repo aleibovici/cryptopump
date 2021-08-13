@@ -530,13 +530,10 @@ func SellTicker(
 		(orderResponse == nil && err == nil) {
 
 		logger.LogEntry{
-			Config:  configData,
-			Market:  marketData,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID:       int(orderResponse.OrderID),
-				OrderIDSource: int(order.OrderID),
-			},
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()

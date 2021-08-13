@@ -659,6 +659,8 @@ func loadSessionDataAdditionalComponents(
 	type Session struct {
 		ThreadID             string  /* Unique session ID for the thread */
 		SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes*/
+		Symbol               string  /* Symbol */
+		SymbolFunds          float64 /* Available crypto funds in exchange */
 		SymbolFiat           string  /* Fiat currency funds */
 		SymbolFiatFunds      float64 /* Fiat currency funds */
 		ProfitThreadID       float64 /* ThreadID profit */
@@ -684,6 +686,8 @@ func loadSessionDataAdditionalComponents(
 
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
+	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
+	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds*marketData.Price)*100) / 100
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 
