@@ -993,6 +993,21 @@ func SellDecisionTree(
 
 	}
 
+	/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
+	Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
+	functions help t avoid the problem creating a constant cadence of orders to sell. */
+	if sessionData.SymbolFunds <= order.ExecutedQuantity {
+
+		exchange.BuyTicker(
+			configData.BuyQuantityFiatInit,
+			configData,
+			marketData,
+			sessionData)
+
+		return false, order
+
+	}
+
 	/* Verify that an order is in a sellable time range
 	This function help to avoid issue when a sale happen in the same second as the Buy transaction.
 	Duration must be provided in seconds */
@@ -1011,21 +1026,6 @@ func SellDecisionTree(
 		/* Hold sale if RSI3 above defined threshold.
 		The objective of this setting is to extend the holding as long as possible while ticker price is climbing */
 		if marketData.Rsi3 > configData.SellHoldOnRSI3 {
-
-			return false, order
-
-		}
-
-		/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
-		Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
-		functions help t avoid the problem creating a constant cadence of orders to sell. */
-		if sessionData.SymbolFunds <= order.ExecutedQuantity {
-
-			exchange.BuyTicker(
-				configData.BuyQuantityFiatInit,
-				configData,
-				marketData,
-				sessionData)
 
 			return false, order
 
