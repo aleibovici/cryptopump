@@ -768,8 +768,12 @@ func WsBookTicker(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
+			return
+
 		case strings.Contains(err.Error(), "read: operation timed out"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 			return
 
