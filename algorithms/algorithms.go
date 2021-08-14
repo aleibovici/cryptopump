@@ -1016,12 +1016,18 @@ func SellDecisionTree(
 
 		}
 
-		/* Test if symbol funds are available for the order, and change ExecutedQuantity.
-		Sometimes due to decimal changes in transactions or transaction failures there could be divergences.
-		This test function mitigates the problem. */
-		if sessionData.SymbolFunds < order.ExecutedQuantity {
+		/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
+		Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
+		functions help t avoid the problem creating a constant cadence of orders to sell. */
+		if sessionData.SymbolFunds <= order.ExecutedQuantity {
 
-			order.ExecutedQuantity = sessionData.SymbolFunds
+			exchange.BuyTicker(
+				configData.BuyQuantityFiatInit,
+				configData,
+				marketData,
+				sessionData)
+
+			return false, order
 
 		}
 
