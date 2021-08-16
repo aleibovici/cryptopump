@@ -603,7 +603,7 @@ func WsKline(
 
 			return
 
-		case strings.Contains(err.Error(), "unexpected EOF"):
+		case strings.Contains(err.Error(), "EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
@@ -759,7 +759,7 @@ func WsBookTicker(
 
 			return
 
-		case strings.Contains(err.Error(), "unexpected EOF"):
+		case strings.Contains(err.Error(), "EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
