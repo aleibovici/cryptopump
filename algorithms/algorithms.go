@@ -499,6 +499,25 @@ func WsUserDataServe(
 
 			return
 
+		case strings.Contains(err.Error(), "read: connection reset by peer"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
+
+			/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
+			if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
+
+				logger.LogEntry{
+					Config:   configData,
+					Market:   nil,
+					Session:  sessionData,
+					Order:    &types.Order{},
+					Message:  functions.GetFunctionName() + " - " + err.Error(),
+					LogLevel: "DebugLevel",
+				}.Do()
+
+			}
+
+			return
+
 		}
 
 		stopChannels(stopC, wg, configData, sessionData)
@@ -612,6 +631,13 @@ func WsKline(
 			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
+		case strings.Contains(err.Error(), "read: connection reset by peer"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
+			return
 
 		}
 
@@ -764,7 +790,8 @@ func WsBookTicker(
 
 			return
 
-		case strings.Contains(err.Error(), "connection reset by peer"):
+		case strings.Contains(err.Error(), "read: connection reset by peer"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
