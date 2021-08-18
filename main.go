@@ -1,17 +1,6 @@
 package main
 
 import (
-	"cryptopump/algorithms"
-	"cryptopump/exchange"
-	"cryptopump/functions"
-	"cryptopump/logger"
-	"cryptopump/markets"
-	"cryptopump/mysql"
-	"cryptopump/node"
-	"cryptopump/plotter"
-	"cryptopump/telegram"
-	"cryptopump/threads"
-	"cryptopump/types"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -23,6 +12,18 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/aleibovici/cryptopump/algorithms"
+	"github.com/aleibovici/cryptopump/exchange"
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/markets"
+	"github.com/aleibovici/cryptopump/mysql"
+	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/plotter"
+	"github.com/aleibovici/cryptopump/telegram"
+	"github.com/aleibovici/cryptopump/threads"
+	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/jtaczanowski/go-scheduler"
 	"github.com/sdcoffey/techan"
@@ -460,12 +461,28 @@ func execution(
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFunds(
+	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFiatFunds(
 		configData,
 		sessionData); err == nil {
 		_ = mysql.UpdateSession(
 			configData,
 			sessionData)
+	}
+
+	/* Retrieve available symbol funds
+	This is only used for retrieving balances for the first time, ans is then followed by
+	the Websocket routine to retrieve realtime user data  */
+	if sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
 	}
 
 	/* Retrieve exchange lot size for ticker and store in sessionData */
@@ -633,15 +650,18 @@ func loadSessionDataAdditionalComponents(
 	}
 
 	type Order struct {
-		OrderID string
-		Quote   float64
-		Price   float64
-		Target  float64
+		OrderID  string
+		Quantity float64
+		Quote    float64
+		Price    float64
+		Target   float64
 	}
 
 	type Session struct {
 		ThreadID             string  /* Unique session ID for the thread */
 		SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes*/
+		Symbol               string  /* Symbol */
+		SymbolFunds          float64 /* Available crypto funds in exchange */
 		SymbolFiat           string  /* Fiat currency funds */
 		SymbolFiatFunds      float64 /* Fiat currency funds */
 		ProfitThreadID       float64 /* ThreadID profit */
@@ -667,6 +687,8 @@ func loadSessionDataAdditionalComponents(
 
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
+	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
+	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*100000000) / 100000000
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 
@@ -689,6 +711,7 @@ func loadSessionDataAdditionalComponents(
 
 			tmp := Order{}
 			tmp.OrderID = strconv.Itoa(key.OrderID)
+			tmp.Quantity = key.ExecutedQuantity
 			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
 			tmp.Price = math.Round(key.Price*10000) / 10000
 			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000
