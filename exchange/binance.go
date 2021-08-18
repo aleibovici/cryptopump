@@ -2,11 +2,10 @@ package exchange
 
 import (
 	"context"
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/types"
 	"time"
-
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
 )
@@ -229,42 +228,7 @@ func binanceNewSetServerTimeService(
 
 }
 
-/* Retrieve symbol fiat funds available */
-func binanceGetSymbolFiatFunds(
-	sessionData *types.Session) (balance float64, err error) {
-
-	var account *binance.Account
-
-	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		return 0, err
-
-	}
-
-	for key := range account.Balances {
-
-		if account.Balances[key].Asset == sessionData.SymbolFiat {
-
-			return functions.StrToFloat64(account.Balances[key].Free), err
-
-		}
-
-	}
-
-	return 0, err
-
-}
-
-/* Retrieve symbol funds available */
+/* Retrieve funds available */
 func binanceGetSymbolFunds(
 	sessionData *types.Session) (balance float64, err error) {
 
@@ -287,7 +251,7 @@ func binanceGetSymbolFunds(
 
 	for key := range account.Balances {
 
-		if account.Balances[key].Asset == sessionData.Symbol[0:3] {
+		if account.Balances[key].Asset == sessionData.SymbolFiat {
 
 			return functions.StrToFloat64(account.Balances[key].Free), err
 

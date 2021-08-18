@@ -1,12 +1,11 @@
 package node
 
 import (
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/types"
 	"os"
 	"time"
-
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/types"
 )
 
 // GetRole Define node role Master or Slave

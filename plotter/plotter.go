@@ -2,13 +2,12 @@ package plotter
 
 import (
 	"bytes"
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/types"
 	"html/template"
 	"math"
 	"time"
-
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"

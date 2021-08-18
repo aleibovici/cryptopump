@@ -1,4 +1,4 @@
-module github.com/aleibovici/cryptopump
+module cryptopump
 
 go 1.16
 

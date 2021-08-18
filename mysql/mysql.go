@@ -1,14 +1,13 @@
 package mysql
 
 import (
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/types"
 	"database/sql"
 	"fmt"
 	"math"
 	"os"
-
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/types"
 
 	_ "github.com/go-sql-driver/mysql" // This blank entry is required to enable mysql connectivity
 )
@@ -827,11 +826,10 @@ func GetThreadTransactionByThreadID(
 	for rows.Next() {
 
 		var orderID int
-		var cumulativeQuoteQty, price, executedQuantity string
-		err = rows.Scan(&orderID, &cumulativeQuoteQty, &price, &executedQuantity)
+		var cumulativeQuoteQty, price string
+		err = rows.Scan(&orderID, &cumulativeQuoteQty, &price)
 
 		order.OrderID = orderID
-		order.ExecutedQuantity = functions.StrToFloat64(executedQuantity)
 		order.CumulativeQuoteQuantity = math.Round(functions.StrToFloat64(cumulativeQuoteQty)*100) / 100
 		order.Price = math.Round(functions.StrToFloat64(price)*1000) / 1000
 		orders = append(orders, order)

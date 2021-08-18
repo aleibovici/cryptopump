@@ -58,7 +58,7 @@ CREATE TABLE `session` (
   `FiatFunds` float NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=913 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=826 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +77,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6952 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6781 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -538,8 +538,7 @@ BEGIN
 SELECT 
     `thread`.`OrderID` AS `OrderID`,
     `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
-    `thread`.`Price` AS `Price`,
-    `thread`.`ExecutedQuantity` AS `ExecutedQuantity`
+    `thread`.`Price` AS `Price`
 FROM
     `thread`
         LEFT JOIN
@@ -739,4 +738,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-14  7:17:00
+-- Dump completed on 2021-08-08 14:09:27

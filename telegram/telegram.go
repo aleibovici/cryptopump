@@ -1,15 +1,14 @@
 package telegram
 
 import (
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/mysql"
+	"cryptopump/threads"
+	"cryptopump/types"
 	"strconv"
 	"sync"
 	"time"
-
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/threads"
-	"github.com/aleibovici/cryptopump/types"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

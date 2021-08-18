@@ -1,14 +1,13 @@
 package markets
 
 import (
+	"cryptopump/exchange"
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/types"
 	"fmt"
 	"strconv"
 	"time"
-
-	"github.com/aleibovici/cryptopump/exchange"
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/sdcoffey/big"
 	"github.com/sdcoffey/techan"

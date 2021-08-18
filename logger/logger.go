@@ -1,11 +1,10 @@
 package logger
 
 import (
+	"cryptopump/types"
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/aleibovici/cryptopump/types"
 
 	log "github.com/sirupsen/logrus"
 )

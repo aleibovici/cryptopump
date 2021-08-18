@@ -1,20 +1,19 @@
 package algorithms
 
 import (
+	"cryptopump/exchange"
+	"cryptopump/functions"
+	"cryptopump/logger"
+	"cryptopump/markets"
+	"cryptopump/mysql"
+	"cryptopump/plotter"
+	"cryptopump/threads"
+	"cryptopump/types"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/aleibovici/cryptopump/exchange"
-	"github.com/aleibovici/cryptopump/functions"
-	"github.com/aleibovici/cryptopump/logger"
-	"github.com/aleibovici/cryptopump/markets"
-	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/plotter"
-	"github.com/aleibovici/cryptopump/threads"
-	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
 )
@@ -456,13 +455,6 @@ func WsUserDataServe(
 
 				}
 
-				/* Update Available crypto funds in exchange */
-				if outboundAccountPosition.Balances[key].Asset == sessionData.Symbol[0:3] {
-
-					sessionData.SymbolFunds = functions.StrToFloat64(outboundAccountPosition.Balances[key].Free)
-
-				}
-
 			}
 
 			return
@@ -491,30 +483,6 @@ func WsUserDataServe(
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
-
-			return
-
-		case strings.Contains(err.Error(), "read: operation timed out"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
-
-			return
-
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
-			if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
-
-				logger.LogEntry{
-					Config:   configData,
-					Market:   nil,
-					Session:  sessionData,
-					Order:    &types.Order{},
-					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: "DebugLevel",
-				}.Do()
-
-			}
 
 			return
 
@@ -622,7 +590,7 @@ func WsKline(
 
 			return
 
-		case strings.Contains(err.Error(), "EOF"):
+		case strings.Contains(err.Error(), "unexpected EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
@@ -631,13 +599,6 @@ func WsKline(
 			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
 
 		}
 
@@ -785,24 +746,14 @@ func WsBookTicker(
 
 			return
 
-		case strings.Contains(err.Error(), "EOF"):
+		case strings.Contains(err.Error(), "unexpected EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
 			return
 
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
+		case strings.Contains(err.Error(), "connection reset by peer"):
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
-
-		case strings.Contains(err.Error(), "read: operation timed out"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
 
 		}
 
@@ -1019,21 +970,6 @@ func SellDecisionTree(
 
 	/* If no transactions found return False */
 	if order.OrderID == 0 {
-
-		return false, order
-
-	}
-
-	/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
-	Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
-	functions help t avoid the problem creating a constant cadence of orders to sell. */
-	if sessionData.SymbolFunds <= order.ExecutedQuantity {
-
-		exchange.BuyTicker(
-			configData.BuyQuantityFiatInit,
-			configData,
-			marketData,
-			sessionData)
 
 		return false, order
 
