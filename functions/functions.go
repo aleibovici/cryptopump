@@ -609,15 +609,6 @@ func GetExchangeLatency(sessionData *types.Session) {
 
 	if req, err = http.NewRequest("GET", sessionData.Clients.Binance.BaseURL, nil); err != nil {
 
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
 		return
 
 	}
@@ -629,15 +620,6 @@ func GetExchangeLatency(sessionData *types.Session) {
 
 	client := http.DefaultClient
 	if res, err = client.Do(req); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
 
 		return
 
