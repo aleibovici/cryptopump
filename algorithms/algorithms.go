@@ -492,6 +492,8 @@ func WsUserDataServe(
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
 
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
 			return
 
 		case strings.Contains(err.Error(), "read: operation timed out"):
@@ -619,6 +621,8 @@ func WsKline(
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 			return
 
@@ -770,6 +774,8 @@ func WsBookTicker(
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 			return
 
