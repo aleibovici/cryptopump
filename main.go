@@ -458,6 +458,14 @@ func execution(
 		time.Second*180,
 		time.Second*0)
 
+	/* Update exchange latency every 5 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			functions.GetExchangeLatency(sessionData)
+		},
+		time.Second*5,
+		time.Second*0)
+
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
@@ -668,6 +676,7 @@ func loadSessionDataAdditionalComponents(
 		Profit               float64 /* Total profit */
 		ThreadCount          int     /* Thread count */
 		ThreadAmount         float64 /* Thread cost amount */
+		Latency              int64   /* Latency between the exchange and client */
 		Orders               []Order
 	}
 
@@ -685,6 +694,7 @@ func loadSessionDataAdditionalComponents(
 	sessiondata.Market.Price = math.Round(marketData.Price*1000) / 1000
 	sessiondata.Market.Direction = marketData.Direction
 
+	sessiondata.Session.Latency = sessionData.Latency /* Latency between the exchange and client */
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.Symbol = sessionData.Symbol[0:3]

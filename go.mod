@@ -14,5 +14,8 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/viper v1.8.1
+	github.com/tcnksm/go-httpstat v0.2.0
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
+	golang.org/x/sys v0.0.0-20210818153620-00dd8d7831e7 // indirect
+	golang.org/x/text v0.3.6 // indirect
 )

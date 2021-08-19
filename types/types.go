@@ -94,6 +94,7 @@ type Session struct {
 	MinQuantity          float64          /* Defines the minimum quantity allowed by exchange */
 	MaxQuantity          float64          /* Defines the maximum quantity allowed by exchange */
 	StepSize             float64          /* Defines the intervals that a quantity can be increased/decreased by exchange */
+	Latency              int64            /* Latency between the exchange and client */
 }
 
 // Client struct for client libraries
