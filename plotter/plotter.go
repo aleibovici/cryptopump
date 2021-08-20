@@ -83,7 +83,7 @@ func Plot(sessionData *types.Session) (
 	}
 
 	kline := klineBase("KLINE", x, y)                                                   /* Create base kline chart */
-	kline.Overlap(lineBase("MA7", x, ma7, "blue"), lineBase("MA14", x, ma14, "orange")) /* Create overlaping line charts */
+	kline.Overlap(lineBase("MA7", x, ma7, "blue"), lineBase("MA14", x, ma14, "orange")) /* Create overlapping line charts */
 
 	return renderToHTML(kline)
 }
