@@ -634,7 +634,8 @@ func GetThreadTransactionDistinct(
 			&threadID,
 			&threadIDSession)
 
-		if functions.LockThreadID(threadID) { /* Create lock for threadID */
+		/* Verify if lock file for thread exist. If lock file doesn't exist leave function with empty thread */
+		if _, err := os.Stat(threadID + ".lock"); err != nil {
 
 			break
 
@@ -644,6 +645,7 @@ func GetThreadTransactionDistinct(
 			threadIDSession = ""
 
 		}
+
 	}
 
 	rows.Close()

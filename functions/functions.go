@@ -246,32 +246,6 @@ func GetFunctionName() string {
 
 }
 
-// LockThreadID Create lock for threadID
-func LockThreadID(threadID string) bool {
-
-	filename := threadID + ".lock"
-
-	if _, err := os.Stat(filename); err == nil {
-
-		return false
-
-	} else if os.IsNotExist(err) {
-
-		var file, err = os.Create(filename)
-		if err != nil {
-			return false
-		}
-
-		file.Close()
-
-		return true
-
-	}
-
-	return false
-
-}
-
 // GetPort Determine port for HTTP service.
 func GetPort() (port string) {
 

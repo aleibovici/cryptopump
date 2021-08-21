@@ -339,6 +339,9 @@ func execution(
 
 	if sessionData.ThreadID != "" && !configData.NewSession {
 
+		/* If GetThreadTransactionDistinct return empty, create and lock thread file */
+		threads.LockThreadID(sessionData.ThreadID)
+
 		configData = functions.GetConfigData(sessionData)
 
 		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil {
@@ -391,7 +394,7 @@ func execution(
 		sessionData.ThreadID = functions.GetThreadID()
 
 		/* Create lock for threadID */
-		if !functions.LockThreadID(sessionData.ThreadID) {
+		if !threads.LockThreadID(sessionData.ThreadID) {
 
 			os.Exit(1)
 

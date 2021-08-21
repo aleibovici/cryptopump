@@ -59,6 +59,32 @@ func ExitThreadID(
 
 }
 
+// LockThreadID Create lock for threadID
+func LockThreadID(threadID string) bool {
+
+	filename := threadID + ".lock"
+
+	if _, err := os.Stat(filename); err == nil {
+
+		return false
+
+	} else if os.IsNotExist(err) {
+
+		var file, err = os.Create(filename)
+		if err != nil {
+			return false
+		}
+
+		file.Close()
+
+		return true
+
+	}
+
+	return false
+
+}
+
 /* Remove lock for threadID */
 func unlockThreadID(
 	sessionData *types.Session) {
