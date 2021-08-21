@@ -160,6 +160,7 @@ func CheckUpdates(
 
 			var profit float64
 			var threadCount int
+			var status string
 			var err error
 
 			if profit, err = mysql.GetProfit(sessionData); err != nil {
@@ -170,36 +171,25 @@ func CheckUpdates(
 				return
 			}
 
+			if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
+
+				if threadID != "" {
+					status = "\f" + "System Fault @ " + threadID
+				} else {
+					status = "\f" + "System nominal"
+				}
+
+			}
+
 			tmp := "\f" + "Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
 				"Total Profit: " + functions.Float64ToStr(profit, 2) + "\n" +
 				"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
+				"Status: " + status + "\n" +
 				"Master: " + sessionData.ThreadID
 
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
 			msg.ReplyToMessageID = update.Message.MessageID
 			send(msg, sessionData)
-
-		case "/status":
-
-			if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
-
-				if threadID != "" {
-
-					tmp := "\f" + "System Fault @ " + threadID
-					msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-					msg.ReplyToMessageID = update.Message.MessageID
-					send(msg, sessionData)
-
-				} else {
-
-					tmp := "\f" + "No issues"
-					msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-					msg.ReplyToMessageID = update.Message.MessageID
-					send(msg, sessionData)
-
-				}
-
-			}
 
 		}
 
