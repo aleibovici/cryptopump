@@ -251,12 +251,13 @@ func UpdateSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
-		sessionData.SymbolFiatFunds); err != nil {
+		sessionData.SymbolFiatFunds,
+		sessionData.Status); err != nil {
 
 		logger.LogEntry{
 			Config:   configData,
@@ -284,12 +285,13 @@ func SaveSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
-		sessionData.SymbolFiatFunds); err != nil {
+		sessionData.SymbolFiatFunds,
+		sessionData.Status); err != nil {
 
 		logger.LogEntry{
 			Config:   configData,
@@ -335,6 +337,41 @@ func DeleteSession(
 	rows.Close()
 
 	return nil
+
+}
+
+// GetSessionStatus check for system error status
+func GetSessionStatus(
+	sessionData *types.Session) (threadID string, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetSessionStatus()"); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return "", err
+
+	}
+
+	for rows.Next() {
+		var status bool
+		err = rows.Scan(&threadID, &status)
+		if status == true {
+			return
+		}
+	}
+
+	rows.Close()
+
+	return threadID, nil
 
 }
 

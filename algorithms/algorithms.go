@@ -400,6 +400,9 @@ func WsUserDataServe(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsUserDataServe = func(message []byte) {
 
+		/* This session variable stores the time of the last WsUserDataServe used for status check */
+		sessionData.LastWsUserDataServeTime = time.Now()
+
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
@@ -566,6 +569,9 @@ func WsKline(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsKline = func(event *binance.WsKlineEvent) {
 
+		/* This session variable stores the time of the last WsKline used for status check */
+		sessionData.LastWsKlineTime = time.Now()
+
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
@@ -674,6 +680,9 @@ func WsBookTicker(
 
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsBookTicker = func(event *binance.WsBookTickerEvent) {
+
+		/* This session variable stores the time of the last WsBookTicker used for status check */
+		sessionData.LastWsBookTickerTime = time.Now()
 
 		/* Stop Ws channel */
 		if sessionData.StopWs {

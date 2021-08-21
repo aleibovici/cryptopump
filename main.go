@@ -466,6 +466,14 @@ func execution(
 		time.Second*5,
 		time.Second*0)
 
+	/* Check system status every 10 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			node.CheckStatus(configData, sessionData)
+		},
+		time.Second*10,
+		time.Second*0)
+
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */

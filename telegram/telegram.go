@@ -171,13 +171,35 @@ func CheckUpdates(
 			}
 
 			tmp := "\f" + "Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
-				"Profit: " + functions.Float64ToStr(profit, 2) + "\n" +
+				"Total Profit: " + functions.Float64ToStr(profit, 2) + "\n" +
 				"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 				"Master: " + sessionData.ThreadID
 
 			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
 			msg.ReplyToMessageID = update.Message.MessageID
 			send(msg, sessionData)
+
+		case "/status":
+
+			if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
+
+				if threadID != "" {
+
+					tmp := "\f" + "System Fault @ " + threadID
+					msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
+					msg.ReplyToMessageID = update.Message.MessageID
+					send(msg, sessionData)
+
+				} else {
+
+					tmp := "\f" + "No issues"
+					msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
+					msg.ReplyToMessageID = update.Message.MessageID
+					send(msg, sessionData)
+
+				}
+
+			}
 
 		}
 

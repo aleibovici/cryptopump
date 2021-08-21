@@ -6,6 +6,7 @@ import (
 
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/mysql"
 	"github.com/aleibovici/cryptopump/types"
 )
 
@@ -116,5 +117,44 @@ func ReleaseRole(
 		}
 
 	}
+
+}
+
+// CheckStatus verifies the overall system status
+func CheckStatus(
+	configData *types.Config,
+	sessionData *types.Session) {
+
+	/* Check last WsBookTicker */
+	if time.Duration(time.Since(sessionData.LastWsBookTickerTime).Seconds()) > time.Duration(30) {
+
+		sessionData.Status = true
+
+	}
+
+	/* Check last WsKline */
+	if time.Duration(time.Since(sessionData.LastWsKlineTime).Seconds()) > time.Duration(100) {
+
+		sessionData.Status = true
+
+	}
+
+	/* Update Session table */
+	if err := mysql.UpdateSession(
+		configData,
+		sessionData); err != nil {
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+
+	sessionData.Status = false
 
 }
