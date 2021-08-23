@@ -368,6 +368,15 @@ func stopChannels(
 	configData *types.Config,
 	sessionData *types.Session) {
 
+	logger.LogEntry{
+		Config:   configData,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Stopping Websocket channels",
+		LogLevel: "DebugLevel",
+	}.Do()
+
 	sessionData.StopWs = true /* Set goroutine channels to stop */
 	channel <- struct{}{}     /* Stop channel that caused initial error */
 
@@ -405,6 +414,15 @@ func WsUserDataServe(
 
 		/* Stop Ws channel */
 		if sessionData.StopWs {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "Stopping WsUserDataServe channel",
+				LogLevel: "DebugLevel",
+			}.Do()
 
 			defer wg.Done()
 			stopC <- struct{}{}
@@ -575,6 +593,15 @@ func WsKline(
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
+			logger.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "Stopping WsKline channel",
+				LogLevel: "DebugLevel",
+			}.Do()
+
 			defer wg.Done()
 			stopC <- struct{}{}
 			return
@@ -687,6 +714,15 @@ func WsBookTicker(
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
+			logger.LogEntry{
+				Config:   configData,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  "Stopping WsBookTicker channel",
+				LogLevel: "DebugLevel",
+			}.Do()
+
 			defer wg.Done()
 			stopC <- struct{}{}
 			return
@@ -785,8 +821,6 @@ func WsBookTicker(
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
 
 		case strings.Contains(err.Error(), "1008"):
 			/* websocket: close 1008 (policy violation): Pong timeout */

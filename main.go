@@ -638,13 +638,32 @@ func execution(
 			sessionData,
 			wg)
 
-		wg.Wait()                  /* Wait for the goroutines to finish */
+		wg.Wait() /* Wait for the goroutines to finish */
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "All websocket channels stopped",
+			LogLevel: "DebugLevel",
+		}.Do()
+
 		sessionData.StopWs = false /* Reset goroutine channels */
 
 		/* Reload configuration in case of WsBookTicker broken connection */
 		configData = functions.GetConfigData(sessionData)
 
 		time.Sleep(3000 * time.Millisecond)
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Restarting",
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		/* repeated forever */
 		sum++
