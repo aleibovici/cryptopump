@@ -89,6 +89,7 @@ type Session struct {
 	ListenKey               string           /* Listen key for user stream service */
 	MasterNode              bool             /* This boolean is true when Master Node is elected */
 	TgBotAPI                *tgbotapi.BotAPI /* This variable holds Telegram session bot */
+	TgBotAPIChatID          int64            /* This variable holds Telegram chat ID */
 	Db                      *sql.DB          /* mySQL database connection */
 	Clients                 Client           /* Binance client connection */
 	KlineData               []KlineData      /* kline data format for go-echart plotter */
