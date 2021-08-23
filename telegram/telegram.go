@@ -20,7 +20,11 @@ type Message struct {
 	ChatID           int64
 }
 
-// Send message via Telegram
+// Connect to connect to Telegram
+type Connect struct {
+}
+
+// Send a message via Telegram
 func (message Message) Send(sessionData *types.Session) {
 
 	msg := tgbotapi.NewMessage(message.ChatID, message.Text)
@@ -39,14 +43,14 @@ func (message Message) Send(sessionData *types.Session) {
 
 }
 
-/* Establish connectivity to Telegram */
-func connect(
+// Do establish connectivity to Telegram
+func (Connect) Do(
 	configData *types.Config,
-	sessionData *types.Session) (tgBotAPI *tgbotapi.BotAPI) {
+	sessionData *types.Session) {
 
 	var err error
 
-	if tgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
+	if sessionData.TgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
 
 		logger.LogEntry{
 			Config:   nil,
@@ -59,28 +63,7 @@ func connect(
 
 	}
 
-	tgBotAPI.Debug = false
-
-	return tgBotAPI
-
-}
-
-/* Send message to Telegram */
-func send(
-	message tgbotapi.MessageConfig,
-	sessionData *types.Session) {
-
-	if _, err := sessionData.TgBotAPI.Send(message); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-	}
+	sessionData.TgBotAPI.Debug = false
 
 }
 
@@ -91,7 +74,6 @@ func CheckUpdates(
 	wg *sync.WaitGroup) {
 
 	var err error
-	var msg tgbotapi.MessageConfig
 	var updates tgbotapi.UpdatesChannel
 
 	/* Exit if no API key found */
@@ -108,10 +90,8 @@ func CheckUpdates(
 
 	}
 
-	/* Start Telegram bot and store in sessionData.TgBotAPI */
-	sessionData.TgBotAPI = connect(
-		configData,
-		sessionData)
+	/* Establish connectivity to Telegram server */
+	Connect{}.Do(configData, sessionData)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -138,48 +118,29 @@ func CheckUpdates(
 
 		}
 
+		/* Store Telegram chat ID to allow the system to send updates to user */
+		sessionData.TgBotAPIChatID = update.Message.Chat.ID
+
 		switch update.Message.Text {
-		case "/stop":
-
-			tmp := "Stopping " + sessionData.ThreadID
-			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-			msg.ReplyToMessageID = update.Message.MessageID
-			send(msg, sessionData)
-
-			/* Cleanly exit ThreadID */
-			// threads.ExitThreadID(sessionData)
-
 		case "/sell":
 
-			tmp := "Selling @ " + sessionData.ThreadID
-			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-			msg.ReplyToMessageID = update.Message.MessageID
-			send(msg, sessionData)
+			Message{
+				Text:             "\f" + "Selling @ " + sessionData.ThreadID,
+				ChatID:           update.Message.Chat.ID,
+				ReplyToMessageID: update.Message.MessageID,
+			}.Send(sessionData)
 
 			sessionData.ForceSell = true
 
 		case "/buy":
 
-			tmp := "Buying @ " + sessionData.ThreadID
-			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-			msg.ReplyToMessageID = update.Message.MessageID
-			send(msg, sessionData)
+			Message{
+				Text:             "\f" + "Buying @ " + sessionData.ThreadID,
+				ChatID:           update.Message.Chat.ID,
+				ReplyToMessageID: update.Message.MessageID,
+			}.Send(sessionData)
 
 			sessionData.ForceBuy = true
-
-		case "/funds":
-
-			tmp := sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2)
-			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-			msg.ReplyToMessageID = update.Message.MessageID
-			send(msg, sessionData)
-
-		case "/master":
-
-			tmp := "Master " + sessionData.ThreadID
-			msg = tgbotapi.NewMessage(update.Message.Chat.ID, tmp)
-			msg.ReplyToMessageID = update.Message.MessageID
-			send(msg, sessionData)
 
 		case "/report":
 
@@ -215,9 +176,6 @@ func CheckUpdates(
 				ChatID:           update.Message.Chat.ID,
 				ReplyToMessageID: update.Message.MessageID,
 			}.Send(sessionData)
-
-			/* Store Telegram chat ID to allow the system to send updates to user */
-			sessionData.TgBotAPIChatID = update.Message.Chat.ID
 
 		}
 
