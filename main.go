@@ -484,6 +484,21 @@ func execution(
 		time.Second*10,
 		time.Second*0)
 
+	/* Send Telegram message with system error (only Master Node) every 60 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			if sessionData.MasterNode && sessionData.TgBotAPIChatID != 0 {
+				if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
+					if threadID != "" {
+						telegram.Message{
+							Text: "\f" + "System Fault @ " + threadID,
+						}.Send(sessionData)
+					}
+				}
+			}
+		}, time.Second*60,
+		time.Second*0)
+
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */

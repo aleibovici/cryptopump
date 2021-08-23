@@ -17,7 +17,6 @@ import (
 type Message struct {
 	Text             string
 	ReplyToMessageID int
-	ChatID           int64
 }
 
 // Connect to connect to Telegram
@@ -27,7 +26,7 @@ type Connect struct {
 // Send a message via Telegram
 func (message Message) Send(sessionData *types.Session) {
 
-	msg := tgbotapi.NewMessage(message.ChatID, message.Text)
+	msg := tgbotapi.NewMessage(sessionData.TgBotAPIChatID, message.Text)
 
 	if _, err := sessionData.TgBotAPI.Send(msg); err != nil {
 
@@ -118,7 +117,7 @@ func CheckUpdates(
 
 		}
 
-		/* Store Telegram chat ID to allow the system to send updates to user */
+		/* Store Telegram ChatID to allow the system to send direct messages to Telegram server */
 		sessionData.TgBotAPIChatID = update.Message.Chat.ID
 
 		switch update.Message.Text {
@@ -126,7 +125,6 @@ func CheckUpdates(
 
 			Message{
 				Text:             "\f" + "Selling @ " + sessionData.ThreadID,
-				ChatID:           update.Message.Chat.ID,
 				ReplyToMessageID: update.Message.MessageID,
 			}.Send(sessionData)
 
@@ -136,7 +134,6 @@ func CheckUpdates(
 
 			Message{
 				Text:             "\f" + "Buying @ " + sessionData.ThreadID,
-				ChatID:           update.Message.Chat.ID,
 				ReplyToMessageID: update.Message.MessageID,
 			}.Send(sessionData)
 
@@ -173,7 +170,6 @@ func CheckUpdates(
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
 					"Master: " + sessionData.ThreadID,
-				ChatID:           update.Message.Chat.ID,
 				ReplyToMessageID: update.Message.MessageID,
 			}.Send(sessionData)
 
