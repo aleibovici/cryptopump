@@ -542,6 +542,7 @@ func WsUserDataServe(
 
 		}
 
+		defer wg.Done()
 		stopChannels(stopC, wg, configData, sessionData)
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
@@ -677,6 +678,7 @@ func WsKline(
 
 		}
 
+		defer wg.Done()
 		stopChannels(stopC, wg, configData, sessionData)
 
 	}
@@ -854,6 +856,7 @@ func WsBookTicker(
 
 		}
 
+		defer wg.Done()
 		stopChannels(stopC, wg, configData, sessionData)
 
 	}
