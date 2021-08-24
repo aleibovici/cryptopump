@@ -7,13 +7,12 @@ import (
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/nodes"
 	"github.com/aleibovici/cryptopump/types"
 )
 
 // Thread locking control
-type Thread struct {
-}
+type Thread struct{}
 
 // Terminate thread
 func (Thread) Terminate(sessionData *types.Session) {
@@ -28,7 +27,7 @@ func (Thread) Terminate(sessionData *types.Session) {
 	/* Release node role if Master */
 	if sessionData.MasterNode {
 
-		node.ReleaseRole(sessionData)
+		nodes.Node{}.ReleaseMasterRole(sessionData)
 
 	}
 

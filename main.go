@@ -19,7 +19,7 @@ import (
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/markets"
 	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/nodes"
 	"github.com/aleibovici/cryptopump/plotter"
 	"github.com/aleibovici/cryptopump/telegram"
 	"github.com/aleibovici/cryptopump/threads"
@@ -445,9 +445,11 @@ func execution(
 	)
 
 	/* Retrieve initial node role and then every 60 seconds */
-	node.GetRole(configData, sessionData)
+	nodes.Node{}.GetRole(configData, sessionData)
 	scheduler.RunTaskAtInterval(
-		func() { node.GetRole(configData, sessionData) },
+		func() {
+			nodes.Node{}.GetRole(configData, sessionData)
+		},
 		time.Second*60,
 		time.Second*0)
 
@@ -477,7 +479,7 @@ func execution(
 	/* Check system status every 10 seconds. */
 	scheduler.RunTaskAtInterval(
 		func() {
-			node.CheckStatus(configData, sessionData)
+			nodes.Node{}.CheckStatus(configData, sessionData)
 		},
 		time.Second*10,
 		time.Second*0)

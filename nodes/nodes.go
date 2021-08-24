@@ -1,4 +1,4 @@
-package node
+package nodes
 
 import (
 	"os"
@@ -10,8 +10,11 @@ import (
 	"github.com/aleibovici/cryptopump/types"
 )
 
-// GetRole Define node role Master or Slave
-func GetRole(
+// Node functions
+type Node struct{}
+
+// GetRole retrieve correct role for node
+func (Node) GetRole(
 	configData *types.Config,
 	sessionData *types.Session) {
 
@@ -94,9 +97,8 @@ func GetRole(
 
 }
 
-// ReleaseRole Release node role if Master
-func ReleaseRole(
-	sessionData *types.Session) {
+// ReleaseMasterRole Release node role if Master
+func (Node) ReleaseMasterRole(sessionData *types.Session) {
 
 	/* Release node role if Master */
 	if sessionData.MasterNode {
@@ -120,9 +122,8 @@ func ReleaseRole(
 
 }
 
-// CheckStatus verifies the overall system status
-func CheckStatus(
-	configData *types.Config,
+// CheckStatus check for errors on node
+func (Node) CheckStatus(configData *types.Config,
 	sessionData *types.Session) {
 
 	/* Check last WsBookTicker */
@@ -156,5 +157,4 @@ func CheckStatus(
 	}
 
 	sessionData.Status = false
-
 }

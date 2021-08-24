@@ -20,8 +20,7 @@ type Message struct {
 }
 
 // Connect to connect to Telegram
-type Connect struct {
-}
+type Connect struct{}
 
 // Send a message via Telegram
 func (message Message) Send(sessionData *types.Session) {
