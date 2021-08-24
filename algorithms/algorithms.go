@@ -57,8 +57,7 @@ func UpdatePendingOrders(
 	if orderID, _, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	if orderID != 0 {
@@ -82,7 +81,7 @@ func UpdatePendingOrders(
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -738,7 +737,7 @@ func WsBookTicker(
 			functions.DeleteConfigFile(sessionData)
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 

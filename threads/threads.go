@@ -11,13 +11,18 @@ import (
 	"github.com/aleibovici/cryptopump/types"
 )
 
-// ExitThreadID Cleanly exit a Thread
-func ExitThreadID(
-	sessionData *types.Session) {
+// Thread locking control
+type Thread struct {
+}
+
+// Terminate thread
+func (Thread) Terminate(sessionData *types.Session) {
 
 	/* Verify wether buying/selling to allow graceful session exit */
 	for sessionData.Busy {
+
 		time.Sleep(time.Millisecond * 200)
+
 	}
 
 	/* Release node role if Master */
@@ -27,8 +32,8 @@ func ExitThreadID(
 
 	}
 
-	/* Remove lock for threadID */
-	unlockThreadID(sessionData)
+	// Unlock existing thread
+	Thread{}.Unlock(sessionData)
 
 	/* Delete session from Session table */
 	if err := mysql.DeleteSession(sessionData); err != nil {
@@ -59,10 +64,10 @@ func ExitThreadID(
 
 }
 
-// LockThreadID Create lock for threadID
-func LockThreadID(threadID string) bool {
+// Lock existing thread
+func (Thread) Lock(sessionData *types.Session) bool {
 
-	filename := threadID + ".lock"
+	filename := sessionData.ThreadID + ".lock"
 
 	if _, err := os.Stat(filename); err == nil {
 
@@ -71,8 +76,11 @@ func LockThreadID(threadID string) bool {
 	} else if os.IsNotExist(err) {
 
 		var file, err = os.Create(filename)
+
 		if err != nil {
+
 			return false
+
 		}
 
 		file.Close()
@@ -83,15 +91,12 @@ func LockThreadID(threadID string) bool {
 
 	return false
 
-}
+} // //// // ExitThreadID Cleanly exit a Thread
 
-/* Remove lock for threadID */
-func unlockThreadID(
-	sessionData *types.Session) {
+// Unlock existing thread
+func (Thread) Unlock(sessionData *types.Session) {
 
-	filename := sessionData.ThreadID + ".lock"
-
-	if err := os.Remove(filename); err != nil {
+	if err := os.Remove(sessionData.ThreadID + ".lock"); err != nil {
 
 		logger.LogEntry{
 			Config:   nil,

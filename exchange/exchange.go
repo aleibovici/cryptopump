@@ -384,8 +384,7 @@ func BuyTicker(
 		orderResponse.TransactTime); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	/* This session variable stores the time of the last buy */
@@ -432,8 +431,7 @@ S:
 				string(orderStatus.Status)); err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.ExitThreadID(sessionData)
-
+				threads.Thread{}.Terminate(sessionData)
 			}
 
 		case "CANCELED":
@@ -457,8 +455,7 @@ S:
 			orderExecutedQuantity); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
-
+			threads.Thread{}.Terminate(sessionData)
 		}
 
 		logger.LogEntry{
@@ -557,7 +554,7 @@ func SellTicker(
 		orderResponse.TransactTime); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
+		threads.Thread{}.Terminate(sessionData)
 
 	}
 
@@ -584,8 +581,7 @@ S:
 			if err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.ExitThreadID(sessionData)
-
+				threads.Thread{}.Terminate(sessionData)
 			}
 
 			switch orderStatus.Status {
@@ -622,8 +618,7 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.ExitThreadID(sessionData)
-
+							threads.Thread{}.Terminate(sessionData)
 						}
 
 						break F
@@ -637,7 +632,7 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.ExitThreadID(sessionData)
+							threads.Thread{}.Terminate(sessionData)
 
 						}
 
@@ -675,7 +670,7 @@ S:
 						int64(orderResponse.OrderID)); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.ExitThreadID(sessionData)
+						threads.Thread{}.Terminate(sessionData)
 
 					}
 
@@ -718,7 +713,7 @@ S:
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -732,7 +727,7 @@ S:
 			order.OrderID); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 

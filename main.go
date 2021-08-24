@@ -266,7 +266,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "stop":
 
-				threads.ExitThreadID(fh.sessionData) /* Cleanly exit ThreadID */
+				threads.Thread{}.Terminate(fh.sessionData) /* Cleanly exit ThreadID */
 
 			case "update":
 
@@ -321,7 +321,7 @@ func execution(
 		}.Do()
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
+		threads.Thread{}.Terminate(sessionData)
 
 	}
 
@@ -340,14 +340,13 @@ func execution(
 		}.Do()
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	if sessionData.ThreadID != "" && !configData.NewSession {
 
 		/* If GetThreadTransactionDistinct return empty, create and lock thread file */
-		threads.LockThreadID(sessionData.ThreadID)
+		threads.Thread{}.Lock(sessionData)
 
 		configData = functions.GetConfigData(sessionData)
 
@@ -363,7 +362,7 @@ func execution(
 			}.Do()
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -379,8 +378,7 @@ func execution(
 			}.Do()
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
-
+			threads.Thread{}.Terminate(sessionData)
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol option */
@@ -401,7 +399,7 @@ func execution(
 		sessionData.ThreadID = functions.GetThreadID()
 
 		/* Create lock for threadID */
-		if !threads.LockThreadID(sessionData.ThreadID) {
+		if !(threads.Thread{}.Lock(sessionData)) {
 
 			os.Exit(1)
 
@@ -586,7 +584,7 @@ func execution(
 					sessionData); err != nil {
 
 					/* Cleanly exit ThreadID */
-					threads.ExitThreadID(sessionData)
+					threads.Thread{}.Terminate(sessionData)
 
 				}
 
@@ -611,7 +609,7 @@ func execution(
 						sessionData); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.ExitThreadID(sessionData)
+						threads.Thread{}.Terminate(sessionData)
 
 					}
 
