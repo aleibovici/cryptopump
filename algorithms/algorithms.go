@@ -19,6 +19,59 @@ import (
 	"github.com/adshao/go-binance/v2"
 )
 
+// Channel control goroutine channel operations
+type Channel struct {
+	name string
+}
+
+// Stop a websocket channel and decrease waiting group
+func (c Channel) Stop(
+	channel chan struct{},
+	wg *sync.WaitGroup,
+	configData *types.Config,
+	sessionData *types.Session) {
+
+	logger.LogEntry{
+		Config:   configData,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Stopping Websocket channel" + c.name,
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	defer wg.Done()       /* Decrease waiting group upon completion */
+	channel <- struct{}{} /* Stop websocket channel */
+
+	logger.LogEntry{
+		Config:   configData,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  c.name + "stopped",
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	return
+
+}
+
+// SetTrue set all goroutines to stop
+func (c Channel) SetTrue(sessionData *types.Session) {
+
+	logger.LogEntry{
+		Config:   nil,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Setting all websocket channels to stop",
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	sessionData.StopWs = true /* Set all goroutine channels to stop */
+
+}
+
 /* Modify profit based on sell transaction count  */
 func calculateProfit(
 	configData *types.Config,
@@ -360,27 +413,6 @@ func isBuyInitial(
 
 }
 
-/* Stop goroutine channels */
-func stopChannels(
-	channel chan struct{},
-	wg *sync.WaitGroup,
-	configData *types.Config,
-	sessionData *types.Session) {
-
-	logger.LogEntry{
-		Config:   configData,
-		Market:   nil,
-		Session:  sessionData,
-		Order:    &types.Order{},
-		Message:  "Stopping Websocket channels",
-		LogLevel: "DebugLevel",
-	}.Do()
-
-	sessionData.StopWs = true /* Set goroutine channels to stop */
-	channel <- struct{}{}     /* Stop channel that caused initial error */
-
-}
-
 // WsUserDataServe Websocket routine to retrieve realtime user data
 func WsUserDataServe(
 	configData *types.Config,
@@ -414,17 +446,10 @@ func WsUserDataServe(
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  "Stopping WsUserDataServe channel",
-				LogLevel: "DebugLevel",
-			}.Do()
+			Channel{
+				name: "WsUserDataServe",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
 
-			defer wg.Done()
-			stopC <- struct{}{}
 			return
 
 		}
@@ -542,8 +567,10 @@ func WsUserDataServe(
 
 		}
 
-		defer wg.Done()
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsUserDataServe",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
 		if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
@@ -593,17 +620,10 @@ func WsKline(
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  "Stopping WsKline channel",
-				LogLevel: "DebugLevel",
-			}.Do()
+			Channel{
+				name: "WsKline",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
 
-			defer wg.Done()
-			stopC <- struct{}{}
 			return
 
 		}
@@ -678,8 +698,10 @@ func WsKline(
 
 		}
 
-		defer wg.Done()
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsKline",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 	}
 
@@ -715,17 +737,10 @@ func WsBookTicker(
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  "Stopping WsBookTicker channel",
-				LogLevel: "DebugLevel",
-			}.Do()
+			Channel{
+				name: "WsBookTicker",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
 
-			defer wg.Done()
-			stopC <- struct{}{}
 			return
 
 		}
@@ -856,8 +871,10 @@ func WsBookTicker(
 
 		}
 
-		defer wg.Done()
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsBookTicker",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 	}
 

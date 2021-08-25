@@ -660,15 +660,6 @@ func execution(
 			sessionData,
 			wg)
 
-		logger.LogEntry{
-			Config:   configData,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  "Waiting all websocket channels to stop",
-			LogLevel: "DebugLevel",
-		}.Do()
-
 		wg.Wait() /* Wait for the goroutines to finish */
 
 		logger.LogEntry{
