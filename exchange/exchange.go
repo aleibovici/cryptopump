@@ -358,6 +358,17 @@ func BuyTicker(
 	if (orderResponse == nil && err != nil) ||
 		(orderResponse == nil && err == nil) {
 
+		switch {
+		case strings.Contains(err.Error(), "1013"):
+			/* <APIError> code=-1013, msg=Filter failure: LOT_SIZE */
+
+			/* Retrieve exchange lot size for ticker and store in sessionData */
+			GetLotSize(configData, sessionData)
+
+			return
+
+		}
+
 		return
 
 	}
