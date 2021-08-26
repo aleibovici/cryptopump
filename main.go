@@ -624,7 +624,7 @@ func execution(
 		/* Conditional used in case this is the first run in the cycle go get past market data */
 		if marketData.PriceChangeStatsHighPrice == 0 {
 
-			markets.LoadKlineDataPast(
+			markets.Data{}.LoadKlinePast(
 				configData,
 				marketData,
 				sessionData)
