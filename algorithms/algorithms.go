@@ -651,10 +651,11 @@ func WsKline(
 				marketData)
 
 			/* Load Final kline for e-chart plotting */
-			plotter.LoadKlineData(
+			plotter.Data{
+				Kline: exchange.BinanceMapWsKline(event.Kline),
+			}.LoadKline(
 				sessionData,
-				marketData,
-				exchange.BinanceMapWsKline(event.Kline))
+				marketData)
 
 		}
 

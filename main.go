@@ -149,7 +149,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
 
-			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData) /* Load dynamic components in configData */
+			fh.configData.HTMLSnippet = plotter.Data{}.Plot(fh.sessionData) /* Load dynamic components in configData */
 
 			functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
 
@@ -784,14 +784,5 @@ func loadSessionDataAdditionalComponents(
 	}
 
 	return json.Marshal(sessiondata)
-
-}
-
-/* Load dynamic components into configData for html output */
-func loadConfigDataAdditionalComponents(
-	configData *types.Config,
-	sessionData *types.Session) {
-
-	configData.HTMLSnippet = plotter.Plot(sessionData)
 
 }
