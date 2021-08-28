@@ -14,6 +14,11 @@ import (
 	"github.com/sdcoffey/techan"
 )
 
+// Data struct host temporal market data
+type Data struct {
+	Kline types.WsKline
+}
+
 /* Technical analysis Calculations */
 func calculate(
 	closePrices techan.Indicator,
@@ -35,18 +40,17 @@ func calculate(
 
 }
 
-// LoadKlineData Retrieve RealTime Kline Data
-func LoadKlineData(
+// LoadKline process realtime KLine data via websocket API
+func (d Data) LoadKline(
 	configData *types.Config,
 	sessionData *types.Session,
-	marketData *types.Market,
-	kline types.WsKline) {
+	marketData *types.Market) {
 
 	var start int64
 	var err error
 	var priceChangeStats []*types.PriceChangeStats
 
-	if start, err = strconv.ParseInt(fmt.Sprint(kline.StartTime), 10, 64); err != nil {
+	if start, err = strconv.ParseInt(fmt.Sprint(d.Kline.StartTime), 10, 64); err != nil {
 
 		logger.LogEntry{
 			Config:   configData,
@@ -64,11 +68,11 @@ func LoadKlineData(
 	period := techan.NewTimePeriod(time.Unix((start/1000), 0).UTC(), time.Minute*1)
 
 	candle := techan.NewCandle(period)
-	candle.OpenPrice = big.NewFromString(kline.Open)
-	candle.ClosePrice = big.NewFromString(kline.Close)
-	candle.MaxPrice = big.NewFromString(kline.High)
-	candle.MinPrice = big.NewFromString(kline.Low)
-	candle.Volume = big.NewFromString(kline.Volume)
+	candle.OpenPrice = big.NewFromString(d.Kline.Open)
+	candle.ClosePrice = big.NewFromString(d.Kline.Close)
+	candle.MaxPrice = big.NewFromString(d.Kline.High)
+	candle.MinPrice = big.NewFromString(d.Kline.Low)
+	candle.Volume = big.NewFromString(d.Kline.Volume)
 
 	if !marketData.Series.AddCandle(candle) { /* AddCandle adds the given candle to TimeSeries */
 
@@ -99,8 +103,8 @@ func LoadKlineData(
 
 }
 
-// LoadKlineDataPast Retrieve Old Kline Data
-func LoadKlineDataPast(
+// LoadKlinePast process past KLine data via REST API
+func (d Data) LoadKlinePast(
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session) {

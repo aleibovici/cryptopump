@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"path/filepath"
@@ -16,6 +18,7 @@ import (
 
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/types"
+	"github.com/tcnksm/go-httpstat"
 
 	"github.com/rs/xid"
 	"github.com/spf13/viper"
@@ -240,32 +243,6 @@ func GetFunctionName() string {
 	frame, _ := frames.Next()
 
 	return frame.Function
-
-}
-
-// LockThreadID Create lock for threadID
-func LockThreadID(threadID string) bool {
-
-	filename := threadID + ".lock"
-
-	if _, err := os.Stat(filename); err == nil {
-
-		return false
-
-	} else if os.IsNotExist(err) {
-
-		var file, err = os.Create(filename)
-		if err != nil {
-			return false
-		}
-
-		file.Close()
-
-		return true
-
-	}
-
-	return false
 
 }
 
@@ -591,5 +568,43 @@ func SaveConfigData(
 
 		os.Exit(1)
 	}
+
+}
+
+// GetExchangeLatency retrieve the latency between the exchange and client
+func GetExchangeLatency(sessionData *types.Session) {
+
+	/* Package httpstat traces HTTP latency infomation
+	(DNSLookup, TCP Connection and so on) on any golang HTTP request. */
+
+	var req *http.Request
+	var res *http.Response
+	var err error
+
+	if req, err = http.NewRequest("GET", sessionData.Clients.Binance.BaseURL, nil); err != nil {
+
+		return
+
+	}
+
+	/* Create go-httpstat powered context and pass it to http.Request */
+	var result httpstat.Result
+	ctx := httpstat.WithHTTPStat(req.Context(), &result)
+	req = req.WithContext(ctx)
+
+	client := http.DefaultClient
+	if res, err = client.Do(req); err != nil {
+
+		return
+
+	}
+
+	if _, err := io.Copy(ioutil.Discard, res.Body); err != nil {
+		log.Fatal(err)
+	}
+	res.Body.Close()
+	result.End(time.Now())
+
+	sessionData.Latency = result.ServerProcessing.Milliseconds()
 
 }

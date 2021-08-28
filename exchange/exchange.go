@@ -358,6 +358,17 @@ func BuyTicker(
 	if (orderResponse == nil && err != nil) ||
 		(orderResponse == nil && err == nil) {
 
+		switch {
+		case strings.Contains(err.Error(), "1013"):
+			/* <APIError> code=-1013, msg=Filter failure: LOT_SIZE */
+
+			/* Retrieve exchange lot size for ticker and store in sessionData */
+			GetLotSize(configData, sessionData)
+
+			return
+
+		}
+
 		return
 
 	}
@@ -384,8 +395,7 @@ func BuyTicker(
 		orderResponse.TransactTime); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	/* This session variable stores the time of the last buy */
@@ -432,8 +442,7 @@ S:
 				string(orderStatus.Status)); err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.ExitThreadID(sessionData)
-
+				threads.Thread{}.Terminate(sessionData)
 			}
 
 		case "CANCELED":
@@ -457,8 +466,7 @@ S:
 			orderExecutedQuantity); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
-
+			threads.Thread{}.Terminate(sessionData)
 		}
 
 		logger.LogEntry{
@@ -557,7 +565,7 @@ func SellTicker(
 		orderResponse.TransactTime); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
+		threads.Thread{}.Terminate(sessionData)
 
 	}
 
@@ -584,8 +592,7 @@ S:
 			if err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.ExitThreadID(sessionData)
-
+				threads.Thread{}.Terminate(sessionData)
 			}
 
 			switch orderStatus.Status {
@@ -622,8 +629,7 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.ExitThreadID(sessionData)
-
+							threads.Thread{}.Terminate(sessionData)
 						}
 
 						break F
@@ -637,7 +643,7 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.ExitThreadID(sessionData)
+							threads.Thread{}.Terminate(sessionData)
 
 						}
 
@@ -675,7 +681,7 @@ S:
 						int64(orderResponse.OrderID)); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.ExitThreadID(sessionData)
+						threads.Thread{}.Terminate(sessionData)
 
 					}
 
@@ -718,7 +724,7 @@ S:
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -732,7 +738,7 @@ S:
 			order.OrderID); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 

@@ -56,9 +56,10 @@ CREATE TABLE `session` (
   `Exchange` varchar(45) NOT NULL,
   `FiatSymbol` varchar(45) NOT NULL,
   `FiatFunds` float NOT NULL,
+  `Status` tinyint(1) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=913 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=993 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +78,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6952 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7203 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -422,6 +423,27 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetSessionStatus` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `GetSessionStatus`()
+BEGIN
+SELECT `session`.`ThreadID` AS `ThreadID`, `session`.`Status` AS `Status`
+FROM cryptopump.session
+WHERE `session`.`Status` = 1;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `GetThreadCount` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -650,10 +672,10 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float)
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_Status tinyint(1))
 BEGIN
-INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds)
-VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds);
+INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds, Status)
+VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds, in_Status);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -716,11 +738,12 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float)
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_Status tinyint(1))
 BEGIN
 SET SQL_SAFE_UPDATES = 0;
 	UPDATE `session`
-	SET `session`.`FiatFunds` = in_FiatFunds
+	SET `session`.`FiatFunds` = in_FiatFunds,
+		`session`.`Status` = in_Status
 	WHERE `session`.`ThreadID` = in_ThreadID;
 SET SQL_SAFE_UPDATES = 1;
 END ;;
@@ -739,4 +762,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-14  7:17:00
+-- Dump completed on 2021-08-23 14:59:28

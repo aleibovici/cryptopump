@@ -19,6 +19,59 @@ import (
 	"github.com/adshao/go-binance/v2"
 )
 
+// Channel control goroutine channel operations
+type Channel struct {
+	name string
+}
+
+// Stop a websocket channel and decrease waiting group
+func (c Channel) Stop(
+	channel chan struct{},
+	wg *sync.WaitGroup,
+	configData *types.Config,
+	sessionData *types.Session) {
+
+	logger.LogEntry{
+		Config:   configData,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Stopping Websocket channel" + c.name,
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	defer wg.Done()       /* Decrease waiting group upon completion */
+	channel <- struct{}{} /* Stop websocket channel */
+
+	logger.LogEntry{
+		Config:   configData,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  c.name + "stopped",
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	return
+
+}
+
+// SetTrue set all goroutines to stop
+func (c Channel) SetTrue(sessionData *types.Session) {
+
+	logger.LogEntry{
+		Config:   nil,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Setting all websocket channels to stop",
+		LogLevel: "DebugLevel",
+	}.Do()
+
+	sessionData.StopWs = true /* Set all goroutine channels to stop */
+
+}
+
 /* Modify profit based on sell transaction count  */
 func calculateProfit(
 	configData *types.Config,
@@ -57,8 +110,7 @@ func UpdatePendingOrders(
 	if orderID, _, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	if orderID != 0 {
@@ -82,7 +134,7 @@ func UpdatePendingOrders(
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -361,18 +413,6 @@ func isBuyInitial(
 
 }
 
-/* Stop goroutine channels */
-func stopChannels(
-	channel chan struct{},
-	wg *sync.WaitGroup,
-	configData *types.Config,
-	sessionData *types.Session) {
-
-	sessionData.StopWs = true /* Set goroutine channels to stop */
-	channel <- struct{}{}     /* Stop channel that caused initial error */
-
-}
-
 // WsUserDataServe Websocket routine to retrieve realtime user data
 func WsUserDataServe(
 	configData *types.Config,
@@ -400,11 +440,16 @@ func WsUserDataServe(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsUserDataServe = func(message []byte) {
 
+		/* This session variable stores the time of the last WsUserDataServe used for status check */
+		sessionData.LastWsUserDataServeTime = time.Now()
+
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			defer wg.Done()
-			stopC <- struct{}{}
+			Channel{
+				name: "WsUserDataServe",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
+
 			return
 
 		}
@@ -492,6 +537,8 @@ func WsUserDataServe(
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
 
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
 			return
 
 		case strings.Contains(err.Error(), "read: operation timed out"):
@@ -520,7 +567,10 @@ func WsUserDataServe(
 
 		}
 
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsUserDataServe",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
 		if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
@@ -564,11 +614,16 @@ func WsKline(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsKline = func(event *binance.WsKlineEvent) {
 
+		/* This session variable stores the time of the last WsKline used for status check */
+		sessionData.LastWsKlineTime = time.Now()
+
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			defer wg.Done()
-			stopC <- struct{}{}
+			Channel{
+				name: "WsKline",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
+
 			return
 
 		}
@@ -588,17 +643,19 @@ func WsKline(
 		if event.Kline.IsFinal {
 
 			/* Load Final kline for technical analysis */
-			markets.LoadKlineData(
+			markets.Data{
+				Kline: exchange.BinanceMapWsKline(event.Kline),
+			}.LoadKline(
 				configData,
 				sessionData,
-				marketData,
-				exchange.BinanceMapWsKline(event.Kline))
+				marketData)
 
 			/* Load Final kline for e-chart plotting */
-			plotter.LoadKlineData(
+			plotter.Data{
+				Kline: exchange.BinanceMapWsKline(event.Kline),
+			}.LoadKline(
 				sessionData,
-				marketData,
-				exchange.BinanceMapWsKline(event.Kline))
+				marketData)
 
 		}
 
@@ -619,6 +676,8 @@ func WsKline(
 		case strings.Contains(err.Error(), "1006"):
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 			return
 
@@ -641,7 +700,10 @@ func WsKline(
 
 		}
 
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsKline",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 	}
 
@@ -671,11 +733,16 @@ func WsBookTicker(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsBookTicker = func(event *binance.WsBookTickerEvent) {
 
+		/* This session variable stores the time of the last WsBookTicker used for status check */
+		sessionData.LastWsBookTickerTime = time.Now()
+
 		/* Stop Ws channel */
 		if sessionData.StopWs {
 
-			defer wg.Done()
-			stopC <- struct{}{}
+			Channel{
+				name: "WsBookTicker",
+			}.Stop(stopC, wg, configData, sessionData) /* Stop websocket channel */
+
 			return
 
 		}
@@ -689,7 +756,7 @@ func WsBookTicker(
 			functions.DeleteConfigFile(sessionData)
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -771,7 +838,7 @@ func WsBookTicker(
 			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
 			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
 
-			return
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 		case strings.Contains(err.Error(), "1008"):
 			/* websocket: close 1008 (policy violation): Pong timeout */
@@ -806,7 +873,10 @@ func WsBookTicker(
 
 		}
 
-		stopChannels(stopC, wg, configData, sessionData)
+		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
+		Channel{
+			name: "WsBookTicker",
+		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 	}
 

@@ -28,6 +28,4 @@ CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed
 
 - I run CryptoPump in Visual Studio Code, but it can be run without an IDE. For each instance of the code, a new HTTP port is opened, starting with 8080, 8081, 8082. Just point your browser to the address, and you should get the session configuration page and the Bollinger and Exchange data.
 
-*** The Main branch contains a stable release, but if you are slightly adventurous and want to experience the latest features, the Beta branch is an option. ***
-
 *** If you feel like contributing to the project, you are very welcome ***

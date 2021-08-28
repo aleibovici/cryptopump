@@ -7,28 +7,32 @@ import (
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/nodes"
 	"github.com/aleibovici/cryptopump/types"
 )
 
-// ExitThreadID Cleanly exit a Thread
-func ExitThreadID(
-	sessionData *types.Session) {
+// Thread locking control
+type Thread struct{}
+
+// Terminate thread
+func (Thread) Terminate(sessionData *types.Session) {
 
 	/* Verify wether buying/selling to allow graceful session exit */
 	for sessionData.Busy {
+
 		time.Sleep(time.Millisecond * 200)
+
 	}
 
 	/* Release node role if Master */
 	if sessionData.MasterNode {
 
-		node.ReleaseRole(sessionData)
+		nodes.Node{}.ReleaseMasterRole(sessionData)
 
 	}
 
-	/* Remove lock for threadID */
-	unlockThreadID(sessionData)
+	// Unlock existing thread
+	Thread{}.Unlock(sessionData)
 
 	/* Delete session from Session table */
 	if err := mysql.DeleteSession(sessionData); err != nil {
@@ -59,13 +63,39 @@ func ExitThreadID(
 
 }
 
-/* Remove lock for threadID */
-func unlockThreadID(
-	sessionData *types.Session) {
+// Lock existing thread
+func (Thread) Lock(sessionData *types.Session) bool {
 
 	filename := sessionData.ThreadID + ".lock"
 
-	if err := os.Remove(filename); err != nil {
+	if _, err := os.Stat(filename); err == nil {
+
+		return false
+
+	} else if os.IsNotExist(err) {
+
+		var file, err = os.Create(filename)
+
+		if err != nil {
+
+			return false
+
+		}
+
+		file.Close()
+
+		return true
+
+	}
+
+	return false
+
+} // //// // ExitThreadID Cleanly exit a Thread
+
+// Unlock existing thread
+func (Thread) Unlock(sessionData *types.Session) {
+
+	if err := os.Remove(sessionData.ThreadID + ".lock"); err != nil {
 
 		logger.LogEntry{
 			Config:   nil,

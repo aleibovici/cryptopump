@@ -19,7 +19,7 @@ import (
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/markets"
 	"github.com/aleibovici/cryptopump/mysql"
-	"github.com/aleibovici/cryptopump/node"
+	"github.com/aleibovici/cryptopump/nodes"
 	"github.com/aleibovici/cryptopump/plotter"
 	"github.com/aleibovici/cryptopump/telegram"
 	"github.com/aleibovici/cryptopump/threads"
@@ -66,29 +66,36 @@ func init() {
 func main() {
 
 	sessionData := &types.Session{
-		ThreadID:             "",
-		ThreadIDSession:      "",
-		ThreadCount:          0,
-		SellTransactionCount: 0,
-		Symbol:               "",
-		SymbolFiat:           "",
-		SymbolFiatFunds:      0,
-		LastBuyTransactTime:  time.Time{},
-		LastSellCanceledTime: time.Time{},
-		ConfigTemplate:       0,
-		ForceBuy:             false,
-		ForceSell:            false,
-		ListenKey:            "",
-		MasterNode:           false,
-		TgBotAPI:             &tgbotapi.BotAPI{},
-		Db:                   &sql.DB{},
-		Clients:              types.Client{},
-		KlineData:            []types.KlineData{},
-		StopWs:               false,
-		Busy:                 false,
-		MinQuantity:          0,
-		MaxQuantity:          0,
-		StepSize:             0,
+		ThreadID:                "",
+		ThreadIDSession:         "",
+		ThreadCount:             0,
+		SellTransactionCount:    0,
+		Symbol:                  "",
+		SymbolFunds:             0,
+		SymbolFiat:              "",
+		SymbolFiatFunds:         0,
+		LastBuyTransactTime:     time.Time{},
+		LastSellCanceledTime:    time.Time{},
+		LastWsKlineTime:         time.Time{},
+		LastWsBookTickerTime:    time.Time{},
+		LastWsUserDataServeTime: time.Time{},
+		ConfigTemplate:          0,
+		ForceBuy:                false,
+		ForceSell:               false,
+		ListenKey:               "",
+		MasterNode:              false,
+		TgBotAPI:                &tgbotapi.BotAPI{},
+		TgBotAPIChatID:          0,
+		Db:                      &sql.DB{},
+		Clients:                 types.Client{},
+		KlineData:               []types.KlineData{},
+		StopWs:                  false,
+		Busy:                    false,
+		MinQuantity:             0,
+		MaxQuantity:             0,
+		StepSize:                0,
+		Latency:                 0,
+		Status:                  false,
 	}
 
 	marketData := &types.Market{
@@ -142,7 +149,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/":
 
-			loadConfigDataAdditionalComponents(fh.configData, fh.sessionData) /* Load dynamic components in configData */
+			fh.configData.HTMLSnippet = plotter.Data{}.Plot(fh.sessionData) /* Load dynamic components in configData */
 
 			functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
 
@@ -259,7 +266,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "stop":
 
-				threads.ExitThreadID(fh.sessionData) /* Cleanly exit ThreadID */
+				threads.Thread{}.Terminate(fh.sessionData) /* Cleanly exit ThreadID */
 
 			case "update":
 
@@ -314,7 +321,7 @@ func execution(
 		}.Do()
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
+		threads.Thread{}.Terminate(sessionData)
 
 	}
 
@@ -333,11 +340,13 @@ func execution(
 		}.Do()
 
 		/* Cleanly exit ThreadID */
-		threads.ExitThreadID(sessionData)
-
+		threads.Thread{}.Terminate(sessionData)
 	}
 
 	if sessionData.ThreadID != "" && !configData.NewSession {
+
+		/* If GetThreadTransactionDistinct return empty, create and lock thread file */
+		threads.Thread{}.Lock(sessionData)
 
 		configData = functions.GetConfigData(sessionData)
 
@@ -353,7 +362,7 @@ func execution(
 			}.Do()
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
+			threads.Thread{}.Terminate(sessionData)
 
 		}
 
@@ -369,8 +378,7 @@ func execution(
 			}.Do()
 
 			/* Cleanly exit ThreadID */
-			threads.ExitThreadID(sessionData)
-
+			threads.Thread{}.Terminate(sessionData)
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol option */
@@ -391,7 +399,7 @@ func execution(
 		sessionData.ThreadID = functions.GetThreadID()
 
 		/* Create lock for threadID */
-		if !functions.LockThreadID(sessionData.ThreadID) {
+		if !(threads.Thread{}.Lock(sessionData)) {
 
 			os.Exit(1)
 
@@ -437,9 +445,11 @@ func execution(
 	)
 
 	/* Retrieve initial node role and then every 60 seconds */
-	node.GetRole(configData, sessionData)
+	nodes.Node{}.GetRole(configData, sessionData)
 	scheduler.RunTaskAtInterval(
-		func() { node.GetRole(configData, sessionData) },
+		func() {
+			nodes.Node{}.GetRole(configData, sessionData)
+		},
 		time.Second*60,
 		time.Second*0)
 
@@ -456,6 +466,37 @@ func execution(
 			sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
 		},
 		time.Second*180,
+		time.Second*0)
+
+	/* Update exchange latency every 5 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			functions.GetExchangeLatency(sessionData)
+		},
+		time.Second*5,
+		time.Second*0)
+
+	/* Check system status every 10 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			nodes.Node{}.CheckStatus(configData, sessionData)
+		},
+		time.Second*10,
+		time.Second*0)
+
+	/* Send Telegram message with system error (only Master Node) every 60 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			if sessionData.MasterNode && sessionData.TgBotAPIChatID != 0 {
+				if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
+					if threadID != "" {
+						telegram.Message{
+							Text: "\f" + "System Fault @ " + threadID,
+						}.Send(sessionData)
+					}
+				}
+			}
+		}, time.Second*60,
 		time.Second*0)
 
 	/* Retrieve available fiat funds and update database
@@ -545,7 +586,7 @@ func execution(
 					sessionData); err != nil {
 
 					/* Cleanly exit ThreadID */
-					threads.ExitThreadID(sessionData)
+					threads.Thread{}.Terminate(sessionData)
 
 				}
 
@@ -570,7 +611,7 @@ func execution(
 						sessionData); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.ExitThreadID(sessionData)
+						threads.Thread{}.Terminate(sessionData)
 
 					}
 
@@ -583,7 +624,7 @@ func execution(
 		/* Conditional used in case this is the first run in the cycle go get past market data */
 		if marketData.PriceChangeStatsHighPrice == 0 {
 
-			markets.LoadKlineDataPast(
+			markets.Data{}.LoadKlinePast(
 				configData,
 				marketData,
 				sessionData)
@@ -619,13 +660,32 @@ func execution(
 			sessionData,
 			wg)
 
-		wg.Wait()                  /* Wait for the goroutines to finish */
+		wg.Wait() /* Wait for the goroutines to finish */
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "All websocket channels stopped",
+			LogLevel: "DebugLevel",
+		}.Do()
+
 		sessionData.StopWs = false /* Reset goroutine channels */
 
 		/* Reload configuration in case of WsBookTicker broken connection */
 		configData = functions.GetConfigData(sessionData)
 
 		time.Sleep(3000 * time.Millisecond)
+
+		logger.LogEntry{
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  "Restarting",
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		/* repeated forever */
 		sum++
@@ -668,6 +728,7 @@ func loadSessionDataAdditionalComponents(
 		Profit               float64 /* Total profit */
 		ThreadCount          int     /* Thread count */
 		ThreadAmount         float64 /* Thread cost amount */
+		Latency              int64   /* Latency between the exchange and client */
 		Orders               []Order
 	}
 
@@ -685,6 +746,7 @@ func loadSessionDataAdditionalComponents(
 	sessiondata.Market.Price = math.Round(marketData.Price*1000) / 1000
 	sessiondata.Market.Direction = marketData.Direction
 
+	sessiondata.Session.Latency = sessionData.Latency /* Latency between the exchange and client */
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
@@ -722,14 +784,5 @@ func loadSessionDataAdditionalComponents(
 	}
 
 	return json.Marshal(sessiondata)
-
-}
-
-/* Load dynamic components into configData for html output */
-func loadConfigDataAdditionalComponents(
-	configData *types.Config,
-	sessionData *types.Session) {
-
-	configData.HTMLSnippet = plotter.Plot(sessionData)
 
 }
