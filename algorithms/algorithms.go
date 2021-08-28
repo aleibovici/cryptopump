@@ -763,53 +763,56 @@ func WsBookTicker(
 		/* Test if event or event.BestAskPrice or marketData are empty or nil before proceeding.
 		This test tries to prevent errors where multiple BUYS are executed in a row.
 		The source of the problem is unknown but it might be caused by nil data in the event or market data. */
-		if event != nil && event.BestAskPrice != "" && marketData != nil {
+		if event == nil || event.BestAskPrice == "" || marketData == nil {
 
-			marketData.Price = functions.StrToFloat64(event.BestAskPrice)
+			return
 
-			if is, buyQuantityFiat := BuyDecisionTree(
+		}
+
+		marketData.Price = functions.StrToFloat64(event.BestAskPrice) /* Add current BestAskPrice to marketData struct for wide system use */
+
+		/* Execute decision algorithms for buy and sell */
+		if is, buyQuantityFiat := BuyDecisionTree(
+			configData,
+			marketData,
+			sessionData); is {
+
+			exchange.BuyTicker(
+				buyQuantityFiat,
 				configData,
 				marketData,
-				sessionData); is {
+				sessionData)
 
-				exchange.BuyTicker(
-					buyQuantityFiat,
-					configData,
-					marketData,
-					sessionData)
+			/* Update ThreadCount after BUY */
+			sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData)
 
-				/* Update ThreadCount after BUY */
-				sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData)
+		} else if is, order := SellDecisionTree(
+			configData,
+			marketData,
+			sessionData); is {
 
-			} else if is, order := SellDecisionTree(
+			exchange.SellTicker(
+				order,
 				configData,
 				marketData,
-				sessionData); is {
+				sessionData)
 
-				exchange.SellTicker(
-					order,
-					configData,
-					marketData,
-					sessionData)
+			/* Update ThreadCount after SELL */
+			if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
 
-				/* Update ThreadCount after SELL */
-				if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
-
-					logger.LogEntry{
-						Config:   configData,
-						Market:   marketData,
-						Session:  sessionData,
-						Order:    &types.Order{},
-						Message:  functions.GetFunctionName() + " - " + err.Error(),
-						LogLevel: "DebugLevel",
-					}.Do()
-
-				}
-
-				/* Update Number of Sale Transactions per hour */
-				sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
+				logger.LogEntry{
+					Config:   configData,
+					Market:   marketData,
+					Session:  sessionData,
+					Order:    &types.Order{},
+					Message:  functions.GetFunctionName() + " - " + err.Error(),
+					LogLevel: "DebugLevel",
+				}.Do()
 
 			}
+
+			/* Update Number of Sale Transactions per hour */
+			sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
 
 		}
 
