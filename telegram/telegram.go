@@ -146,7 +146,7 @@ func CheckUpdates(
 			var status string
 			var err error
 
-			if profit, profitPct, err = mysql.GetProfit(sessionData); err == nil {
+			if profit, profitPct, err = mysql.GetProfit(sessionData); err != nil {
 				return
 			}
 
