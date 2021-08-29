@@ -572,18 +572,17 @@ func SaveConfigData(
 }
 
 // GetExchangeLatency retrieve the latency between the exchange and client
-func GetExchangeLatency(sessionData *types.Session) {
+func GetExchangeLatency(sessionData *types.Session) (latency int64, err error) {
 
 	/* Package httpstat traces HTTP latency infomation
 	(DNSLookup, TCP Connection and so on) on any golang HTTP request. */
 
 	var req *http.Request
 	var res *http.Response
-	var err error
 
 	if req, err = http.NewRequest("GET", sessionData.Clients.Binance.BaseURL, nil); err != nil {
 
-		return
+		return 0, err
 
 	}
 
@@ -595,7 +594,7 @@ func GetExchangeLatency(sessionData *types.Session) {
 	client := http.DefaultClient
 	if res, err = client.Do(req); err != nil {
 
-		return
+		return 0, err
 
 	}
 
@@ -605,6 +604,6 @@ func GetExchangeLatency(sessionData *types.Session) {
 	res.Body.Close()
 	result.End(time.Now())
 
-	sessionData.Latency = result.ServerProcessing.Milliseconds()
+	return result.ServerProcessing.Milliseconds(), err
 
 }

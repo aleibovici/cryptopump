@@ -471,7 +471,7 @@ func execution(
 	/* Update exchange latency every 5 seconds. */
 	scheduler.RunTaskAtInterval(
 		func() {
-			functions.GetExchangeLatency(sessionData)
+			sessionData.Latency, err = functions.GetExchangeLatency(sessionData)
 		},
 		time.Second*5,
 		time.Second*0)
