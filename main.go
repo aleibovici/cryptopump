@@ -725,7 +725,9 @@ func loadSessionDataAdditionalComponents(
 		SymbolFiat           string  /* Fiat currency funds */
 		SymbolFiatFunds      float64 /* Fiat currency funds */
 		ProfitThreadID       float64 /* ThreadID profit */
+		ProfitThreadIDPct    float64 /* ThreadID profit percentage */
 		Profit               float64 /* Total profit */
+		ProfitPct            float64 /* Total profit percentage */
 		ThreadCount          int     /* Thread count */
 		ThreadAmount         float64 /* Thread cost amount */
 		Latency              int64   /* Latency between the exchange and client */
@@ -754,11 +756,13 @@ func loadSessionDataAdditionalComponents(
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 
-	if profit, err := mysql.GetProfit(sessionData); err == nil {
+	if profit, profitPct, err := mysql.GetProfit(sessionData); err == nil {
 		sessiondata.Session.Profit = math.Round(profit*100) / 100
+		sessiondata.Session.ProfitPct = math.Round(profitPct*100) / 100
 	}
-	if profitThreadID, err := mysql.GetProfitByThreadID(sessionData); err == nil {
+	if profitThreadID, ProfitThreadIDPct, err := mysql.GetProfitByThreadID(sessionData); err == nil {
 		sessiondata.Session.ProfitThreadID = math.Round(profitThreadID*100) / 100
+		sessiondata.Session.ProfitThreadIDPct = math.Round(ProfitThreadIDPct*100) / 100
 	}
 	if threadCount, err := mysql.GetThreadCount(sessionData); err == nil {
 		sessiondata.Session.ThreadCount = threadCount
