@@ -490,6 +490,7 @@ func loadConfigData(
 		SellWaitAfterCancel:                    viper.GetInt("config.sellwaitaftercancel"),
 		SellToCover:                            viper.GetBool("config.selltocover"),
 		SellHoldOnRSI3:                         viper.GetFloat64("config.sellholdonrsi3"),
+		Stoploss:                               viper.GetFloat64("config.stoploss"),
 		SymbolFiat:                             viper.GetString("config.symbol_fiat"),
 		SymbolFiatStash:                        viper.GetFloat64("config.symbol_fiat_stash"),
 		Symbol:                                 viper.GetString("config.symbol"),
@@ -535,6 +536,7 @@ func SaveConfigData(
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
 	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
+	viper.Set("config.Stoploss", r.PostFormValue("stoploss"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
 		viper.Set("config.symbol", r.PostFormValue("symbol"))
 	}

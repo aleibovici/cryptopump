@@ -731,6 +731,46 @@ func GetThreadTransactionByPrice(
 
 }
 
+// GetThreadTransactionByPriceHigher function returns the highert Thread order above a certain treshold.
+// It is used for STOPLOSS Loss as ratio that should trigger a sale
+func GetThreadTransactionByPriceHigher(
+	marketData *types.Market,
+	sessionData *types.Session) (order types.Order, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByPriceHigher(?,?)",
+		sessionData.ThreadID,
+		marketData.Price); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    nil,
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return order, err
+
+	}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&order.CumulativeQuoteQuantity,
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.TransactTime)
+	}
+
+	rows.Close()
+
+	return order, err
+
+}
+
 // GetThreadLastTransaction Return the last 'active' BUY transaction for a Thread
 func GetThreadLastTransaction(
 	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {

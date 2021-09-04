@@ -1076,6 +1076,28 @@ func SellDecisionTree(
 		}
 	}
 
+	/* STOPLOSS Loss as ratio that should trigger a sale.
+	Returns the highert Thread order above marketData.Price treshold.*/
+	if configData.Stoploss > 0 {
+
+		if order, err := mysql.GetThreadTransactionByPriceHigher(marketData, sessionData); err == nil &&
+			(marketData.Price <= (order.Price * (1 - configData.Stoploss))) {
+
+			logger.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &order,
+				Message:  "STOPLOSS",
+				LogLevel: "InfoLevel",
+			}.Do()
+
+			return true, order
+
+		}
+
+	}
+
 	/* Retrieve lowest price order from Thread database */
 	if order.OrderID,
 		order.Price,

@@ -164,6 +164,7 @@ type Config struct {
 	SellWaitAfterCancel                    int     /* Wait time before selling after a cancel in seconds */
 	SellToCover                            bool    /* Define if will sell to cover low funds */
 	SellHoldOnRSI3                         float64 /* Hold sale if RSI3 above defined threshold */
+	Stoploss                               float64 /* Loss as ratio that should trigger a sale */
 	SymbolFiat                             string
 	SymbolFiatStash                        float64
 	Symbol                                 string

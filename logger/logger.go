@@ -102,6 +102,13 @@ func (logEntry LogEntry) Do() {
 
 			}
 
+		case "STOPLOSS":
+
+			log.WithFields(log.Fields{
+				"threadID": logEntry.Session.ThreadID,
+				"orderID":  logEntry.Order.OrderID,
+			}).Info(logEntry.Message)
+
 		default:
 
 			log.WithFields(log.Fields{

@@ -336,6 +336,19 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="col-form-label"
+                                            for="stoploss">Stoploss</label>
+                                    </div>
+                                    <div class="col input-group input-group-sm">
+                                        <input type="number" step="1" class="form-control" id="stoploss"
+                                            name="stoploss" data-toggle="tooltip"
+                                            title='Sell order on loss ratio (0 to disable)' maxlength="5"
+                                            value="{{ .Stoploss }}" required/>
+                                    </div>
+                                </div>
+
                             </div>
 
                         </div>
