@@ -59,7 +59,7 @@ CREATE TABLE `session` (
   `Status` tinyint(1) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=993 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1047 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,7 +78,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7203 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7380 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -360,23 +360,31 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `GetProfit`()
 BEGIN
 SELECT 
-    ((SELECT 
-            SUM(`orders`.`CummulativeQuoteQty`) AS `sum`
-        FROM
-            `orders`
-                LEFT JOIN
-            `thread` `Thread` ON `orders`.`OrderID` = `Thread`.`OrderID`
-        WHERE
-            (`Thread`.`OrderID` IS NULL
-                AND `orders`.`Side` = 'SELL')) - (SELECT 
-            SUM(`orders`.`CummulativeQuoteQty`) AS `sum`
-        FROM
-            `orders`
-                LEFT JOIN
-            `thread` `Thread` ON `orders`.`OrderID` = `Thread`.`OrderID`
-        WHERE
-            (`Thread`.`OrderID` IS NULL
-                AND `orders`.`Side` = 'BUY')));
+    SUM(`source`.`Profit`) AS `sum`,
+    AVG(`source`.`Percentage`) AS `avg`
+FROM
+    (SELECT 
+        `orders`.`Side` AS `Side`,
+            `Orders`.`Side` AS `Orders__Side`,
+            `orders`.`Status` AS `Status`,
+            `Orders`.`Status` AS `Orders__Status`,
+            `orders`.`ThreadID` AS `ThreadID`,
+            `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`,
+            `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
+            (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`,
+            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
+                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
+                ELSE `Orders`.`CummulativeQuoteQty`
+            END) AS `Percentage`
+    FROM
+        `orders`
+    INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
+WHERE
+    (`source`.`Side` = 'BUY'
+        AND `source`.`Orders__Side` = 'SELL'
+        AND `source`.`Status` = 'FILLED'
+        AND `source`.`Orders__Status` = 'FILLED');
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -398,25 +406,31 @@ BEGIN
 DECLARE declared_in_param_ThreadID CHAR(50);
     SET declared_in_param_ThreadID = in_param_ThreadID;
 SELECT 
-    ((SELECT 
-            SUM(`orders`.`CummulativeQuoteQty`) AS `sum`
-        FROM
-            `orders`
-                LEFT JOIN
-            `thread` `Thread` ON `orders`.`OrderID` = `Thread`.`OrderID`
-        WHERE
-            (`Thread`.`OrderID` IS NULL
-                AND `orders`.`Side` = 'SELL'
-                AND `orders`.`ThreadID` = declared_in_param_ThreadID)) - (SELECT 
-            SUM(`orders`.`CummulativeQuoteQty`) AS `sum`
-        FROM
-            `orders`
-                LEFT JOIN
-            `thread` `Thread` ON `orders`.`OrderID` = `Thread`.`OrderID`
-        WHERE
-            (`Thread`.`OrderID` IS NULL
-                AND `orders`.`Side` = 'BUY'
-                AND `orders`.`ThreadID` = declared_in_param_ThreadID)));
+    SUM(`source`.`Profit`) AS `sum`,
+    AVG(`source`.`Percentage`) AS `avg`
+FROM
+    (SELECT 
+        `orders`.`Side` AS `Side`,
+            `Orders`.`Side` AS `Orders__Side`,
+            `orders`.`Status` AS `Status`,
+            `Orders`.`Status` AS `Orders__Status`,
+            `orders`.`ThreadID` AS `ThreadID`,
+            `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`,
+            `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
+            (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`,
+            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
+                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
+                ELSE `Orders`.`CummulativeQuoteQty`
+            END) AS `Percentage`
+    FROM
+        `orders`
+    INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
+WHERE
+    (`source`.`Side` = 'BUY'
+        AND `source`.`Orders__Side` = 'SELL'
+        AND `source`.`Status` = 'FILLED'
+        AND `source`.`Orders__Status` = 'FILLED'
+        AND `source`.`ThreadID` = declared_in_param_ThreadID);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -762,4 +776,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-23 14:59:28
+-- Dump completed on 2021-08-29 21:35:31

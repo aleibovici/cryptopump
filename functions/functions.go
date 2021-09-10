@@ -490,6 +490,7 @@ func loadConfigData(
 		SellWaitAfterCancel:                    viper.GetInt("config.sellwaitaftercancel"),
 		SellToCover:                            viper.GetBool("config.selltocover"),
 		SellHoldOnRSI3:                         viper.GetFloat64("config.sellholdonrsi3"),
+		Stoploss:                               viper.GetFloat64("config.stoploss"),
 		SymbolFiat:                             viper.GetString("config.symbol_fiat"),
 		SymbolFiatStash:                        viper.GetFloat64("config.symbol_fiat_stash"),
 		Symbol:                                 viper.GetString("config.symbol"),
@@ -535,6 +536,7 @@ func SaveConfigData(
 	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
 	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
 	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
+	viper.Set("config.Stoploss", r.PostFormValue("stoploss"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
 		viper.Set("config.symbol", r.PostFormValue("symbol"))
 	}
@@ -572,18 +574,17 @@ func SaveConfigData(
 }
 
 // GetExchangeLatency retrieve the latency between the exchange and client
-func GetExchangeLatency(sessionData *types.Session) {
+func GetExchangeLatency(sessionData *types.Session) (latency int64, err error) {
 
 	/* Package httpstat traces HTTP latency infomation
 	(DNSLookup, TCP Connection and so on) on any golang HTTP request. */
 
 	var req *http.Request
 	var res *http.Response
-	var err error
 
 	if req, err = http.NewRequest("GET", sessionData.Clients.Binance.BaseURL, nil); err != nil {
 
-		return
+		return 0, err
 
 	}
 
@@ -595,7 +596,7 @@ func GetExchangeLatency(sessionData *types.Session) {
 	client := http.DefaultClient
 	if res, err = client.Do(req); err != nil {
 
-		return
+		return 0, err
 
 	}
 
@@ -605,6 +606,6 @@ func GetExchangeLatency(sessionData *types.Session) {
 	res.Body.Close()
 	result.End(time.Now())
 
-	sessionData.Latency = result.ServerProcessing.Milliseconds()
+	return result.ServerProcessing.Milliseconds(), err
 
 }

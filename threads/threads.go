@@ -66,6 +66,12 @@ func (Thread) Terminate(sessionData *types.Session) {
 // Lock existing thread
 func (Thread) Lock(sessionData *types.Session) bool {
 
+	if sessionData.ThreadID == "" {
+
+		return false
+
+	}
+
 	filename := sessionData.ThreadID + ".lock"
 
 	if _, err := os.Stat(filename); err == nil {

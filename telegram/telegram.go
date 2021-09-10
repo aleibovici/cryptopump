@@ -141,11 +141,12 @@ func CheckUpdates(
 		case "/report":
 
 			var profit float64
+			var profitPct float64
 			var threadCount int
 			var status string
 			var err error
 
-			if profit, err = mysql.GetProfit(sessionData); err != nil {
+			if profit, profitPct, err = mysql.GetProfit(sessionData); err != nil {
 				return
 			}
 
@@ -165,7 +166,7 @@ func CheckUpdates(
 
 			Message{
 				Text: "\f" + "Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
-					"Total Profit: " + functions.Float64ToStr(profit, 2) + "\n" +
+					"Total Profit: " + functions.Float64ToStr(profit, 2) + " " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
 					"Master: " + sessionData.ThreadID,

@@ -731,6 +731,46 @@ func GetThreadTransactionByPrice(
 
 }
 
+// GetThreadTransactionByPriceHigher function returns the highert Thread order above a certain treshold.
+// It is used for STOPLOSS Loss as ratio that should trigger a sale
+func GetThreadTransactionByPriceHigher(
+	marketData *types.Market,
+	sessionData *types.Session) (order types.Order, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByPriceHigher(?,?)",
+		sessionData.ThreadID,
+		marketData.Price); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    nil,
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return order, err
+
+	}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&order.CumulativeQuoteQuantity,
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.TransactTime)
+	}
+
+	rows.Close()
+
+	return order, err
+
+}
+
 // GetThreadLastTransaction Return the last 'active' BUY transaction for a Thread
 func GetThreadLastTransaction(
 	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
@@ -883,9 +923,8 @@ func GetThreadTransactionByThreadID(
 
 }
 
-// GetProfitByThreadID Retrieve thread profit
-func GetProfitByThreadID(
-	sessionData *types.Session) (profit float64, err error) {
+// GetProfitByThreadID retrieve total and average percentage profit by ThreadID
+func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage float64, err error) {
 
 	var rows *sql.Rows
 
@@ -901,23 +940,23 @@ func GetProfitByThreadID(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, err
+		return 0, 0, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&profit)
+		err = rows.Scan(&fiat, &percentage)
 	}
 
 	rows.Close()
 
-	return math.Round(profit*100) / 100, err
+	return fiat, (percentage * 100), err
 
 }
 
-// GetProfit Retrieve total profit
+// GetProfit retrieve total and average percentage profit
 func GetProfit(
-	sessionData *types.Session) (profit float64, err error) {
+	sessionData *types.Session) (fiat float64, percentage float64, err error) {
 
 	var rows *sql.Rows
 
@@ -932,18 +971,17 @@ func GetProfit(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, err
+		return 0, 0, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&profit)
+		err = rows.Scan(&fiat, &percentage)
 	}
 
 	rows.Close()
 
-	return math.Round(profit*100) / 100, err
-
+	return fiat, (percentage * 100), err
 }
 
 // GetThreadCount Retrieve Running Thread Count
