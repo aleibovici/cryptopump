@@ -18,7 +18,7 @@ func (Node) GetRole(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	var filename string = "master.lock"
+	var filename = "master.lock"
 
 	/* 	If TestNet is enabled will not check for "master.lock" to not affect production systems */
 	if configData.TestNet {
@@ -103,7 +103,7 @@ func (Node) ReleaseMasterRole(sessionData *types.Session) {
 	/* Release node role if Master */
 	if sessionData.MasterNode {
 
-		var filename string = "master.lock"
+		var filename = "master.lock"
 
 		if err := os.Remove(filename); err != nil {
 
