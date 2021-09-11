@@ -1,6 +1,6 @@
 .container-input {
   background-color: #eee;
-  border-color:darkgrey;
+  border-color: darkgrey;
   border-style: solid;
   border-width: 1px;
   padding: auto;
@@ -36,7 +36,7 @@
   background-color: #007dc1;
   border: 1px solid #124d77;
   border-radius: 3px;
-  box-shadow: inset 1px #54a3f7;
+  box-shadow: none;
   color: #fff;
   cursor: pointer;
   display: inline-block;
@@ -58,7 +58,7 @@
 }
 
 .table-wrapper {
-  display:inline-block;
+  display: inline-block;
   margin: 10px;
   max-height: 400px;
   min-width: 300px;
