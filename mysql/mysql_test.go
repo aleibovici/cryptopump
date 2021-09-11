@@ -11,7 +11,7 @@ import (
 func Test_UsingEnvvar(t *testing.T) {
 
 	os.Setenv("DB_USER", "root")
-	os.Setenv("DB_PASS", "swatch!12")
+	os.Setenv("DB_PASS", "")
 	os.Setenv("DB_TCP_HOST", "127.0.0.1")
 	os.Setenv("DB_PORT", "3306")
 	os.Setenv("DB_NAME", "cryptopump")
