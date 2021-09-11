@@ -1,8 +1,8 @@
 .container-input {
-  background-color: #eeeeee;
-  border-style: solid;
-  border-width: 1px !important;
+  background-color: #eee;
   border-color:darkgrey;
+  border-style: solid;
+  border-width: 1px;
   padding: auto;
 }
 
@@ -34,10 +34,10 @@
 .btn-primary-addon {
   background: linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
   background-color: #007dc1;
-  border-radius: 3px;
   border: 1px solid #124d77;
-  box-shadow: inset 0px 1px 0px 0px #54a3f7;
-  color: #ffffff;
+  border-radius: 3px;
+  box-shadow: inset 1px #54a3f7;
+  color: #fff;
   cursor: pointer;
   display: inline-block;
   font-size: 14px;
@@ -51,6 +51,7 @@
   background: linear-gradient(to bottom, #0061a7 5%, #007dc1 100%);
   background-color: #0061a7;
 }
+
 .btn-primary-addon:active {
   position: relative;
   top: 1px;
