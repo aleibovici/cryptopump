@@ -1,8 +1,8 @@
 .container-input {
+  background-color: #eeeeee;
   border-style: solid;
   border-width: 1px !important;
   border-color:darkgrey;
-  background-color: #eeeeee;
   padding: auto;
 }
 
@@ -27,25 +27,24 @@
 }
 
 .dropdown-addon {
-  width: fit-content;
   height: 30px;
+  width: fit-content;
 }
 
 .btn-primary-addon {
-  box-shadow: inset 0px 1px 0px 0px #54a3f7;
   background: linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
   background-color: #007dc1;
   border-radius: 3px;
   border: 1px solid #124d77;
-  display: inline-block;
-  cursor: pointer;
+  box-shadow: inset 0px 1px 0px 0px #54a3f7;
   color: #ffffff;
-  /* font-family: Arial; */
+  cursor: pointer;
+  display: inline-block;
   font-size: 14px;
+  margin-right: 5px;
   padding: 6px 24px;
   text-decoration: none;
-  text-shadow: 0px 1px 0px #154682;
-  margin-right: 5px;
+  text-shadow: 1px #154682;
 }
 
 .btn-primary-addon:hover {
@@ -58,18 +57,18 @@
 }
 
 .table-wrapper {
+  display:inline-block;
+  margin: 10px;
   max-height: 400px;
   min-width: 300px;
   overflow-x: hidden;
   overflow-y: auto;
-  margin: 10px;
-  display:inline-block;
 }
 
-.table-wrapper thead th { 
-  position: static; 
-  top: 0; 
-  z-index: 1; 
+.table-wrapper thead th {
   background-color: white;
+  position: static;
   text-align: center;
+  top: 0;
+  z-index: 1;
 }
