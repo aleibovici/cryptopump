@@ -1,63 +1,41 @@
 package markets
 
 import (
-	"database/sql"
 	"testing"
-	"time"
 
 	"github.com/aleibovici/cryptopump/exchange"
+	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/types"
 	"github.com/sdcoffey/techan"
+	"github.com/spf13/viper"
 )
 
-var configData = &types.Config{
-	ApikeyTestNet:    "i8kImZxWu9sgptrzatanbcoG2lgneGooDVoqSoNHjS3cdcEySqe0nG4NxNZ0WP4O",
-	SecretkeyTestNet: "hglipvMt5t5NGu6aqwt1dgeTz5ss9cZUTO82IXo0thpBs8uBTmCea4xlJNIXdVgf",
-	Symbol:           "BTCUSDT",
-	ExchangeName:     "binance",
-	TestNet:          true,
-}
+var configData = &types.Config{}
 
-var sessionData = &types.Session{
-	ThreadCount:          0,
-	SellTransactionCount: 0,
-	Symbol:               "BTCUSDT",
-	SymbolFunds:          0,
-	SymbolFiat:           "USDT",
-	SymbolFiatFunds:      0,
-	LastBuyTransactTime:  time.Time{},
-	LastSellCanceledTime: time.Time{},
-	ConfigTemplate:       0,
-	ForceBuy:             false,
-	ForceSell:            false,
-	ListenKey:            "",
-	MasterNode:           false,
-	Db:                   &sql.DB{},
-	Clients:              types.Client{},
-	KlineData:            []types.KlineData{},
-	StopWs:               false,
-	Busy:                 false,
-	MinQuantity:          0,
-	MaxQuantity:          0,
-	StepSize:             0,
-}
+var sessionData = &types.Session{}
 
 var marketData = &types.Market{
-	Rsi3:                      0,
-	Rsi7:                      0,
-	Rsi14:                     0,
-	MACD:                      0,
-	Price:                     40000,
-	PriceChangeStatsHighPrice: 0,
-	PriceChangeStatsLowPrice:  0,
-	Direction:                 0,
-	TimeStamp:                 time.Time{},
-	Series:                    &techan.TimeSeries{},
-	Ma7:                       0,
-	Ma14:                      0,
+	Series: &techan.TimeSeries{},
 }
 
 func init() {
+
+	viper.AddConfigPath("../config") /* Set the path to look for the configurations file */
+	if err := viper.ReadInConfig(); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+
+	configData = functions.GetConfigData(sessionData)
 
 	exchange.GetClient(configData, sessionData)
 
