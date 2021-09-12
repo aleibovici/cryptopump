@@ -36,6 +36,7 @@ func init() {
 	}
 
 	configData = functions.GetConfigData(sessionData)
+	configData.TestNet = true
 
 	exchange.GetClient(configData, sessionData)
 

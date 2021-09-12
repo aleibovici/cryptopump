@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/types"
 	"github.com/spf13/viper"
 )
@@ -23,15 +24,22 @@ var marketData = &types.Market{
 
 func init() {
 
-	viper.SetConfigName("config")    /* Set the file name of the configurations file */
 	viper.AddConfigPath("../config") /* Set the path to look for the configurations file */
-	viper.SetConfigType("yml")       /* */
-	viper.AutomaticEnv()             /* Enable VIPER to read Environment Variables */
-	viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
 
-	configData.TestNet = true
-	configData.ExchangeName = "binance"
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+
 	configData = functions.GetConfigData(sessionData)
+	configData.TestNet = true
 
 	GetClient(configData, sessionData)
 	GetLotSize(configData, sessionData)
