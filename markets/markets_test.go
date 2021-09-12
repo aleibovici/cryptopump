@@ -19,8 +19,6 @@ var configData = &types.Config{
 }
 
 var sessionData = &types.Session{
-	ThreadID:             "",
-	ThreadIDSession:      "",
 	ThreadCount:          0,
 	SellTransactionCount: 0,
 	Symbol:               "BTCUSDT",
@@ -34,15 +32,14 @@ var sessionData = &types.Session{
 	ForceSell:            false,
 	ListenKey:            "",
 	MasterNode:           false,
-	// TgBotAPI:             &tgbotapi.BotAPI{},
-	Db:          &sql.DB{},
-	Clients:     types.Client{},
-	KlineData:   []types.KlineData{},
-	StopWs:      false,
-	Busy:        false,
-	MinQuantity: 0,
-	MaxQuantity: 0,
-	StepSize:    0,
+	Db:                   &sql.DB{},
+	Clients:              types.Client{},
+	KlineData:            []types.KlineData{},
+	StopWs:               false,
+	Busy:                 false,
+	MinQuantity:          0,
+	MaxQuantity:          0,
+	StepSize:             0,
 }
 
 var marketData = &types.Market{
@@ -98,6 +95,42 @@ func TestData_LoadKlinePast(t *testing.T) {
 				Kline: tt.fields.Kline,
 			}
 			d.LoadKlinePast(tt.args.configData, tt.args.marketData, tt.args.sessionData)
+		})
+	}
+}
+
+func TestData_LoadKline(t *testing.T) {
+	type fields struct {
+		Kline types.WsKline
+	}
+	type args struct {
+		configData  *types.Config
+		sessionData *types.Session
+		marketData  *types.Market
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: "success",
+			fields: fields{
+				Kline: types.WsKline{},
+			},
+			args: args{
+				configData:  configData,
+				marketData:  marketData,
+				sessionData: sessionData,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := Data{
+				Kline: tt.fields.Kline,
+			}
+			d.LoadKline(tt.args.configData, tt.args.sessionData, tt.args.marketData)
 		})
 	}
 }
