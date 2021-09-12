@@ -261,8 +261,8 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 					fh.sessionData,
 					fh.marketData)
 
-				time.Sleep(2 * time.Second)          /* Sleep time to wait for ThreadID to start */
-				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
+				time.Sleep(2 * time.Second)                       /* Sleep time to wait for ThreadID to start */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "stop":
 
@@ -272,19 +272,19 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 				functions.SaveConfigData(r, fh.sessionData) /* Save updated config */
 
-				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "buy":
 
 				fh.sessionData.ForceBuy = true
 
-				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "sell":
 
 				fh.sessionData.ForceSell = true
 
-				http.Redirect(w, r, r.URL.Path, 301) /* Redirect to root 'index' */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "configTemplate":
 
