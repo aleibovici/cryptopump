@@ -104,6 +104,9 @@ func TestData_LoadKline(t *testing.T) {
 			},
 		},
 	}
+
+	sessionData.Symbol = configData.Symbol
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := Data{
