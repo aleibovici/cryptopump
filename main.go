@@ -381,8 +381,13 @@ func execution(
 			threads.Thread{}.Terminate(sessionData)
 		}
 
-		/* Select the symbol coin to be used from sessionData.Symbol option */
-		sessionData.SymbolFiat = sessionData.Symbol[3:7]
+		/* Select the symbol coin to be used from sessionData.Symbol */
+		switch len(sessionData.Symbol) {
+		case 7:
+			sessionData.SymbolFiat = sessionData.Symbol[3:7] /* support for symbols with 3 characters */
+		case 8:
+			sessionData.SymbolFiat = sessionData.Symbol[4:8] /* support for symbols with 4 characters */
+		}
 
 		logger.LogEntry{
 			Config:   configData,

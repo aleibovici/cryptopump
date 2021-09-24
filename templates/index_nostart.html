@@ -24,7 +24,8 @@
             async function() {
                 json = await fetch(window.location.href + 'sessiondata', {cache:"no-cache"})
                     .then(response => response.json())
-                    .then((json) => {return json;});
+                    .then((json) => {return json;})
+                    .catch(function(error) {console.log(error);});
                 $('#divIDRsi3').html(json.Market.Rsi3);
                 $('#divIDRsi7').html(json.Market.Rsi7);
                 $('#divIDRsi14').html(json.Market.Rsi14);

@@ -843,6 +843,8 @@ func WsBookTicker(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
+			return
+
 		case strings.Contains(err.Error(), "1008"):
 			/* websocket: close 1008 (policy violation): Pong timeout */
 			/* 1008 indicates that an endpoint is terminating the connection
