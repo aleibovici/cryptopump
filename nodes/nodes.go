@@ -19,6 +19,21 @@ func (Node) GetRole(
 	sessionData *types.Session) {
 
 	var filename = "master.lock"
+	var err error
+
+	/* Conditional defer logging when there is an error retriving data */
+	defer func() {
+		if err != nil {
+			logger.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+		}
+	}()
 
 	/* 	If TestNet is enabled will not check for "master.lock" to not affect production systems */
 	if configData.TestNet {
@@ -32,18 +47,9 @@ func (Node) GetRole(
 	if sessionData.MasterNode {
 
 		/* Set access time and modified time of the file to the current time */
-		err := os.Chtimes(filename, time.Now().Local(), time.Now().Local())
+		if err = os.Chtimes(filename, time.Now().Local(), time.Now().Local()); err != nil {
 
-		if err != nil {
-
-			logger.LogEntry{
-				Config:   nil,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
+			return
 
 		}
 
@@ -60,14 +66,7 @@ func (Node) GetRole(
 
 			if err := os.Remove(filename); err != nil {
 
-				logger.LogEntry{
-					Config:   nil,
-					Market:   nil,
-					Session:  sessionData,
-					Order:    &types.Order{},
-					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: "DebugLevel",
-				}.Do()
+				return
 
 			}
 
@@ -76,18 +75,7 @@ func (Node) GetRole(
 	} else if os.IsNotExist(err) { /* Check if "master.lock" is created and modified time */
 
 		var file *os.File
-		if file, err = os.Create(filename); err != nil {
-
-			logger.LogEntry{
-				Config:   nil,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
-
-		}
+		file, err = os.Create(filename)
 
 		file.Close()
 

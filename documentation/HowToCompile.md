@@ -1,6 +1,6 @@
 ## HOW TO COMPILE
 
-To compile cryptopump you need Go enviroment set.
+To compile cryptopump you need Go environment set.
 
 On Ubuntu 18.04 you can install Go as follow:
 

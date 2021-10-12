@@ -15,7 +15,20 @@ import (
 type Thread struct{}
 
 // Terminate thread
-func (Thread) Terminate(sessionData *types.Session) {
+func (Thread) Terminate(sessionData *types.Session, message string) {
+
+	if message != "" {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  message,
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
 
 	/* Verify wether buying/selling to allow graceful session exit */
 	for sessionData.Busy {

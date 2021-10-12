@@ -2,6 +2,7 @@ package algorithms
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -110,7 +111,8 @@ func UpdatePendingOrders(
 	if orderID, _, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData)
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 	}
 
 	if orderID != 0 {
@@ -134,7 +136,7 @@ func UpdatePendingOrders(
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 		}
 
@@ -162,6 +164,24 @@ func isOrderInTimeRangeToSell(
 	timeTransaction := time.Unix(order.TransactTime/1000, 0)
 
 	return timeNow.Sub(timeTransaction).Seconds() > float64(timeRange)
+
+}
+
+// ParseSymbolFiat parse and selects the symbol fiat coin to be used from sessionData.Symbol
+func ParseSymbolFiat(sessionData *types.Session) (symbolFiat string, err error) {
+
+	if sessionData.Symbol == "" { /* Test if symbol is empty */
+		return "", errors.New("Fail to parse Symbol Fiat")
+	}
+
+	switch len(sessionData.Symbol) {
+	case 7:
+		return sessionData.Symbol[3:7], nil /* support for symbols with 3 characters */
+	case 8:
+		return sessionData.Symbol[4:8], nil /* support for symbols with 4 characters */
+	}
+
+	return "", errors.New("Fail to parse Symbol Fiat")
 
 }
 
@@ -756,7 +776,7 @@ func WsBookTicker(
 			functions.DeleteConfigFile(sessionData)
 
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 		}
 

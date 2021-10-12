@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"math"
 	"strconv"
 	"sync"
 	"time"
@@ -142,6 +143,7 @@ func CheckUpdates(
 
 			var profit float64
 			var profitPct float64
+			var roi float64
 			var threadCount int
 			var status string
 			var err error
@@ -164,9 +166,13 @@ func CheckUpdates(
 
 			}
 
+			/* Calculate total Return on Investment */
+			roi = (profit) / (math.Round(sessionData.Global.ThreadAmount*100) / 100) * 100
+
 			Message{
 				Text: "\f" + "Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
-					"Total Profit: " + functions.Float64ToStr(profit, 2) + " " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
+					"Profit: " + functions.Float64ToStr(profit, 2) + " " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
+					"ROI " + functions.Float64ToStr(roi, 2) + "%" + "\n" +
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
 					"Master: " + sessionData.ThreadID,

@@ -2,20 +2,18 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"math"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
-	"strconv"
 	"sync"
 	"time"
 
 	"github.com/aleibovici/cryptopump/algorithms"
 	"github.com/aleibovici/cryptopump/exchange"
 	"github.com/aleibovici/cryptopump/functions"
+	"github.com/aleibovici/cryptopump/loader"
 	"github.com/aleibovici/cryptopump/logger"
 	"github.com/aleibovici/cryptopump/markets"
 	"github.com/aleibovici/cryptopump/mysql"
@@ -24,8 +22,8 @@ import (
 	"github.com/aleibovici/cryptopump/telegram"
 	"github.com/aleibovici/cryptopump/threads"
 	"github.com/aleibovici/cryptopump/types"
-
 	"github.com/jtaczanowski/go-scheduler"
+
 	"github.com/sdcoffey/techan"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/viper"
@@ -96,6 +94,7 @@ func main() {
 		StepSize:                0,
 		Latency:                 0,
 		Status:                  false,
+		Global:                  &types.Global{},
 	}
 
 	marketData := &types.Market{
@@ -160,7 +159,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			w.Header().Set("Content-Type", "application/json")
 
-			if tmp, err = loadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData); err != nil { /* Load dynamic components for javascript autoloader for html output */
+			if tmp, err = loader.LoadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData); err != nil { /* Load dynamic components for javascript autoloader for html output */
 
 				logger.LogEntry{
 					Config:   fh.configData,
@@ -266,7 +265,8 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "stop":
 
-				threads.Thread{}.Terminate(fh.sessionData) /* Cleanly exit ThreadID */
+				/* Cleanly exit ThreadID */
+				threads.Thread{}.Terminate(fh.sessionData, "")
 
 			case "update":
 
@@ -311,17 +311,8 @@ func execution(
 	/* Connect to Exchange */
 	if err = exchange.GetClient(configData, sessionData); err != nil {
 
-		logger.LogEntry{
-			Config:   configData,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
 		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData)
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 	}
 
@@ -330,17 +321,9 @@ func execution(
 
 	if sessionData.ThreadID, threadIDSessionDB, err = mysql.GetThreadTransactionDistinct(sessionData); err != nil {
 
-		logger.LogEntry{
-			Config:   configData,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
 		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData)
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 	}
 
 	if sessionData.ThreadID != "" && !configData.NewSession {
@@ -352,41 +335,17 @@ func execution(
 
 		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil {
 
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
-
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
-		}
-
-		if sessionData.Symbol == "" {
-
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  "sessionData.Symbol not found",
-				LogLevel: "DebugLevel",
-			}.Do()
-
-			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol */
-		switch len(sessionData.Symbol) {
-		case 7:
-			sessionData.SymbolFiat = sessionData.Symbol[3:7] /* support for symbols with 3 characters */
-		case 8:
-			sessionData.SymbolFiat = sessionData.Symbol[4:8] /* support for symbols with 4 characters */
+		if sessionData.SymbolFiat, err = algorithms.ParseSymbolFiat(sessionData); err != nil {
+
+			/* Cleanly exit ThreadID */
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 		}
 
 		logger.LogEntry{
@@ -428,81 +387,10 @@ func execution(
 	/* Print threadID to debug for easy identification of session */
 	fmt.Printf("ThreadID:  %s", sessionData.ThreadID)
 
-	/* Synchronize time with Binance every 5 minutes */
-	_ = exchange.NewSetServerTimeService(configData, sessionData)
-	scheduler.RunTaskAtInterval(
-		func() { _ = exchange.NewSetServerTimeService(configData, sessionData) },
-		time.Second*300,
-		time.Second*0)
-
-	/* Retrieve config data every 10 seconds. */
-	scheduler.RunTaskAtInterval(
-		func() { configData = functions.GetConfigData(sessionData) },
-		time.Second*10,
-		time.Second*0)
-
-	/* run function UpdatePendingOrders() every 180 seconds */
-	rand.Seed(time.Now().UnixNano())
-	scheduler.RunTaskAtInterval(
-		func() { algorithms.UpdatePendingOrders(configData, sessionData) },
-		time.Second*180,
-		time.Second*time.Duration(rand.Intn(180-1+1)+1),
-	)
-
-	/* Retrieve initial node role and then every 60 seconds */
-	nodes.Node{}.GetRole(configData, sessionData)
-	scheduler.RunTaskAtInterval(
-		func() {
-			nodes.Node{}.GetRole(configData, sessionData)
-		},
-		time.Second*60,
-		time.Second*0)
-
-	/* Keep user stream service alive every 60 seconds */
-	scheduler.RunTaskAtInterval(
-		func() { _ = exchange.KeepAliveUserStreamServiceListenKey(configData, sessionData) },
-		time.Second*60,
-		time.Second*0)
-
-	/* Update Number of Sale Transactions per hour every 3 minutes.
-	The same function is executed after each sale, and when initiating cycle. */
-	scheduler.RunTaskAtInterval(
-		func() {
-			sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
-		},
-		time.Second*180,
-		time.Second*0)
-
-	/* Update exchange latency every 5 seconds. */
-	scheduler.RunTaskAtInterval(
-		func() {
-			sessionData.Latency, err = functions.GetExchangeLatency(sessionData)
-		},
-		time.Second*5,
-		time.Second*0)
-
-	/* Check system status every 10 seconds. */
-	scheduler.RunTaskAtInterval(
-		func() {
-			nodes.Node{}.CheckStatus(configData, sessionData)
-		},
-		time.Second*10,
-		time.Second*0)
-
-	/* Send Telegram message with system error (only Master Node) every 60 seconds. */
-	scheduler.RunTaskAtInterval(
-		func() {
-			if sessionData.MasterNode && sessionData.TgBotAPIChatID != 0 {
-				if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
-					if threadID != "" {
-						telegram.Message{
-							Text: "\f" + "System Fault @ " + threadID,
-						}.Send(sessionData)
-					}
-				}
-			}
-		}, time.Second*60,
-		time.Second*0)
+	/* Starts async functions that are executed at specific intervals */
+	asyncFunctions(
+		configData,
+		sessionData)
 
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, ans is then followed by
@@ -591,7 +479,7 @@ func execution(
 					sessionData); err != nil {
 
 					/* Cleanly exit ThreadID */
-					threads.Thread{}.Terminate(sessionData)
+					threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 				}
 
@@ -616,7 +504,7 @@ func execution(
 						sessionData); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.Thread{}.Terminate(sessionData)
+						threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 					}
 
@@ -699,99 +587,93 @@ func execution(
 
 }
 
-/* Load dynamic components for javascript autoloader for html output */
-func loadSessionDataAdditionalComponents(
-	sessionData *types.Session,
-	marketData *types.Market,
-	configData *types.Config) ([]byte, error) {
+// asyncFunctions starts async functions that are executed at specific intervals
+func asyncFunctions(
+	configData *types.Config,
+	sessionData *types.Session) {
 
-	type Market struct {
-		Rsi3      float64 /* Relative Strength Index for 3 periods */
-		Rsi7      float64 /* Relative Strength Index for 7 periods */
-		Rsi14     float64 /* Relative Strength Index for 14 periods */
-		MACD      float64 /* Moving average convergence divergence */
-		Price     float64 /* Market Price */
-		Direction int     /* Market Direction */
-	}
+	/* Synchronize time with Binance every 5 minutes */
+	_ = exchange.NewSetServerTimeService(configData, sessionData)
+	scheduler.RunTaskAtInterval(
+		func() { _ = exchange.NewSetServerTimeService(configData, sessionData) },
+		time.Second*300,
+		time.Second*0)
 
-	type Order struct {
-		OrderID  string
-		Quantity float64
-		Quote    float64
-		Price    float64
-		Target   float64
-	}
+	/* Retrieve config data every 10 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() { configData = functions.GetConfigData(sessionData) },
+		time.Second*10,
+		time.Second*0)
 
-	type Session struct {
-		ThreadID             string  /* Unique session ID for the thread */
-		SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes*/
-		Symbol               string  /* Symbol */
-		SymbolFunds          float64 /* Available crypto funds in exchange */
-		SymbolFiat           string  /* Fiat currency funds */
-		SymbolFiatFunds      float64 /* Fiat currency funds */
-		ProfitThreadID       float64 /* ThreadID profit */
-		ProfitThreadIDPct    float64 /* ThreadID profit percentage */
-		Profit               float64 /* Total profit */
-		ProfitPct            float64 /* Total profit percentage */
-		ThreadCount          int     /* Thread count */
-		ThreadAmount         float64 /* Thread cost amount */
-		Latency              int64   /* Latency between the exchange and client */
-		Orders               []Order
-	}
+	/* run function UpdatePendingOrders() every 180 seconds */
+	rand.Seed(time.Now().UnixNano())
+	scheduler.RunTaskAtInterval(
+		func() { algorithms.UpdatePendingOrders(configData, sessionData) },
+		time.Second*180,
+		time.Second*time.Duration(rand.Intn(180-1+1)+1),
+	)
 
-	type Update struct {
-		Market  Market
-		Session Session
-	}
+	/* Retrieve initial node role and then every 60 seconds */
+	nodes.Node{}.GetRole(configData, sessionData)
+	scheduler.RunTaskAtInterval(
+		func() {
+			nodes.Node{}.GetRole(configData, sessionData)
+		},
+		time.Second*60,
+		time.Second*0)
 
-	sessiondata := Update{}
+	/* Keep user stream service alive every 60 seconds */
+	scheduler.RunTaskAtInterval(
+		func() { _ = exchange.KeepAliveUserStreamServiceListenKey(configData, sessionData) },
+		time.Second*60,
+		time.Second*0)
 
-	sessiondata.Market.Rsi3 = math.Round(marketData.Rsi3*100) / 100
-	sessiondata.Market.Rsi7 = math.Round(marketData.Rsi7*100) / 100
-	sessiondata.Market.Rsi14 = math.Round(marketData.Rsi14*100) / 100
-	sessiondata.Market.MACD = math.Round(marketData.MACD*10000) / 10000
-	sessiondata.Market.Price = math.Round(marketData.Price*1000) / 1000
-	sessiondata.Market.Direction = marketData.Direction
+	/* Update Number of Sale Transactions per hour every 3 minutes.
+	The same function is executed after each sale, and when initiating cycle. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			sessionData.SellTransactionCount, _ = mysql.GetOrderTransactionCount(sessionData, "SELL")
+		},
+		time.Second*180,
+		time.Second*0)
 
-	sessiondata.Session.Latency = sessionData.Latency /* Latency between the exchange and client */
-	sessiondata.Session.ThreadID = sessionData.ThreadID
-	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
-	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
-	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*100000000) / 100000000
-	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
-	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
+	/* Update exchange latency every 5 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			sessionData.Latency, _ = functions.GetExchangeLatency(sessionData)
+		},
+		time.Second*5,
+		time.Second*0)
 
-	if profit, profitPct, err := mysql.GetProfit(sessionData); err == nil {
-		sessiondata.Session.Profit = math.Round(profit*100) / 100
-		sessiondata.Session.ProfitPct = math.Round(profitPct*100) / 100
-	}
-	if profitThreadID, ProfitThreadIDPct, err := mysql.GetProfitByThreadID(sessionData); err == nil {
-		sessiondata.Session.ProfitThreadID = math.Round(profitThreadID*100) / 100
-		sessiondata.Session.ProfitThreadIDPct = math.Round(ProfitThreadIDPct*100) / 100
-	}
-	if threadCount, err := mysql.GetThreadCount(sessionData); err == nil {
-		sessiondata.Session.ThreadCount = threadCount
-	}
-	if threadAmount, err := mysql.GetThreadAmount(sessionData); err == nil {
-		sessiondata.Session.ThreadAmount = math.Round(threadAmount*100) / 100
-	}
+	/* Check system status every 10 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			nodes.Node{}.CheckStatus(configData, sessionData)
+		},
+		time.Second*10,
+		time.Second*0)
 
-	if orders, err := mysql.GetThreadTransactionByThreadID(sessionData); err == nil {
+	/* Send Telegram message with system error (only Master Node) every 60 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			if sessionData.MasterNode && sessionData.TgBotAPIChatID != 0 {
+				if threadID, err := mysql.GetSessionStatus(sessionData); err == nil {
+					if threadID != "" {
+						telegram.Message{
+							Text: "\f" + "System Fault @ " + threadID,
+						}.Send(sessionData)
+					}
+				}
+			}
+		}, time.Second*60,
+		time.Second*0)
 
-		for _, key := range orders {
-
-			tmp := Order{}
-			tmp.OrderID = strconv.Itoa(key.OrderID)
-			tmp.Quantity = key.ExecutedQuantity
-			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
-			tmp.Price = math.Round(key.Price*10000) / 10000
-			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000
-
-			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
-		}
-
-	}
-
-	return json.Marshal(sessiondata)
+	/* Load mySQL dynamic components for javascript autoloader every 10 seconds. */
+	scheduler.RunTaskAtInterval(
+		func() {
+			loader.LoadSessionDataAdditionalComponentsAsync(sessionData)
+		},
+		time.Second*10,
+		time.Second*0)
 
 }

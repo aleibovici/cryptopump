@@ -50,16 +50,21 @@ func (d Data) LoadKline(
 	var err error
 	var priceChangeStats []*types.PriceChangeStats
 
-	if start, err = strconv.ParseInt(fmt.Sprint(d.Kline.StartTime), 10, 64); err != nil {
+	/* Conditional defer logging when there is an error retriving data */
+	defer func() {
+		if err != nil {
+			logger.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+		}
+	}()
 
-		logger.LogEntry{
-			Config:   configData,
-			Market:   marketData,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
+	if start, err = strconv.ParseInt(fmt.Sprint(d.Kline.StartTime), 10, 64); err != nil {
 
 		return
 
@@ -81,15 +86,6 @@ func (d Data) LoadKline(
 	}
 
 	if priceChangeStats, err = exchange.GetPriceChangeStats(configData, sessionData, marketData); err != nil {
-
-		logger.LogEntry{
-			Config:   configData,
-			Market:   marketData,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
 
 		return
 
@@ -113,6 +109,20 @@ func (d Data) LoadKlinePast(
 	var klines []*types.Kline
 	var priceChangeStats []*types.PriceChangeStats
 
+	/* Conditional defer logging when there is an error retriving data */
+	defer func() {
+		if err != nil {
+			logger.LogEntry{
+				Config:   configData,
+				Market:   marketData,
+				Session:  sessionData,
+				Order:    &types.Order{},
+				Message:  functions.GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+		}
+	}()
+
 	if klines, err = exchange.GetKlines(configData, sessionData); err != nil {
 
 		return
@@ -124,15 +134,6 @@ func (d Data) LoadKlinePast(
 		var start int64
 
 		if start, err = strconv.ParseInt(fmt.Sprint(datum.OpenTime), 10, 64); err != nil {
-
-			logger.LogEntry{
-				Config:   configData,
-				Market:   marketData,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
 
 			return
 
@@ -154,15 +155,6 @@ func (d Data) LoadKlinePast(
 	}
 
 	if priceChangeStats, err = exchange.GetPriceChangeStats(configData, sessionData, marketData); err != nil {
-
-		logger.LogEntry{
-			Config:   configData,
-			Market:   marketData,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
 
 		return
 

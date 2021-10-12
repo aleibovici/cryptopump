@@ -28,14 +28,7 @@ func DBInit() *sql.DB {
 
 		if db, err = InitTCPConnectionPool(); err != nil {
 
-			logger.LogEntry{
-				Config:   nil,
-				Market:   nil,
-				Session:  nil,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
+			defer os.Exit(1)
 
 		}
 
@@ -43,6 +36,15 @@ func DBInit() *sql.DB {
 
 		if db, err = InitSocketConnectionPool(); err != nil {
 
+			defer os.Exit(1)
+
+		}
+
+	}
+
+	/* Conditional defer logging when there is an error retriving data */
+	defer func() {
+		if err != nil {
 			logger.LogEntry{
 				Config:   nil,
 				Market:   nil,
@@ -51,10 +53,8 @@ func DBInit() *sql.DB {
 				Message:  functions.GetFunctionName() + " - " + err.Error(),
 				LogLevel: "DebugLevel",
 			}.Do()
-
 		}
-
-	}
+	}()
 
 	return db
 
@@ -155,30 +155,23 @@ func InitTCPConnectionPool() (*sql.DB, error) {
 // SaveOrder Save order to database
 func SaveOrder(
 	sessionData *types.Session,
-	ClientOrderID string,
-	CumulativeQuoteQuantity float64,
-	ExecutedQuantity float64,
-	OrderID int64,
-	OrderIDSource int64, /* OrderIDSource */
-	Price float64,
-	Side string,
-	Status string,
-	Symbol string,
-	TransactTime int64) (err error) {
+	order *types.Order,
+	orderIDSource int64, /* OrderIDSource */
+	orderPrice float64 /* OrderPrice */) (err error) {
 
 	var rows *sql.Rows
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?,?)",
-		ClientOrderID,
-		CumulativeQuoteQuantity,
-		ExecutedQuantity,
-		OrderID,
-		OrderIDSource, /* OrderIDSource */
-		Price,
-		Side,
-		Status,
-		Symbol,
-		TransactTime,
+		order.ClientOrderID,
+		order.CumulativeQuoteQuantity,
+		order.ExecutedQuantity,
+		order.OrderID,
+		orderIDSource, /* OrderIDSource */
+		orderPrice,
+		order.Side,
+		order.Status,
+		order.Symbol,
+		order.TransactTime,
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession); err != nil {
 
@@ -187,8 +180,8 @@ func SaveOrder(
 			Market:  nil,
 			Session: sessionData,
 			Order: &types.Order{
-				OrderID: int(OrderID),
-				Price:   Price,
+				OrderID: order.OrderID,
+				Price:   orderPrice,
 			},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
@@ -364,7 +357,7 @@ func GetSessionStatus(
 	for rows.Next() {
 		var status bool
 		err = rows.Scan(&threadID, &status)
-		if status == true {
+		if status {
 			return
 		}
 	}
@@ -927,6 +920,8 @@ func GetThreadTransactionByThreadID(
 func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage float64, err error) {
 
 	var rows *sql.Rows
+	var fiatNullFloat64 sql.NullFloat64       /* handle null mysql returns */
+	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfitByThreadID(?)",
 		sessionData.ThreadID); err != nil {
@@ -940,17 +935,17 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, err
+		return fiatNullFloat64.Float64, percentageNullFloat64.Float64, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&fiat, &percentage)
+		err = rows.Scan(&fiatNullFloat64, &percentageNullFloat64)
 	}
 
 	rows.Close()
 
-	return fiat, (percentage * 100), err
+	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
 
 }
 
@@ -959,6 +954,8 @@ func GetProfit(
 	sessionData *types.Session) (fiat float64, percentage float64, err error) {
 
 	var rows *sql.Rows
+	var fiatNullFloat64 sql.NullFloat64       /* handle null mysql returns */
+	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
 
@@ -971,17 +968,17 @@ func GetProfit(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, err
+		return fiatNullFloat64.Float64, percentageNullFloat64.Float64, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&fiat, &percentage)
+		err = rows.Scan(&fiatNullFloat64, &percentageNullFloat64)
 	}
 
 	rows.Close()
 
-	return fiat, (percentage * 100), err
+	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
 }
 
 // GetThreadCount Retrieve Running Thread Count
@@ -1020,6 +1017,7 @@ func GetThreadAmount(
 	sessionData *types.Session) (amount float64, err error) {
 
 	var rows *sql.Rows
+	var amountNullFloat64 sql.NullFloat64 /* handle null mysql returns */
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionAmount()"); err != nil {
 
@@ -1032,16 +1030,16 @@ func GetThreadAmount(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, err
+		return amountNullFloat64.Float64, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&amount)
+		err = rows.Scan(&amountNullFloat64)
 	}
 
 	rows.Close()
 
-	return math.Round(amount*100) / 100, err
+	return math.Round(amountNullFloat64.Float64*100) / 100, err
 
 }

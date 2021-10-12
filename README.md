@@ -8,6 +8,10 @@ CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed
 
 ![](https://github.com/aleibovici/img/blob/main/cryptopump_screen.png?raw=true)
 
+Do not risk money which you are afraid to lose. USE THE SOFTWARE AT YOUR OWN RISK. THE AUTHORS AND ALL AFFILIATES ASSUME NO RESPONSIBILITY FOR YOUR TRADING RESULTS.
+
+Always start by running a this trading tool in Dry-run and do not engage money before you understand how it works and what profit/loss you should expect.
+
 - CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed and flexibility. The algorithms utilize Go Language and the exchange WebSockets to react in real-time to market movements based on Bollinger statistical analysis and pre-defined profit margins.
 
 - CryptoPump calculates the Relative Strength Index (3,7,14), MACD index, and Market Volume Direction, allowing you to configure buying, selling, and holding thresholds.

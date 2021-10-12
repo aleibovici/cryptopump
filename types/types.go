@@ -100,6 +100,17 @@ type Session struct {
 	StepSize                float64          /* Defines the intervals that a quantity can be increased/decreased by exchange */
 	Latency                 int64            /* Latency between the exchange and client */
 	Status                  bool             /* System status Good (false) or Bad (true) */
+	Global                  *Global
+}
+
+// Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
+type Global struct {
+	Profit            float64 /* Total profit */
+	ProfitPct         float64 /* Total profit percentage */
+	ProfitThreadID    float64 /* ThreadID profit */
+	ProfitThreadIDPct float64 /* ThreadID profit percentage */
+	ThreadCount       int     /* Thread count */
+	ThreadAmount      float64 /* Thread cost amount */
 }
 
 // Client struct for client libraries

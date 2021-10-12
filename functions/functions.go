@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -70,7 +69,14 @@ func StrToInt(value string) (r int) {
 
 	if r, err = strconv.Atoi(value); err != nil {
 
-		fmt.Println(err)
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName(),
+			LogLevel: "DebugLevel",
+		}.Do()
 
 	}
 
@@ -204,33 +210,29 @@ func ExecuteTemplate(
 
 	if tlp, err = template.ParseGlob("./templates/*"); err != nil {
 
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  nil,
-			Order:    &types.Order{},
-			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		os.Exit(1)
+		defer os.Exit(1)
 
 	}
 
 	if err = tlp.ExecuteTemplate(wr, selectTemplate(sessionData), data); err != nil {
 
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  nil,
-			Order:    &types.Order{},
-			Message:  GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		os.Exit(1)
+		defer os.Exit(1)
 
 	}
+
+	/* Conditional defer logging when there is an error retriving data */
+	defer func() {
+		if err != nil {
+			logger.LogEntry{
+				Config:   nil,
+				Market:   nil,
+				Session:  nil,
+				Order:    &types.Order{},
+				Message:  GetFunctionName() + " - " + err.Error(),
+				LogLevel: "DebugLevel",
+			}.Do()
+		}
+	}()
 
 }
 

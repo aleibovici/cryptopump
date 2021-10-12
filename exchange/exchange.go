@@ -383,19 +383,13 @@ func BuyTicker(
 	/* Save order to database */
 	if err := mysql.SaveOrder(
 		sessionData,
-		orderResponse.ClientOrderID,
-		orderResponse.CumulativeQuoteQuantity,
-		orderResponse.ExecutedQuantity,
-		int64(orderResponse.OrderID),
+		orderResponse,
 		0, /* OrderIDSource */
-		orderPrice,
-		string(orderResponse.Side),
-		string(orderResponse.Status),
-		orderResponse.Symbol,
-		orderResponse.TransactTime); err != nil {
+		orderPrice /* OrderPrice */); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData)
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 	}
 
 	/* This session variable stores the time of the last buy */
@@ -442,7 +436,8 @@ S:
 				string(orderStatus.Status)); err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.Thread{}.Terminate(sessionData)
+				threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 			}
 
 		case "CANCELED":
@@ -466,7 +461,8 @@ S:
 			orderExecutedQuantity); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 		}
 
 		logger.LogEntry{
@@ -553,19 +549,12 @@ func SellTicker(
 	/* Save order to database */
 	if err := mysql.SaveOrder(
 		sessionData,
-		orderResponse.ClientOrderID,
-		orderResponse.CumulativeQuoteQuantity,
-		orderResponse.ExecutedQuantity,
-		int64(orderResponse.OrderID),
+		orderResponse,
 		int64(order.OrderID), /* OrderIDSource */
-		marketData.Price,
-		string(orderResponse.Side),
-		string(orderResponse.Status),
-		orderResponse.Symbol,
-		orderResponse.TransactTime); err != nil {
+		marketData.Price /* OrderPrice */); err != nil {
 
 		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData)
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 	}
 
@@ -592,7 +581,8 @@ S:
 			if err != nil {
 
 				/* Cleanly exit ThreadID */
-				threads.Thread{}.Terminate(sessionData)
+				threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 			}
 
 			switch orderStatus.Status {
@@ -629,7 +619,8 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.Thread{}.Terminate(sessionData)
+							threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+
 						}
 
 						break F
@@ -643,7 +634,7 @@ S:
 							int64(orderResponse.OrderID)); err != nil {
 
 							/* Cleanly exit ThreadID */
-							threads.Thread{}.Terminate(sessionData)
+							threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 						}
 
@@ -681,7 +672,7 @@ S:
 						int64(orderResponse.OrderID)); err != nil {
 
 						/* Cleanly exit ThreadID */
-						threads.Thread{}.Terminate(sessionData)
+						threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 					}
 
@@ -724,7 +715,7 @@ S:
 			string(orderStatus.Status)); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 		}
 
@@ -738,7 +729,7 @@ S:
 			order.OrderID); err != nil {
 
 			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData)
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 		}
 
