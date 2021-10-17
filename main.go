@@ -23,7 +23,7 @@ import (
 	"github.com/aleibovici/cryptopump/threads"
 	"github.com/aleibovici/cryptopump/types"
 	"github.com/jtaczanowski/go-scheduler"
-
+	"github.com/paulbellamy/ratecounter"
 	"github.com/sdcoffey/techan"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/viper"
@@ -94,6 +94,7 @@ func main() {
 		StepSize:                0,
 		Latency:                 0,
 		Status:                  false,
+		RateCounter:             ratecounter.NewRateCounter(5 * time.Second),
 		Global:                  &types.Global{},
 	}
 

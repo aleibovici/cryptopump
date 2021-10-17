@@ -46,6 +46,9 @@
                 $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
                 $('#divIDSessionOrders').html(json.Session.Orders);
                 $('#divIDSessionLatency').html(json.Session.Latency);
+                $('#divIDSessionRateCounter').html(json.Session.RateCounter);
+                $('#divIDSessionBuyDecisionTreeResult').html(json.Session.BuyDecisionTreeResult);
+                $('#divIDSessionSellDecisionTreeResult').html(json.Session.SellDecisionTreeResult);
 
                 function buildHtmlTable(selector) {
                     var columns = addAllColumnHeaders(json.Session.Orders, selector);
@@ -661,7 +664,25 @@
                             sell Market
                         </button>
 
-                        <div class="col text-right" style="border: 1px solid none">
+                        <div class="col-2 text-left" style="border: 1px solid none"></div>
+                        <div class="col-1 text-left" style="border: 1px solid none"></div>
+
+                        <div class="col-2 text-left" style="border: 1px solid none">
+                            <span class="badge badge-secondary">Buy</span>
+                            <span class="label label-default" id="divIDSessionBuyDecisionTreeResult"></span>&nbsp;
+                        </div>
+
+                        <div class="col-2 text-left" style="border: 1px solid none">
+                            <span class="badge badge-secondary">Sell</span>
+                            <span class="label label-default" id="divIDSessionSellDecisionTreeResult"></span> 
+                        </div>
+
+                        <div class="col-auto text-left" style="border: 1px solid none">
+                            <span class="badge badge-secondary">Ops/sec</span>
+                            <span class="label label-default" id="divIDSessionRateCounter"></span>
+                        </div>
+                        
+                        <div class="col-auto text-right" style="border: 1px solid none">
                             <span class="badge">&#128246</span>
                             <span class="label label-default" id="divIDSessionLatency"></span>
                             <span class="label label-default" id="divIDSessionLatency">ms</span>

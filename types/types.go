@@ -6,6 +6,7 @@ import (
 
 	"github.com/adshao/go-binance/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/paulbellamy/ratecounter"
 	"github.com/sdcoffey/techan"
 )
 
@@ -84,22 +85,25 @@ type Session struct {
 	LastWsBookTickerTime    time.Time /* This session variable stores the time of the last WsBookTicker used for status check */
 	LastWsUserDataServeTime time.Time /* This session variable stores the time of the last WsUserDataServe used for status check */
 	ConfigTemplate          int
-	ForceBuy                bool             /* This boolean when True force BUY transaction */
-	ForceSell               bool             /* This boolean when True force SELL transaction */
-	ListenKey               string           /* Listen key for user stream service */
-	MasterNode              bool             /* This boolean is true when Master Node is elected */
-	TgBotAPI                *tgbotapi.BotAPI /* This variable holds Telegram session bot */
-	TgBotAPIChatID          int64            /* This variable holds Telegram chat ID */
-	Db                      *sql.DB          /* mySQL database connection */
-	Clients                 Client           /* Binance client connection */
-	KlineData               []KlineData      /* kline data format for go-echart plotter */
-	StopWs                  bool             /* Control when to stop Ws Channels */
-	Busy                    bool             /* Control wether buy/selling to allow graceful session exit */
-	MinQuantity             float64          /* Defines the minimum quantity allowed by exchange */
-	MaxQuantity             float64          /* Defines the maximum quantity allowed by exchange */
-	StepSize                float64          /* Defines the intervals that a quantity can be increased/decreased by exchange */
-	Latency                 int64            /* Latency between the exchange and client */
-	Status                  bool             /* System status Good (false) or Bad (true) */
+	ForceBuy                bool                     /* This boolean when True force BUY transaction */
+	ForceSell               bool                     /* This boolean when True force SELL transaction */
+	ListenKey               string                   /* Listen key for user stream service */
+	MasterNode              bool                     /* This boolean is true when Master Node is elected */
+	TgBotAPI                *tgbotapi.BotAPI         /* This variable holds Telegram session bot */
+	TgBotAPIChatID          int64                    /* This variable holds Telegram chat ID */
+	Db                      *sql.DB                  /* mySQL database connection */
+	Clients                 Client                   /* Binance client connection */
+	KlineData               []KlineData              /* kline data format for go-echart plotter */
+	StopWs                  bool                     /* Control when to stop Ws Channels */
+	Busy                    bool                     /* Control wether buy/selling to allow graceful session exit */
+	MinQuantity             float64                  /* Defines the minimum quantity allowed by exchange */
+	MaxQuantity             float64                  /* Defines the maximum quantity allowed by exchange */
+	StepSize                float64                  /* Defines the intervals that a quantity can be increased/decreased by exchange */
+	Latency                 int64                    /* Latency between the exchange and client */
+	Status                  bool                     /* System status Good (false) or Bad (true) */
+	RateCounter             *ratecounter.RateCounter /* Average Number of transactions per second proccessed by WsBookTicker */
+	BuyDecisionTreeResult   string                   /* Hold BuyDecisionTree result for web UI */
+	SellDecisionTreeResult  string                   /* Hold SellDecisionTree result for web UI */
 	Global                  *Global
 }
 

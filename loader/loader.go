@@ -39,20 +39,23 @@ func LoadSessionDataAdditionalComponents(
 	}
 
 	type Session struct {
-		ThreadID             string  /* Unique session ID for the thread */
-		SellTransactionCount float64 /* Number of SELL transactions in the last 60 minutes*/
-		Symbol               string  /* Symbol */
-		SymbolFunds          float64 /* Available crypto funds in exchange */
-		SymbolFiat           string  /* Fiat currency funds */
-		SymbolFiatFunds      float64 /* Fiat currency funds */
-		ProfitThreadID       float64 /* ThreadID profit */
-		ProfitThreadIDPct    float64 /* ThreadID profit percentage */
-		Profit               float64 /* Total profit */
-		ProfitPct            float64 /* Total profit percentage */
-		ThreadCount          int     /* Thread count */
-		ThreadAmount         float64 /* Thread cost amount */
-		Latency              int64   /* Latency between the exchange and client */
-		Orders               []Order
+		ThreadID               string  /* Unique session ID for the thread */
+		SellTransactionCount   float64 /* Number of SELL transactions in the last 60 minutes*/
+		Symbol                 string  /* Symbol */
+		SymbolFunds            float64 /* Available crypto funds in exchange */
+		SymbolFiat             string  /* Fiat currency funds */
+		SymbolFiatFunds        float64 /* Fiat currency funds */
+		ProfitThreadID         float64 /* ThreadID profit */
+		ProfitThreadIDPct      float64 /* ThreadID profit percentage */
+		Profit                 float64 /* Total profit */
+		ProfitPct              float64 /* Total profit percentage */
+		ThreadCount            int     /* Thread count */
+		ThreadAmount           float64 /* Thread cost amount */
+		Latency                int64   /* Latency between the exchange and client */
+		RateCounter            int64   /* Average Number of transactions per second proccessed by WsBookTicker */
+		BuyDecisionTreeResult  string  /* Hold BuyDecisionTree result */
+		SellDecisionTreeResult string  /* Hold SellDecisionTree result */
+		Orders                 []Order
 	}
 
 	type Update struct {
@@ -76,6 +79,9 @@ func LoadSessionDataAdditionalComponents(
 	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*100000000) / 100000000
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
+	sessiondata.Session.RateCounter = sessionData.RateCounter.Rate() / 5            /* Average Number of transactions per second proccessed by WsBookTicker */
+	sessiondata.Session.BuyDecisionTreeResult = sessionData.BuyDecisionTreeResult   /* Hold BuyDecisionTree result*/
+	sessiondata.Session.SellDecisionTreeResult = sessionData.SellDecisionTreeResult /* Hold SellDecisionTree result */
 
 	sessiondata.Session.Profit = math.Round(sessionData.Global.Profit*100) / 100                       /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
 	sessiondata.Session.ProfitPct = math.Round(sessionData.Global.ProfitPct*100) / 100                 /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */

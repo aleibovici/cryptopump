@@ -200,6 +200,8 @@ func isBuyUpmarket(
 	/* If BUY UP amount is 0 do not buy */
 	if configData.BuyQuantityFiatUp == 0 {
 
+		sessionData.BuyDecisionTreeResult = "Buy upmarket is zero"
+
 		return false, 0
 
 	}
@@ -207,12 +209,16 @@ func isBuyUpmarket(
 	/* Validate RSI7 lower than buy_rsi7_entry */
 	if marketData.Rsi7 > configData.BuyRsi7Entry {
 
+		sessionData.BuyDecisionTreeResult = "RSI7 higher than threshold"
+
 		return false, 0
 
 	}
 
 	/* If Market Direction is less than configData.BuyDirectionUp do not buy. Defined in WsKline. */
 	if marketData.Direction < configData.BuyDirectionUp {
+
+		sessionData.BuyDecisionTreeResult = "Upmarket direction not reached"
 
 		return false, 0
 
@@ -222,12 +228,16 @@ func isBuyUpmarket(
 		sessionData,
 		"SELL"); err != nil {
 
+		sessionData.BuyDecisionTreeResult = "Error"
+
 		return false, 0
 
 	}
 
 	/* Test if event price is lower than last Sell price plus threshold up */
 	if marketData.Price < lastOrderTransactionPrice*(1+configData.BuyRepeatThresholdUp) {
+
+		sessionData.BuyDecisionTreeResult = "Upmarket price lower than last sale"
 
 		return false, 0
 
@@ -237,12 +247,16 @@ func isBuyUpmarket(
 	This avoid double BUY on the UP side */
 	if lastOrderTransactionSide, err = mysql.GetLastOrderTransactionSide(sessionData); err != nil {
 
+		sessionData.BuyDecisionTreeResult = "Error"
+
 		return false, 0
 
 	}
 
 	/* Avoid double BUY in UpMarket. Lowest price transaction must be sold first. */
 	if lastOrderTransactionSide == "BUY" {
+
+		sessionData.BuyDecisionTreeResult = "Upmarket lowest transaction must be sold first"
 
 		return false, 0
 
@@ -258,6 +272,8 @@ func isBuyUpmarket(
 		order.TransactTime,
 		err = mysql.GetThreadLastTransaction(sessionData); err != nil {
 
+		sessionData.BuyDecisionTreeResult = "Error"
+
 		return false, 0
 
 	}
@@ -266,10 +282,14 @@ func isBuyUpmarket(
 	if marketData.Price > order.Price &&
 		marketData.Price < (order.Price*(1+(configData.ProfitMin/2))) {
 
+		sessionData.BuyDecisionTreeResult = "Target price too close to next target up"
+
 		return false, 0
 
 	} else if marketData.Price < order.Price &&
 		marketData.Price > (order.Price*(1-(configData.ProfitMin/2))) {
+
+		sessionData.BuyDecisionTreeResult = "Target price too close to next target up"
 
 		return false, 0
 
@@ -281,12 +301,16 @@ func isBuyUpmarket(
 		sessionData,
 		(marketData.Price * (1 + configData.BuyRepeatThresholdUp))); err != nil {
 
+		sessionData.BuyDecisionTreeResult = "Error"
+
 		return false, 0
 
 	}
 
 	/* See comment above */
 	if functions.IntToFloat64(threadTransactiontUpmarketPriceCount) > 1 {
+
+		sessionData.BuyDecisionTreeResult = "Buy above highest transaction not allowed"
 
 		return false, 0
 
@@ -333,6 +357,8 @@ func isBuyDownmarket(
 	/* If BUY Down amount is 0 do not buy */
 	if configData.BuyQuantityFiatDown == 0 {
 
+		sessionData.BuyDecisionTreeResult = "Buy downmarket is zero"
+
 		return false, 0
 
 	}
@@ -347,6 +373,8 @@ func isBuyDownmarket(
 	/* Validate market direction is uptrend */
 	if marketData.Direction < configData.BuyDirectionDown {
 
+		sessionData.BuyDecisionTreeResult = "Downmarket direction not reached"
+
 		return false, 0
 
 	}
@@ -357,6 +385,8 @@ func isBuyDownmarket(
 		sessionData,
 		"BUY"); err != nil {
 
+		sessionData.BuyDecisionTreeResult = "Error"
+
 		return false, 0
 
 	}
@@ -364,12 +394,16 @@ func isBuyDownmarket(
 	/* Test with with buy_repeat_threshold_down to reduce sql queries */
 	if marketData.Price > (lastOrderTransactionPrice * (1 - buyRepeatThresholdDown)) {
 
+		sessionData.BuyDecisionTreeResult = "Threshold down not reached"
+
 		return false, 0
 
 	}
 
 	/* Change percentage if last and 2nd orders are BUY */
 	if side1, side2, err = mysql.GetOrderTransactionSideLastTwo(sessionData); err != nil {
+
+		sessionData.BuyDecisionTreeResult = "Error"
 
 		return false, 0
 
@@ -384,6 +418,8 @@ func isBuyDownmarket(
 
 	/* Test with new buy_repeat_threshold_down */
 	if marketData.Price > (lastOrderTransactionPrice * (1 - buyRepeatThresholdDown)) {
+
+		sessionData.BuyDecisionTreeResult = "Threshold 2nd down not reached"
 
 		return false, 0
 
@@ -753,6 +789,9 @@ func WsBookTicker(
 	wsHandler := &types.WsHandler{}
 	wsHandler.BinanceWsBookTicker = func(event *binance.WsBookTickerEvent) {
 
+		/* Record requests-per-second increment used with github.com/paulbellamy/ratecounter */
+		sessionData.RateCounter.Incr(1)
+
 		/* This session variable stores the time of the last WsBookTicker used for status check */
 		sessionData.LastWsBookTickerTime = time.Now()
 
@@ -935,6 +974,8 @@ func BuyDecisionTree(
 		configData,
 		sessionData) {
 
+		sessionData.BuyDecisionTreeResult = "No funds to buy"
+
 		return false, 0
 
 	}
@@ -951,12 +992,16 @@ func BuyDecisionTree(
 	/* If configData.Exit is True stop BUY. */
 	if configData.Exit {
 
+		sessionData.BuyDecisionTreeResult = "Exit mode active"
+
 		return false, 0
 
 	}
 
 	/* Validate marketData not older than 100 seconds */
 	if time.Since(marketData.TimeStamp).Seconds() > 100 {
+
+		sessionData.BuyDecisionTreeResult = "Market data older than 100 seconds"
 
 		return false, 0
 
@@ -965,6 +1010,8 @@ func BuyDecisionTree(
 	/* 	If last buy is less than configData.BuyWait seconds return false
 	   	This function protects against sequential buys when there's too much volatility */
 	if time.Duration(time.Since(sessionData.LastBuyTransactTime).Seconds()) < time.Duration(configData.BuyWait) {
+
+		sessionData.BuyDecisionTreeResult = "Buy wait time not reached"
 
 		return false, 0
 
@@ -975,6 +1022,8 @@ func BuyDecisionTree(
 		configData,
 		marketData,
 		sessionData) {
+
+		sessionData.BuyDecisionTreeResult = "24hs highprice threshold reached"
 
 		return false, 0
 
@@ -1062,6 +1111,8 @@ func SellDecisionTree(
 	/* Validate marketData is not older than 100 seconds */
 	if time.Since(marketData.TimeStamp).Seconds() > 100 {
 
+		sessionData.SellDecisionTreeResult = "Market data older than 100 seconds"
+
 		return false, order
 
 	}
@@ -1069,6 +1120,8 @@ func SellDecisionTree(
 	/* 	If last canceled transaction (LastSellCanceledTime) is less than (configData.SellWaitAfterCancel) seconds return false
 	   	This function protects against sequential seeling with same pricing */
 	if time.Duration(time.Since(sessionData.LastSellCanceledTime).Seconds()) < time.Duration(configData.SellWaitAfterCancel) {
+
+		sessionData.SellDecisionTreeResult = "Wait after cancel not reached"
 
 		return false, order
 
@@ -1114,6 +1167,8 @@ func SellDecisionTree(
 				LogLevel: "InfoLevel",
 			}.Do()
 
+			sessionData.SellDecisionTreeResult = "Stoploss sale"
+
 			return true, order
 
 		}
@@ -1130,12 +1185,16 @@ func SellDecisionTree(
 		marketData,
 		sessionData); err != nil {
 
+		sessionData.SellDecisionTreeResult = "Error"
+
 		return false, order
 
 	}
 
 	/* If no transactions found return False */
 	if order.OrderID == 0 {
+
+		sessionData.SellDecisionTreeResult = "Minimum profit not reached"
 
 		return false, order
 
@@ -1161,6 +1220,8 @@ func SellDecisionTree(
 	Duration must be provided in seconds */
 	if !isOrderInTimeRangeToSell(order, 60) {
 
+		sessionData.SellDecisionTreeResult = "Less than 60 seconds from buy"
+
 		return false, order
 
 	}
@@ -1175,6 +1236,8 @@ func SellDecisionTree(
 		The objective of this setting is to extend the holding as long as possible while ticker price is climbing */
 		if marketData.Rsi3 > configData.SellHoldOnRSI3 {
 
+			sessionData.SellDecisionTreeResult = "RSI3 holding sale"
+
 			return false, order
 
 		}
@@ -1182,6 +1245,8 @@ func SellDecisionTree(
 		return true, order
 
 	}
+
+	sessionData.SellDecisionTreeResult = "Minimum profit not reached"
 
 	return false, order
 
