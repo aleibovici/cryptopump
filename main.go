@@ -46,6 +46,8 @@ func init() {
 
 	if err := viper.ReadInConfig(); err != nil {
 
+		fmt.Println("Failed to read configuration file")
+
 		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
@@ -113,8 +115,7 @@ func main() {
 
 	configData := &types.Config{}
 
-	/* Initialize DB connection */
-	sessionData.Db = mysql.DBInit()
+	sessionData.Db = mysql.DBInit() /* Initialize DB connection */
 
 	myHandler := &myHandler{
 		sessionData: sessionData,
@@ -129,18 +130,18 @@ func main() {
 
 	open.Run("http://localhost:" + port) /* Open URI using the OS's default browser */
 
-	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil) /* Start HTTP service. */
 
 }
 
 func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("X-Content-Type-Options", "nosniff") /* Add X-Content-Type-Options header */
-	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-	w.Header().Add("X-Frame-Options", "DENY") /* Prevent page from being displayed in an frame */
+	w.Header().Set("Content-Type", "text/html")                                        /* Set the Content-Type header */
+	w.Header().Set("X-Content-Type-Options", "nosniff")                                /* Add X-Content-Type-Options header */
+	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains") /* Add Strict-Transport-Security header */
+	w.Header().Add("X-Frame-Options", "DENY")                                          /* Add X-Frame-Options header */
 
-	fh.configData = functions.GetConfigData(fh.sessionData)
+	fh.configData = functions.GetConfigData(fh.sessionData) /* Get configuration data */
 
 	switch r.Method {
 	case "GET":
@@ -150,19 +151,18 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 		case "/":
 
 			fh.configData.HTMLSnippet = plotter.Data{}.Plot(fh.sessionData) /* Load dynamic components in configData */
-
-			functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'index' */
+			functions.ExecuteTemplate(w, fh.configData, fh.sessionData)     /* This is the template execution for 'index' */
 
 		case "/sessiondata":
 
 			var tmp []byte
 			var err error
 
-			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Type", "application/json") /* Set the Content-Type header */
 
 			if tmp, err = loader.LoadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData); err != nil { /* Load dynamic components for javascript autoloader for html output */
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log error */
 					Config:   fh.configData,
 					Market:   fh.marketData,
 					Session:  fh.sessionData,
@@ -177,7 +177,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			if _, err := w.Write(tmp); err != nil { /* Write writes the data to the connection as part of an HTTP reply. */
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log error */
 					Config:   fh.configData,
 					Market:   fh.marketData,
 					Session:  fh.sessionData,
@@ -194,14 +194,13 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 	case "POST":
 
-		/* Determine the URI path to de taken */
-		switch r.URL.Path {
+		switch r.URL.Path { /* Determine the URI path to de taken */
 		case "/":
 
 			/* This function reads and parse the html form */
 			if err := r.ParseForm(); err != nil {
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Logging */
 					Config:   fh.configData,
 					Market:   nil,
 					Session:  fh.sessionData,
@@ -220,10 +219,10 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			case "new":
 
 				/* Spawn a new process  */
-				path, err := os.Executable()
+				path, err := os.Executable() /* Get the path of the executable */
 				if err != nil {
 
-					logger.LogEntry{
+					logger.LogEntry{ /* Log the error */
 						Config:   fh.configData,
 						Market:   nil,
 						Session:  fh.sessionData,
@@ -234,14 +233,14 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-				cmd := exec.Command(path)
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
+				cmd := exec.Command(path) /* Spawn a new process */
+				cmd.Stdout = os.Stdout    /* Redirect stdout to os.Stdout */
+				cmd.Stderr = os.Stderr    /* Redirect stderr to os.Stderr */
 
-				err = cmd.Start()
+				err = cmd.Start() /* Start the new process */
 				if err != nil {
 
-					logger.LogEntry{
+					logger.LogEntry{ /* Log the error */
 						Config:   fh.configData,
 						Market:   nil,
 						Session:  fh.sessionData,
@@ -256,44 +255,34 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "start":
 
-				go execution(
-					fh.configData,
-					fh.sessionData,
-					fh.marketData)
-
-				time.Sleep(2 * time.Second)                       /* Sleep time to wait for ThreadID to start */
-				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
+				go execution(fh.configData, fh.sessionData, fh.marketData) /* Start the execution process */
+				time.Sleep(2 * time.Second)                                /* Sleep time to wait for ThreadID to start */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301)          /* Redirect to root 'index' */
 
 			case "stop":
 
-				/* Cleanly exit ThreadID */
-				threads.Thread{}.Terminate(fh.sessionData, "")
+				threads.Thread{}.Terminate(fh.sessionData, "") /* Terminate ThreadID */
 
 			case "update":
 
-				functions.SaveConfigData(r, fh.sessionData) /* Save updated config */
-
+				functions.SaveConfigData(r, fh.sessionData)       /* Save the configuration data */
 				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "buy":
 
-				fh.sessionData.ForceBuy = true
-
+				fh.sessionData.ForceBuy = true                    /* Force buy */
 				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "sell":
 
-				fh.sessionData.ForceSell = true
-
+				fh.sessionData.ForceSell = true                   /* Force sell */
 				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "configTemplate":
 
 				fh.sessionData.ConfigTemplate = functions.StrToInt(r.PostFormValue("configTemplateList")) /* Retrieve Configuration Template Key selection */
-
-				configData := functions.LoadConfigTemplate(fh.sessionData) /* Load and populate html with Configuration Template */
-
-				functions.ExecuteTemplate(w, configData, fh.sessionData) /* This is the template execution for 'index' */
+				configData := functions.LoadConfigTemplate(fh.sessionData)                                /* Load the configuration data */
+				functions.ExecuteTemplate(w, configData, fh.sessionData)                                  /* This is the template execution for 'index' */
 
 			}
 		}
@@ -307,49 +296,44 @@ func execution(
 	sessionData *types.Session,
 	marketData *types.Market) {
 
-	var err error
+	var err error /* Error handling */
 
 	/* Connect to Exchange */
-	if err = exchange.GetClient(configData, sessionData); err != nil {
+	if err = exchange.GetClient(configData, sessionData); err != nil { /* GetClient returns an error if the connection to the exchange is not successful */
 
-		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error()) /* Terminate ThreadID */
 
 	}
 
 	/* Routine to resume operations */
 	var threadIDSessionDB string
 
-	if sessionData.ThreadID, threadIDSessionDB, err = mysql.GetThreadTransactionDistinct(sessionData); err != nil {
+	if sessionData.ThreadID, threadIDSessionDB, err = mysql.GetThreadTransactionDistinct(sessionData); err != nil { /* GetThreadTransactionDistinct returns an error if the connection to the database is not successful */
 
-		/* Cleanly exit ThreadID */
-		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error()) /* Terminate ThreadID */
 
 	}
 
-	if sessionData.ThreadID != "" && !configData.NewSession {
+	if sessionData.ThreadID != "" && !configData.NewSession { /* If ThreadID is not empty and NewSession is false */
 
-		/* If GetThreadTransactionDistinct return empty, create and lock thread file */
-		threads.Thread{}.Lock(sessionData)
+		threads.Thread{}.Lock(sessionData) /* Lock thread file */
 
-		configData = functions.GetConfigData(sessionData)
+		configData = functions.GetConfigData(sessionData) /* Get Config Data */
 
-		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil {
+		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil { /* GetOrderSymbol returns an error if the connection to the database is not successful */
 
-			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error()) /* Terminate ThreadID */
 
 		}
 
 		/* Select the symbol coin to be used from sessionData.Symbol */
-		if sessionData.SymbolFiat, err = algorithms.ParseSymbolFiat(sessionData); err != nil {
+		if sessionData.SymbolFiat, err = algorithms.ParseSymbolFiat(sessionData); err != nil { /* ParseSymbolFiat returns an error if the symbol is not valid */
 
-			/* Cleanly exit ThreadID */
-			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+			threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error()) /* Terminate ThreadID */
 
 		}
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
@@ -358,13 +342,11 @@ func execution(
 			LogLevel: "InfoLevel",
 		}.Do()
 
-	} else {
+	} else { /* If ThreadID is empty or NewSession is true */
 
-		/* Define Thread ID for the node */
-		sessionData.ThreadID = functions.GetThreadID()
+		sessionData.ThreadID = functions.GetThreadID() /* Get ThreadID */
 
-		/* Create lock for threadID */
-		if !(threads.Thread{}.Lock(sessionData)) {
+		if !(threads.Thread{}.Lock(sessionData)) { /* Lock thread file */
 
 			os.Exit(1)
 
@@ -374,7 +356,7 @@ func execution(
 		sessionData.Symbol = configData.Symbol
 		sessionData.SymbolFiat = configData.SymbolFiat
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
@@ -385,21 +367,15 @@ func execution(
 
 	}
 
-	/* Print threadID to debug for easy identification of session */
-	fmt.Printf("ThreadID:  %s", sessionData.ThreadID)
-
-	/* Starts async functions that are executed at specific intervals */
-	asyncFunctions(
-		configData,
-		sessionData)
+	asyncFunctions(configData, sessionData) /* Starts async functions that are executed at specific intervals */
 
 	/* Retrieve available fiat funds and update database
-	This is only used for retrieving balances for the first time, ans is then followed by
+	This is only used for retrieving balances for the first time, and is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFiatFunds(
+	if sessionData.SymbolFiatFunds, err = exchange.GetSymbolFiatFunds( /* GetSymbolFiatFunds returns an error if the connection to the exchange is not successful */
 		configData,
-		sessionData); err == nil {
-		_ = mysql.UpdateSession(
+		sessionData); err == nil { /* If the connection to the exchange is successful */
+		_ = mysql.UpdateSession( /* Update database with available fiat funds */
 			configData,
 			sessionData)
 	}
@@ -407,9 +383,9 @@ func execution(
 	/* Retrieve available symbol funds
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData); err != nil {
+	if sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData); err != nil { /* GetSymbolFunds returns an error if the connection to the exchange is not successful */
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -427,11 +403,11 @@ func execution(
 	for {
 
 		/* Check start/stop times of operation */
-		if configData.TimeEnforce {
+		if configData.TimeEnforce { /* If TimeEnforce is true */
 
-			for !functions.IsInTimeRange(configData.TimeStart, configData.TimeStop) {
+			for !functions.IsInTimeRange(configData.TimeStart, configData.TimeStop) { /* If current time is not in the time range */
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log Entry */
 					Config:   configData,
 					Market:   marketData,
 					Session:  sessionData,
@@ -440,16 +416,16 @@ func execution(
 					LogLevel: "InfoLevel",
 				}.Do()
 
-				time.Sleep(300000 * time.Millisecond)
+				time.Sleep(300000 * time.Millisecond) /* Sleep for 5 minutes */
 
 			}
 
 		}
 
 		/* Update ThreadCount */
-		if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
+		if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil { /* GetThreadTransactionCount returns an error if the connection to the database is not successful */
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,
@@ -464,10 +440,9 @@ func execution(
 		sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
 
 		/* This routine is executed when no transaction cycle has initiated (ThreadCount = 0) */
-		if sessionData.ThreadCount == 0 {
+		if sessionData.ThreadCount == 0 { /* If ThreadCount is 0 */
 
-			/* Define new Thread ID Session */
-			sessionData.ThreadIDSession = functions.GetThreadID()
+			sessionData.ThreadIDSession = functions.GetThreadID() /* Get ThreadID */
 
 			/* Save new session to Session table. */
 			if err := mysql.SaveSession(
@@ -479,8 +454,7 @@ func execution(
 					configData,
 					sessionData); err != nil {
 
-					/* Cleanly exit ThreadID */
-					threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
+					threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error()) /* Terminate ThreadID */
 
 				}
 
@@ -516,39 +490,32 @@ func execution(
 		}
 
 		/* Conditional used in case this is the first run in the cycle go get past market data */
-		if marketData.PriceChangeStatsHighPrice == 0 {
+		if marketData.PriceChangeStatsHighPrice == 0 { /* If PriceChangeStatsHighPrice is 0 */
 
-			markets.Data{}.LoadKlinePast(
-				configData,
-				marketData,
-				sessionData)
+			markets.Data{}.LoadKlinePast(configData, marketData, sessionData) /* Load Kline Past */
 
 		}
 
 		wg := &sync.WaitGroup{} /* WaitGroup to stop inside Channels */
 		wg.Add(3)               /* WaitGroup to stop inside Channels */
 
-		/* Start Telegram bot if Master Node and store in sessionData.TgBotAPI */
-		go telegram.CheckUpdates(
+		go telegram.CheckUpdates( /* Check for Telegram updates */
 			configData,
 			sessionData,
 			wg)
 
-		/* Websocket routine to retrieve realtime candle data */
-		go algorithms.WsKline(
+		go algorithms.WsKline( /* Websocket routine to retrieve realtime candle data */
 			configData,
 			marketData,
 			sessionData,
 			wg)
 
-		/* Websocket routine to retrieve realtime user data */
-		go algorithms.WsUserDataServe(
+		go algorithms.WsUserDataServe( /* Websocket routine to retrieve realtime user data */
 			configData,
 			sessionData,
 			wg)
 
-		/* Websocket routine to retrieve realtime ticker prices */
-		go algorithms.WsBookTicker(
+		go algorithms.WsBookTicker( /* Websocket routine to retrieve realtime ticker prices */
 			configData,
 			marketData,
 			sessionData,
@@ -556,7 +523,7 @@ func execution(
 
 		wg.Wait() /* Wait for the goroutines to finish */
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
@@ -568,11 +535,11 @@ func execution(
 		sessionData.StopWs = false /* Reset goroutine channels */
 
 		/* Reload configuration in case of WsBookTicker broken connection */
-		configData = functions.GetConfigData(sessionData)
+		configData = functions.GetConfigData(sessionData) /* Get Config Data */
 
-		time.Sleep(3000 * time.Millisecond)
+		time.Sleep(3000 * time.Millisecond) /* Sleep for 3 seconds */
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,

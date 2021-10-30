@@ -595,8 +595,6 @@ func WsUserDataServe(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
-			return
-
 		case strings.Contains(err.Error(), "read: operation timed out"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
 
@@ -605,21 +603,7 @@ func WsUserDataServe(
 		case strings.Contains(err.Error(), "read: connection reset by peer"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
 
-			/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
-			if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
-
-				logger.LogEntry{
-					Config:   configData,
-					Market:   nil,
-					Session:  sessionData,
-					Order:    &types.Order{},
-					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: "DebugLevel",
-				}.Do()
-
-			}
-
-			return
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 		}
 
@@ -735,8 +719,6 @@ func WsKline(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
-			return
-
 		case strings.Contains(err.Error(), "EOF"):
 			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
 
@@ -751,8 +733,6 @@ func WsKline(
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
 
 		}
 
@@ -902,8 +882,6 @@ func WsBookTicker(
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
-			return
-
 		case strings.Contains(err.Error(), "1008"):
 			/* websocket: close 1008 (policy violation): Pong timeout */
 			/* 1008 indicates that an endpoint is terminating the connection
@@ -925,8 +903,6 @@ func WsBookTicker(
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-			return
 
 		case strings.Contains(err.Error(), "read: operation timed out"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
@@ -1144,6 +1120,8 @@ func SellDecisionTree(
 
 			if marketData.Price < (order.Price * (1 - configData.BuyRepeatThresholdDown)) {
 
+				sessionData.SellDecisionTreeResult = "Attempting cover sale"
+
 				return true, order
 
 			}
@@ -1241,6 +1219,8 @@ func SellDecisionTree(
 			return false, order
 
 		}
+
+		sessionData.SellDecisionTreeResult = "Attemtping profit sale"
 
 		return true, order
 

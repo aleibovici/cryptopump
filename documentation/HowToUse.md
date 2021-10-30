@@ -77,6 +77,20 @@ The higher the value, the more bullish the market needs to be in order to execut
 
 - Stop Time: If enforce time is set to true this value is used to stop the bot operation.
 
+### UI GRID
+
+- OrderID: this value is provided by the exchange when a buy order takes place.
+
+- Quantity: this value indicates the transaction quantity in crypto-currency.
+
+- Quote: this value indicates the transaction total amount in FIAT.
+
+- Price: this value indicates the transaction crypto-currency execution price.
+
+- Target: this value indicates the target crypto-currency price before selling (includes profit margin and exchange fees).
+
+- Diff: this value indicates the difference between current transaction sale price and zero margin sale (includes exchange fee).
+
 ### OTHERS:
 
 - Debug: True or False, enable debug mode output on logs. 

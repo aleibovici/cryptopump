@@ -31,11 +31,12 @@ func LoadSessionDataAdditionalComponents(
 	}
 
 	type Order struct {
-		OrderID  string
-		Quantity float64
-		Quote    float64
-		Price    float64
-		Target   float64
+		OrderID  string  /* Order ID */
+		Quantity float64 /* Order Quantity */
+		Quote    float64 /* Quote price */
+		Price    float64 /* Acquisition Price */
+		Target   float64 /* Target Price */
+		Diff     float64 /* Difference between target and market price */
 	}
 
 	type Session struct {
@@ -95,11 +96,12 @@ func LoadSessionDataAdditionalComponents(
 		for _, key := range orders {
 
 			tmp := Order{}
-			tmp.OrderID = strconv.Itoa(key.OrderID)
-			tmp.Quantity = key.ExecutedQuantity
-			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100
-			tmp.Price = math.Round(key.Price*10000) / 10000
-			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000
+			tmp.OrderID = strconv.Itoa(key.OrderID)                                                                                                         /* Order ID */
+			tmp.Quantity = key.ExecutedQuantity                                                                                                             /* Order Quantity */
+			tmp.Quote = math.Round(key.CumulativeQuoteQuantity*100) / 100                                                                                   /* Quote price */
+			tmp.Price = math.Round(key.Price*10000) / 10000                                                                                                 /* Acquisition Price */
+			tmp.Target = math.Round((tmp.Price*(1+configData.ProfitMin))*1000) / 1000                                                                       /* Target price */
+			tmp.Diff = math.Round((((key.ExecutedQuantity*sessiondata.Market.Price)*(1+configData.ExchangeComission))-key.CumulativeQuoteQuantity)*10) / 10 /* Difference between target and market price */
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 		}

@@ -72,14 +72,19 @@ func (Node) GetRole(
 
 		}
 
-	} else if os.IsNotExist(err) { /* Check if "master.lock" is created and modified time */
+	} else if os.IsNotExist(err) { /* If "master.lock" is not created create it */
 
 		var file *os.File
-		file, err = os.Create(filename)
+		if file, err = os.Create(filename); err != nil { /* Create "master.lock" if not exists */
 
-		file.Close()
+			file.Close()                  /* Close file */
+			sessionData.MasterNode = true /* Set Master Node to True */
 
-		sessionData.MasterNode = true
+		} else {
+
+			file.Close() /* Close file */
+
+		}
 
 	}
 
