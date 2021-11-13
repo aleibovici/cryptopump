@@ -38,6 +38,7 @@
                 $('#divIDSessionSymbolFunds').html(json.Session.SymbolFunds);
                 $('#divIDSessionSymbol_fiat').html(json.Session.SymbolFiat);
                 $('#divIDSessionSymbol_fiat_funds').html(json.Session.SymbolFiatFunds);
+                $('#divIDSessionQuantityOffset').html(json.Session.QuantityOffset);
                 $('#divIDSessionProfit').html(json.Session.Profit);
                 $('#divIDSessionProfitPct').html(json.Session.ProfitPct);
                 $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
@@ -122,6 +123,8 @@
                                 <span class="label label-default" id="divIDSessionSymbolFunds"></span>
                                 <span class="label label-default" id="divIDSessionSymbol_fiat"></span>
                                 <span class="label label-default" id="divIDSessionSymbol_fiat_funds"></span> &nbsp;
+                                <span class="badge badge-warning">Offset</span>
+                                <span class="label label-default" id="divIDSessionQuantityOffset"></span>
                                 <span class="badge badge-warning">Transact./h</span>
                                 <span class="label label-default" id="divIDSessionSellTransactionCount"></span>
                             </div>

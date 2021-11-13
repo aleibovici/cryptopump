@@ -56,6 +56,7 @@ func LoadSessionDataAdditionalComponents(
 		RateCounter            int64   /* Average Number of transactions per second proccessed by WsBookTicker */
 		BuyDecisionTreeResult  string  /* Hold BuyDecisionTree result */
 		SellDecisionTreeResult string  /* Hold SellDecisionTree result */
+		QuantityOffset         float64 /* Quantity offset */
 		Orders                 []Order
 	}
 
@@ -83,6 +84,7 @@ func LoadSessionDataAdditionalComponents(
 	sessiondata.Session.RateCounter = sessionData.RateCounter.Rate() / 5            /* Average Number of transactions per second proccessed by WsBookTicker */
 	sessiondata.Session.BuyDecisionTreeResult = sessionData.BuyDecisionTreeResult   /* Hold BuyDecisionTree result*/
 	sessiondata.Session.SellDecisionTreeResult = sessionData.SellDecisionTreeResult /* Hold SellDecisionTree result */
+	sessiondata.Session.QuantityOffset = sessiondata.Session.SymbolFunds            /* Quantity offset */
 
 	sessiondata.Session.Profit = math.Round(sessionData.Global.Profit*100) / 100                       /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
 	sessiondata.Session.ProfitPct = math.Round(sessionData.Global.ProfitPct*100) / 100                 /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
@@ -104,6 +106,11 @@ func LoadSessionDataAdditionalComponents(
 			tmp.Diff = math.Round((((key.ExecutedQuantity*sessiondata.Market.Price)*(1+configData.ExchangeComission))-key.CumulativeQuoteQuantity)*10) / 10 /* Difference between target and market price */
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
+			sessiondata.Session.QuantityOffset -= math.Round(tmp.Quantity*100) / 100 /* Quantity offset */
+		}
+
+		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
+			sessiondata.Session.QuantityOffset = 0
 		}
 
 	}
