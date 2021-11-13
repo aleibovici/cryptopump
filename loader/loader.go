@@ -106,11 +106,13 @@ func LoadSessionDataAdditionalComponents(
 			tmp.Diff = math.Round((((key.ExecutedQuantity*sessiondata.Market.Price)*(1+configData.ExchangeComission))-key.CumulativeQuoteQuantity)*10) / 10 /* Difference between target and market price */
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
-			sessiondata.Session.QuantityOffset -= math.Round(tmp.Quantity*100) / 100 /* Quantity offset */
+			sessiondata.Session.QuantityOffset -= tmp.Quantity /* Quantity offset */
 		}
 
 		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
 			sessiondata.Session.QuantityOffset = 0
+		} else {
+			sessiondata.Session.QuantityOffset = math.Round(sessiondata.Session.QuantityOffset*100) / 100 /* Quantity offset */
 		}
 
 	}
