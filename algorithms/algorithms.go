@@ -580,7 +580,7 @@ func WsUserDataServe(
 			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "InfoLevel",
+			LogLevel: "DebugLevel",
 		}.Do()
 
 		switch {
@@ -598,7 +598,7 @@ func WsUserDataServe(
 		case strings.Contains(err.Error(), "read: operation timed out"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
 
-			return
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 		case strings.Contains(err.Error(), "read: connection reset by peer"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
@@ -726,6 +726,11 @@ func WsKline(
 
 		case strings.Contains(err.Error(), "1001"):
 			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+
+		case strings.Contains(err.Error(), "read: operation timed out"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
@@ -899,17 +904,15 @@ func WsBookTicker(
 
 			return
 
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
 		case strings.Contains(err.Error(), "read: operation timed out"):
 			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
 
 			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
-			return
+		case strings.Contains(err.Error(), "read: connection reset by peer"):
+			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
+
+			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
 
 		}
 
@@ -1178,25 +1181,33 @@ func SellDecisionTree(
 
 	}
 
-	/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
-	Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
-	functions help t avoid the problem creating a constant cadence of orders to sell. */
-	if sessionData.SymbolFunds <= order.ExecutedQuantity {
+	/* Verify that an order is in a sellable time range
+	This function help to avoid issue when a sale happen in the same second as the Buy transaction.
+	Duration must be provided in seconds */
+	if !isOrderInTimeRangeToSell(order, 60) {
 
-		exchange.BuyTicker(
-			configData.BuyQuantityFiatInit,
-			configData,
-			marketData,
-			sessionData)
+		sessionData.SellDecisionTreeResult = "Less than 60 seconds from buy"
 
 		return false, order
 
 	}
 
-	/* Verify that an order is in a sellable time range
-	This function help to avoid issue when a sale happen in the same second as the Buy transaction.
-	Duration must be provided in seconds */
-	if !isOrderInTimeRangeToSell(order, 60) {
+	/* Test if symbol funds are available for the Sell order. If not, Buy the amount defined in BuyQuantityFiatInit.
+	Sometimes due to decimal changes in transactions or transaction failures there could be divergences and this
+	functions help to avoid the problem creating a constant cadence of orders to sell. */
+	if sessionData.SymbolFunds <= order.ExecutedQuantity {
+
+		sessionData.SellDecisionTreeResult = "Not enough symbol funds to execute sale"
+
+		if !configData.Exit { /* Doesn't force buy if system is in Exit mode */
+
+			exchange.BuyTicker(
+				configData.BuyQuantityFiatInit,
+				configData,
+				marketData,
+				sessionData)
+
+		}
 
 		sessionData.SellDecisionTreeResult = "Less than 60 seconds from buy"
 
