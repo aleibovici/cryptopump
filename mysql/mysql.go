@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
@@ -254,6 +255,66 @@ func UpdateSession(
 
 		logger.LogEntry{
 			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return err
+
+	}
+
+	rows.Close()
+
+	return nil
+
+}
+
+// UpdateGlobal Update global settings
+func UpdateGlobal(
+	sessionData *types.Session) (err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?)",
+		sessionData.Global.Profit,
+		sessionData.Global.ProfitPct,
+		time.Now().Unix()); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return err
+
+	}
+
+	rows.Close()
+
+	return nil
+
+}
+
+// SaveGlobal Save initial global settings
+func SaveGlobal(
+	sessionData *types.Session) (err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?)",
+		sessionData.Global.Profit,
+		sessionData.Global.ProfitPct,
+		time.Now().Unix()); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
 			Order:    &types.Order{},
@@ -979,6 +1040,35 @@ func GetProfit(
 	rows.Close()
 
 	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
+}
+
+// GetGlobal get global data
+func GetGlobal(sessiondata *types.Session) (profit float64, profitPct float64, transactTime int64, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessiondata.Db.Query("call cryptopump.GetGlobal()"); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessiondata,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return 0, 0, 0, err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&profit, &profitPct, &transactTime)
+	}
+
+	rows.Close()
+
+	return profit, profitPct, transactTime, err
+
 }
 
 // GetThreadCount Retrieve Running Thread Count

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
@@ -141,10 +142,36 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 		}
 	}()
 
-	/* Load total profit and total profit percentage  */
-	if sessionData.Global.Profit, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil {
+	/* Get global data and execute GetProfit if more than 10 seconds since last update.
+	This function is used to prevent multiple threads from running mysql.GetProfit and
+	overloading mySQL server since this is a high cost SQL statement. */
+	if _, _, transactTime, err := mysql.GetGlobal(sessionData); err == nil {
 
-		return
+		if transactTime == 0 { /* If transactTime is 0 then this is the first time this function is called and insert record into db */
+
+			if err := mysql.SaveGlobal(sessionData); err != nil {
+
+				return /* Return if error */
+
+			}
+
+		}
+
+		if time.Since(time.Unix(transactTime, 0)).Seconds() > 10 { /* Only execute GetProfit if more than 10 seconds since last update */
+
+			if sessionData.Global.Profit, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil { /* Load total profit and total profit percentage  */
+
+				return /* Return if error */
+
+			}
+
+			if err = mysql.UpdateGlobal(sessionData); err != nil { /* Update global data */
+
+				return /* Return if error */
+
+			}
+
+		}
 
 	}
 
