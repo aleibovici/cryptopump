@@ -145,7 +145,10 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 	/* Get global data and execute GetProfit if more than 10 seconds since last update.
 	This function is used to prevent multiple threads from running mysql.GetProfit and
 	overloading mySQL server since this is a high cost SQL statement. */
-	if _, _, transactTime, err := mysql.GetGlobal(sessionData); err == nil {
+	if profit, profitPct, transactTime, err := mysql.GetGlobal(sessionData); err == nil {
+
+		sessionData.Global.Profit = profit       /* Load global profit from db */
+		sessionData.Global.ProfitPct = profitPct /* Load global profit from db */
 
 		if transactTime == 0 { /* If transactTime is 0 then this is the first time this function is called and insert record into db */
 
@@ -159,7 +162,7 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 
 		if time.Since(time.Unix(transactTime, 0)).Seconds() > 10 { /* Only execute GetProfit if more than 10 seconds since last update */
 
-			if sessionData.Global.Profit, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil { /* Load total profit and total profit percentage  */
+			if sessionData.Global.Profit, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil { /* Recalculate total profit and total profit percentage  */
 
 				return /* Return if error */
 
