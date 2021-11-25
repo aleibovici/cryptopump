@@ -2,19 +2,29 @@
 
 Cryptopump opens in your browse it's first instance. 
 
-On the top left you it shows the thread name and how many instances are running. 
-Profit shows the profit in the currency set and it's %.*
-Deployed show how much fiat currency is used.*
-Funds shows the total amount of fiat you have available in the selected trading pair. 
-Transact./h shows how many transaction the bot did per hour. 
+### METRICS
 
-*If more than one instance is running the total amount will be updated.
+- On the top left you it shows the thread name and how many instances are in execution.
 
-On the top right you can see indicators for that particular trading pair.
-MACD is the Moving Average Convergence Divergence it is a trend-following momentum indicator that shows the relationship between two moving averages.
-RSI 14/7/3 is the Relative Strength Index it's an indicator based on closing prices over a duration of specific time.
-Direction is updated every second from your exchange and is greater at each movement in the same direction, i.e. if the price moves up 10 consecutive times it will show as 10 under direction.
-Price$ is the cost of the selected currency.
+- Profit: Shows the profit in FIAT currency and it's percentage.(*)
+
+- Deployed: Show how much fiat currency is used.(*)
+
+- Funds: Show the total amount of fiat you have available in the selected trading pair. 
+
+- Offset : In rare circumstances the database may become out-of-sync with the amount of crypto invested due to an Exchange or Connectivity error. This  field represent the disparity between the system and the exchange quantities. (0 means no difference and all is good)
+
+- Transact./h: Number of Sale transactions per hour.
+
+- MACD is the Moving Average Convergence Divergence it is a trend-following momentum indicator that shows the relationship between two moving averages.
+
+- RSI 14/7/3 is the Relative Strength Index it's an indicator based on closing prices over a duration of specific time.
+
+- Direction: Updated every second from the exchange and is increased at each movement in the same direction, i.e. if the price moves up 10 consecutive times then the direction will be 10.
+
+- Price$: Current price of the selected crypto currency.
+
+(*) If more than one instance is running the amount shown represent all instances together.
 
 ## SETTING UP
 
@@ -77,7 +87,7 @@ The higher the value, the more bullish the market needs to be in order to execut
 
 - Stop Time: If enforce time is set to true this value is used to stop the bot operation.
 
-### UI GRID
+### ORDERS GRID
 
 - OrderID: this value is provided by the exchange when a buy order takes place.
 
@@ -90,6 +100,18 @@ The higher the value, the more bullish the market needs to be in order to execut
 - Target: this value indicates the target crypto-currency price before selling (includes profit margin and exchange fees).
 
 - Diff: this value indicates the difference between current transaction sale price and zero margin sale (includes exchange fee).
+
+## STATUS
+
+In the bottom right corner the system status is displayed:
+
+- Buy: Reason in the decision tree on why a given Buy order is not being executed. This field is important and provide information on what configuration tunning might be required.
+
+- Sell: Reason in the decision tree on why a given Sell order is not being executed. This field is important and provide information on what configuration tunning might be required.
+
+- Ops/dec: Number of operation per second. This number is dictated by the crypto-pair volume. Cryptopump analyses every Exchange kline block.
+
+- Signal: Average latency between Cryptopump and the exchange measured every five seconds (best kept below 200ms).
 
 ### OTHERS:
 
