@@ -80,7 +80,7 @@ func LoadSessionDataAdditionalComponents(
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
-	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*1000000) / 1000000 /* Available crypto funds in exchange */
+	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*10000) / 10000 /* Available crypto funds in exchange */
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 	sessiondata.Session.RateCounter = sessionData.RateCounter.Rate() / 5            /* Average Number of transactions per second proccessed by WsBookTicker */
