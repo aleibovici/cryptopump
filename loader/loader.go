@@ -58,6 +58,7 @@ func LoadSessionDataAdditionalComponents(
 		BuyDecisionTreeResult  string  /* Hold BuyDecisionTree result */
 		SellDecisionTreeResult string  /* Hold SellDecisionTree result */
 		QuantityOffset         float64 /* Quantity offset */
+		DiffTotal              float64 /* Total difference between target and market price */
 		Orders                 []Order
 	}
 
@@ -108,7 +109,11 @@ func LoadSessionDataAdditionalComponents(
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 			sessiondata.Session.QuantityOffset -= tmp.Quantity /* Quantity offset */
+
+			sessiondata.Session.DiffTotal += tmp.Diff /* Total difference between target and market price */
 		}
+
+		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*100) / 100 /* Total difference between target and market price round up */
 
 		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
 			sessiondata.Session.QuantityOffset = 0

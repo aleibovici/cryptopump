@@ -43,6 +43,7 @@
                 $('#divIDSessionProfitPct').html(json.Session.ProfitPct);
                 $('#divIDSessionProfitThreadID').html(json.Session.ProfitThreadID);
                 $('#divIDSessionProfitThreadIDPct').html(json.Session.ProfitThreadIDPct);
+                $('#divIDSessionDiffTotal').html(json.Session.DiffTotal);
                 $('#divIDSessionThreadCount').html(json.Session.ThreadCount);
                 $('#divIDSessionThreadAmount').html(json.Session.ThreadAmount);
                 $('#divIDSessionOrders').html(json.Session.Orders);
@@ -113,8 +114,11 @@
                                 <span class="badge badge-warning">Profit</span>
                                 $<span class="label label-default" id="divIDSessionProfit"></span> 
                                 <span class="label label-default" id="divIDSessionProfitPct"></span>%
+                                <span style="color: orange;"> | </span>
                                 $<span class="label label-default" id="divIDSessionProfitThreadID"></span> 
-                                <span class="label label-default" id="divIDSessionProfitThreadIDPct"></span>% &nbsp;
+                                <span class="label label-default" id="divIDSessionProfitThreadIDPct"></span>% 
+                                <span style="color: orange;"> | </span>
+                                $<span class="label label-default" id="divIDSessionDiffTotal"></span> &nbsp;
 
                                 <span class="badge badge-warning">Deployed</span>
                                 $<span class="label label-default" id="divIDSessionThreadAmount"></span> &nbsp;
