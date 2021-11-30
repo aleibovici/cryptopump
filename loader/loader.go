@@ -113,7 +113,7 @@ func LoadSessionDataAdditionalComponents(
 			sessiondata.Session.DiffTotal += tmp.Diff /* Total difference between target and market price */
 		}
 
-		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*100) / 100 /* Total difference between target and market price round up */
+		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*1) / 1 /* Total difference between target and market price round up */
 
 		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
 			sessiondata.Session.QuantityOffset = 0
