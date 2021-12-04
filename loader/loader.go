@@ -116,9 +116,29 @@ func LoadSessionDataAdditionalComponents(
 		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*1) / 1 /* Total difference between target and market price round up */
 
 		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
+
 			sessiondata.Session.QuantityOffset = 0
+			sessionData.QuantityOffsetFlag = false
+
 		} else {
+
 			sessiondata.Session.QuantityOffset = math.Round(sessiondata.Session.QuantityOffset*100) / 100 /* Quantity offset */
+
+			if !sessionData.QuantityOffsetFlag { /* Only log Quantity offset error if first time */
+
+				logger.LogEntry{
+					Config:   configData,
+					Market:   nil,
+					Session:  sessionData,
+					Order:    &types.Order{},
+					Message:  "Quantity offset: " + strconv.FormatFloat(sessiondata.Session.QuantityOffset, 'f', 2, 64),
+					LogLevel: "DebugLevel",
+				}.Do()
+
+			}
+
+			sessionData.QuantityOffsetFlag = true /* Quantity offset flag */
+
 		}
 
 	}

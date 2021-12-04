@@ -104,6 +104,7 @@ type Session struct {
 	RateCounter             *ratecounter.RateCounter /* Average Number of transactions per second proccessed by WsBookTicker */
 	BuyDecisionTreeResult   string                   /* Hold BuyDecisionTree result for web UI */
 	SellDecisionTreeResult  string                   /* Hold SellDecisionTree result for web UI */
+	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
 	Global                  *Global
 }
 
