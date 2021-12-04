@@ -120,7 +120,7 @@ func LoadSessionDataAdditionalComponents(
 			sessiondata.Session.QuantityOffset = 0
 			sessionData.QuantityOffsetFlag = false
 
-		} else {
+		} else if sessiondata.Session.QuantityOffset < 0 { /* Only display Quantity offset if negative */
 
 			sessiondata.Session.QuantityOffset = math.Round(sessiondata.Session.QuantityOffset*100) / 100 /* Quantity offset */
 
