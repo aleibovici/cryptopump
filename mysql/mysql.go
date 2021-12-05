@@ -245,12 +245,13 @@ func UpdateSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds,
+		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
 		logger.LogEntry{
@@ -339,12 +340,13 @@ func SaveSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds,
+		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
 		logger.LogEntry{

@@ -105,6 +105,7 @@ type Session struct {
 	BuyDecisionTreeResult   string                   /* Hold BuyDecisionTree result for web UI */
 	SellDecisionTreeResult  string                   /* Hold SellDecisionTree result for web UI */
 	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
+	DiffTotal               float64                  /* This variable holds the difference between the total funds and the total funds in the last session */
 	Global                  *Global
 }
 
@@ -116,6 +117,7 @@ type Global struct {
 	ProfitThreadIDPct float64 /* ThreadID profit percentage */
 	ThreadCount       int     /* Thread count */
 	ThreadAmount      float64 /* Thread cost amount */
+	DiffTotal         float64 /* /* This variable holds the difference between purchase price and current value across all sessions */
 }
 
 // Client struct for client libraries
