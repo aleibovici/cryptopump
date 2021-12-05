@@ -110,7 +110,7 @@ func LoadSessionDataAdditionalComponents(
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 			sessiondata.Session.QuantityOffset -= tmp.Quantity /* Quantity offset */
 
-			sessiondata.Session.DiffTotal += tmp.Diff /* Total difference between target and market price */
+			sessiondata.Session.DiffTotal += (tmp.Diff * (1 - configData.ExchangeComission)) /* Total difference between target and market price (minus ExchangeComission used for visual aid in UI) */
 		}
 
 		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*1) / 1 /* Total difference between target and market price round up  for session (local function variable)*/
