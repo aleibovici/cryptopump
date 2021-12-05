@@ -172,7 +172,7 @@ func CheckUpdates(
 			Message{
 				Text: "\f" + "Available Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
 					"Deployed Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr((math.Round(sessionData.Global.ThreadAmount*100)/100), 2) + "\n" +
-					"Profit: " + functions.Float64ToStr(profit, 2) + " " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
+					"Net Profit (Profit - Deployed Funds): " + functions.Float64ToStr(profit, 2) + " " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
 					"ROI " + functions.Float64ToStr(roi, 2) + "%" + "\n" +
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
