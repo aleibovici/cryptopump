@@ -6,7 +6,7 @@ Cryptopump opens in your browse it's first instance.
 
 - On the top left you it shows the thread name and how many instances are in execution.
 
-- Profit: Shows the profit in FIAT currency and it's percentage.(*)
+- Profit: Shows the net profit in FIAT currency and it's percentage. Net Profit is calculated as total profit minus the differences (diff) for each order under water. Formula = (total profit - total difference) (*)
 
 - Deployed: Show how much fiat currency is used.(*)
 
