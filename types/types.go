@@ -112,6 +112,7 @@ type Session struct {
 // Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
 type Global struct {
 	Profit            float64 /* Total profit */
+	ProfitNet         float64 /* Net profit */
 	ProfitPct         float64 /* Total profit percentage */
 	ProfitThreadID    float64 /* ThreadID profit */
 	ProfitThreadIDPct float64 /* ThreadID profit percentage */

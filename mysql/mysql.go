@@ -279,8 +279,9 @@ func UpdateGlobal(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?,?)",
 		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
@@ -309,8 +310,9 @@ func SaveGlobal(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?,?)",
 		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
@@ -1014,10 +1016,11 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 
 // GetProfit retrieve total and average percentage profit
 func GetProfit(
-	sessionData *types.Session) (fiat float64, percentage float64, err error) {
+	sessionData *types.Session) (profit float64, profitNet float64, percentage float64, err error) {
 
 	var rows *sql.Rows
-	var fiatNullFloat64 sql.NullFloat64       /* handle null mysql returns */
+	var profitNullFloat64 sql.NullFloat64     /* handle null mysql returns */
+	var profitNetNullFloat64 sql.NullFloat64  /* handle null mysql returns */
 	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
@@ -1031,21 +1034,21 @@ func GetProfit(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return fiatNullFloat64.Float64, percentageNullFloat64.Float64, err
+		return profitNullFloat64.Float64, profitNetNullFloat64.Float64, percentageNullFloat64.Float64, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&fiatNullFloat64, &percentageNullFloat64)
+		err = rows.Scan(&profit, &profitNet, &percentage)
 	}
 
 	rows.Close()
 
-	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
+	return profit, profitNet, (percentage * 100), err
 }
 
 // GetGlobal get global data
-func GetGlobal(sessiondata *types.Session) (profit float64, profitPct float64, transactTime int64, err error) {
+func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, profitPct float64, transactTime int64, err error) {
 
 	var rows *sql.Rows
 
@@ -1060,16 +1063,16 @@ func GetGlobal(sessiondata *types.Session) (profit float64, profitPct float64, t
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, 0, err
+		return 0, 0, 0, 0, err
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&profit, &profitPct, &transactTime)
+		err = rows.Scan(&profit, &profitNet, &profitPct, &transactTime)
 	}
 
 	rows.Close()
 
-	return profit, profitPct, transactTime, err
+	return profit, profitNet, profitPct, transactTime, err
 
 }
 
