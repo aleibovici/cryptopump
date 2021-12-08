@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS `global`;
 CREATE TABLE `global` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `Profit` float NOT NULL,
+  `ProfitNet` float NOT NULL,
   `ProfitPct` float NOT NULL,
   `TransactTime` varchar(45) NOT NULL,
   PRIMARY KEY (`ID`)
@@ -72,10 +73,11 @@ CREATE TABLE `session` (
   `Exchange` varchar(45) NOT NULL,
   `FiatSymbol` varchar(45) NOT NULL,
   `FiatFunds` float NOT NULL,
+  `DiffTotal` float NOT NULL,
   `Status` tinyint(1) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1406 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1479 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +96,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8755 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8928 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -183,6 +185,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `GetGlobal`()
 BEGIN
 SELECT 
     `global`.`Profit` AS `Profit`,
+    `global`.`ProfitNet` AS `ProfitNet`,
     `global`.`ProfitPct` AS `ProfitPct`,
     `global`.`TransactTime` AS `TransactTime`
 FROM
@@ -403,7 +406,8 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `GetProfit`()
 BEGIN
 SELECT 
-    SUM(`source`.`Profit`) AS `sum`,
+	SUM(`source`.`Profit`) AS `profit`,
+    SUM(`source`.`Profit`) + (`source`.`Diff`) AS `netprofit`,
     AVG(`source`.`Percentage`) AS `avg`
 FROM
     (SELECT 
@@ -418,7 +422,8 @@ FROM
             ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
                 WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
                 ELSE `Orders`.`CummulativeQuoteQty`
-            END) AS `Percentage`
+            END) AS `Percentage`,
+            (SELECT sum(`session`.`DiffTotal`) AS `sum` FROM `session`) AS `Diff`
     FROM
         `orders`
     INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
@@ -427,7 +432,6 @@ WHERE
         AND `source`.`Orders__Side` = 'SELL'
         AND `source`.`Status` = 'FILLED'
         AND `source`.`Orders__Status` = 'FILLED');
-
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -449,7 +453,7 @@ BEGIN
 DECLARE declared_in_param_ThreadID CHAR(50);
     SET declared_in_param_ThreadID = in_param_ThreadID;
 SELECT 
-    SUM(`source`.`Profit`) AS `sum`,
+    SUM(`source`.`Profit`) + (`source`.`Diff`) AS `sum`,
     AVG(`source`.`Percentage`) AS `avg`
 FROM
     (SELECT 
@@ -464,7 +468,13 @@ FROM
             ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
                 WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
                 ELSE `Orders`.`CummulativeQuoteQty`
-            END) AS `Percentage`
+            END) AS `Percentage`,
+            (SELECT 
+                    SUM(`session`.`DiffTotal`) AS `sum`
+                FROM
+                    `session`
+                WHERE
+                    `session`.`ThreadID` = declared_in_param_ThreadID) AS `Diff`
     FROM
         `orders`
     INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
@@ -746,10 +756,10 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveGlobal`(in_Profit float, in_ProfitPct float, in_TransactTime bigint)
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint)
 BEGIN
-INSERT INTO global (Profit, ProfitPct, TransactTime)
-VALUES (in_Profit, in_ProfitPct, in_TransactTime);
+INSERT INTO global (Profit, ProfitNet, ProfitPct, TransactTime)
+VALUES (in_Profit, in_ProfitNet, in_ProfitPct, in_TransactTime);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -786,10 +796,10 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_Status tinyint(1))
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1))
 BEGIN
-INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds, Status)
-VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds, in_Status);
+INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds, DiffTotal, Status)
+VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds, in_DiffTotal, in_Status);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -826,12 +836,13 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateGlobal`(in_Profit float, in_ProfitPct float, in_TransactTime bigint)
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint)
 BEGIN
 SET SQL_SAFE_UPDATES = 0;
 UPDATE global 
 SET 
     Profit = in_Profit,
+    ProfitNet = in_ProfitNet,
     ProfitPct = in_ProfitPct,
     TransactTime = in_TransactTime
 WHERE
@@ -879,13 +890,16 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_Status tinyint(1))
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1))
 BEGIN
 SET SQL_SAFE_UPDATES = 0;
-	UPDATE `session`
-	SET `session`.`FiatFunds` = in_FiatFunds,
-		`session`.`Status` = in_Status
-	WHERE `session`.`ThreadID` = in_ThreadID;
+	UPDATE `session` 
+SET 
+    `session`.`FiatFunds` = in_FiatFunds,
+    `session`.`DiffTotal` = in_DiffTotal,
+    `session`.`Status` = in_Status
+WHERE
+    `session`.`ThreadID` = in_ThreadID;
 SET SQL_SAFE_UPDATES = 1;
 END ;;
 DELIMITER ;
@@ -903,4 +917,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-23 21:39:25
+-- Dump completed on 2021-12-08 21:09:38
