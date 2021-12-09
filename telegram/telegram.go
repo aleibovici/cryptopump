@@ -144,7 +144,6 @@ func CheckUpdates(
 			var profit float64
 			var profitNet float64
 			var profitPct float64
-			var roi float64
 			var threadCount int
 			var status string
 			var err error
@@ -167,16 +166,13 @@ func CheckUpdates(
 
 			}
 
-			/* Calculate total Return on Investment */
-			roi = (profitNet) / (math.Round(sessionData.Global.ThreadAmount*100) / 100) * 100
-
 			Message{
 				Text: "\f" + "Available Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
 					"Deployed Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr((math.Round(sessionData.Global.ThreadAmount*100)/100), 2) + "\n" +
 					"Profit: $" + functions.Float64ToStr(profit, 2) + "\n" +
 					"Net Profit: $" + functions.Float64ToStr(profitNet, 2) + "\n" +
+					"ROI: " + functions.Float64ToStr(GetROI(profitNet, sessionData.Global.ThreadAmount), 2) + "%" + "\n" +
 					"Avg. Transaction: " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
-					"ROI: " + functions.Float64ToStr(roi, 2) + "%" + "\n" +
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
 					"Master: " + sessionData.ThreadID,
@@ -186,5 +182,12 @@ func CheckUpdates(
 		}
 
 	}
+
+}
+
+// GetROI Get Return on Investment
+func GetROI(profitNet float64, threadAmount float64) float64 {
+
+	return (profitNet) / (math.Round(threadAmount*100) / 100) * 100
 
 }
