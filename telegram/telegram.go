@@ -170,8 +170,9 @@ func CheckUpdates(
 				Text: "\f" + "Available Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr(sessionData.SymbolFiatFunds, 2) + "\n" +
 					"Deployed Funds: " + sessionData.SymbolFiat + " " + functions.Float64ToStr((math.Round(sessionData.Global.ThreadAmount*100)/100), 2) + "\n" +
 					"Profit: $" + functions.Float64ToStr(profit, 2) + "\n" +
+					"ROI: " + functions.Float64ToStr(getROI(profit, sessionData), 2) + "%\n" +
 					"Net Profit: $" + functions.Float64ToStr(profitNet, 2) + "\n" +
-					"ROI: " + functions.Float64ToStr(GetROI(profitNet, sessionData.Global.ThreadAmount), 2) + "%" + "\n" +
+					"Net ROI: " + functions.Float64ToStr(getROI(profitNet, sessionData), 2) + "%" + "\n" +
 					"Avg. Transaction: " + functions.Float64ToStr(profitPct, 2) + "%" + "\n" +
 					"Thread Count: " + strconv.Itoa(threadCount) + "\n" +
 					"Status: " + status + "\n" +
@@ -185,9 +186,10 @@ func CheckUpdates(
 
 }
 
-// GetROI Get Return on Investment
-func GetROI(profitNet float64, threadAmount float64) float64 {
+// getROI returns the ROI of a given profit
+func getROI(profit float64,
+	sessionData *types.Session) (ROI float64) {
 
-	return (profitNet) / (math.Round(threadAmount*100) / 100) * 100
+	return (profit) / (math.Round(sessionData.Global.ThreadAmount*100) / 100) * 100
 
 }
