@@ -6,13 +6,17 @@ Cryptopump opens in your browse it's first instance.
 
 - On the top left you it shows the thread name and how many instances are in execution.
 
-- Profit: Shows the net profit in FIAT currency and it's percentage. Net Profit is calculated as total profit minus the differences (diff) for each order under water. Formula = (total profit - total difference) (*)
+- Profit: Shows the Total Profit (Total Profit = Sales - Buys); the Net Profit (Net Profit = Total Profit - Order Differences) where Order Difference is the total difference between each order price and the current pair price for all threads. Another way to understand Net Profit is to look at is as the total profit if all orders were to be closed at that moment in time. Net profit is important because CryptoPump will use Profits to buy orders if the crypto pair goes down in price; finally, the average transaction percentage profit across all present and past running threads.
 
-- Deployed: Show how much fiat currency is used.(*)
+- Thread Profit: Shows the ToNet Profit (Net Thread Profit = Total Thread Profit - Order Thread Differences) where Order Difference is the total difference between each order price and the current pair price for the current threads.; finally, the average transaction percentage profit across the running thread.
 
-- Funds: Show the total amount of fiat you have available in the selected trading pair. 
+- Diff: Shows the sum of Order Differences for the current thread. Order Difference is the total difference between each order price and the current pair price for the current threads.
 
-- Offset : In rare circumstances the database may become out-of-sync with the amount of crypto invested due to an Exchange or Connectivity error. This  field represent the disparity between the system and the exchange quantities. (0 means no difference and all is good)
+- Deployed: Shows how much fiat currency is in use across all threads.
+
+- Funds: Shows the total amount of crypto pairs acquired by the current thread and the amount of FIAT currency available for additional purchases.
+
+- Offset : In rare circumstances the database may become out-of-sync with the amount of crypto invested due to the Exchange or Connectivity error. This  field represent the disparity between the system and the exchange quantities. (0 means no difference and all is good)
 
 - Transact./h: Number of Sale transactions per hour.
 
@@ -24,7 +28,6 @@ Cryptopump opens in your browse it's first instance.
 
 - Price$: Current price of the selected crypto currency.
 
-(*) If more than one instance is running the amount shown represent all instances together.
 
 ## SETTING UP
 
@@ -143,10 +146,19 @@ In the bottom right corner the system status is displayed:
 - Sell market: executes a sell order at the price in that particular moment, each press will sell one particular order, press multiple times to sell all. 
 
 
+### TELEGRAM:
+
+Telegram allows you to remote monitor that status of your running cryptopump instances, and BUY/SELL orders. The currently available command are:
+
+![](https://github.com/aleibovici/img/blob/b2c9390494906b8e83635a5f320dd48f67a48fbd/telegram_screenshot.jpg?raw=true)
+
+- /report: Provides Available Funds, Deployed Funds, Profit, Return on Investment, Net Profit, Net Return on Investment, Avg. Transaction Percentage gain, Thread Count, System Status, and Master Node.
+- /buy: Buy at the current Master Node thread
+- /sell: Sell at the current Master Node thread
 
 ## RESUMING AND TROUBLESHOOTING:
 
 If you want to stop buy don't want to sell your orders, press stop at each instance. 
-To resume start the bot, access the first webui, i.e. port 8080, press start. To access the other trading pairs, press new, start the new webui, i.e. port 8081 and press start. Repeat until all instances are resumed. 
+To resume start the bot, access the first WebUI, i.e. port 8080, press start. To access the other trading pairs, press new, start the new webui, i.e. port 8081 and press start. Repeat until all instances are resumed. 
 
 If resuming a thread/instance does not work, go into the cryptopump folder and delete the .lock files. Those files are present while the bot is running, if it crashes those won't be deleted so those need to be manually removed before starting the resume process.
