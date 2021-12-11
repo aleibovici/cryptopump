@@ -28,6 +28,8 @@ Always start by running a this trading tool in Dry-run and do not engage money b
 
 - CryptoPump has a native Telegram bot that accepts commands /stop /sell /buy and /report. Telegram will also alert you if any issues happen. The Telegram APIKEY, if in use, has to be configured at TGBOTAPIKEY in the config.yml file. 
 
+![](https://github.com/aleibovici/img/blob/b2c9390494906b8e83635a5f320dd48f67a48fbd/telegram_screenshot.jpg?raw=true)
+
 - CryptoPump requires MySQL to persist data and transactions, and the .sql file to create the structure can be found in the MySQL folder (cryptopump.sql). I use MySQL with Docker in the same machine Cryptopump is running, and it performs well. Cloud-based MySQL instances are also supported. The environment variables are in launch.json if Visual Studio Code is in use; optionally, the following environment variables set DB_USER, DB_PASS, DB_TCP_HOST, DB_PORT, DB_NAME. For using MySQL with docker go here (<https://hub.docker.com/_/mysql>). (refer to HOW TO INSTALL file)
 
 - To use Binance TestNet, configure APIKEYTESTNET and SECRETKEYTESTNET in config.yml and set the TestNet option to True in the config .yml. Given it requires to be set when starting the code TestNet is disabled in the UI. (<https://testnet.binance.vision>)

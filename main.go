@@ -97,6 +97,7 @@ func main() {
 		Latency:                 0,
 		Status:                  false,
 		RateCounter:             ratecounter.NewRateCounter(5 * time.Second),
+		DiffTotal:               0,
 		Global:                  &types.Global{},
 	}
 

@@ -50,6 +50,7 @@ func LoadSessionDataAdditionalComponents(
 		ProfitThreadID         float64 /* ThreadID profit */
 		ProfitThreadIDPct      float64 /* ThreadID profit percentage */
 		Profit                 float64 /* Total profit */
+		ProfitNet              float64 /* Total net profit */
 		ProfitPct              float64 /* Total profit percentage */
 		ThreadCount            int     /* Thread count */
 		ThreadAmount           float64 /* Thread cost amount */
@@ -58,6 +59,7 @@ func LoadSessionDataAdditionalComponents(
 		BuyDecisionTreeResult  string  /* Hold BuyDecisionTree result */
 		SellDecisionTreeResult string  /* Hold SellDecisionTree result */
 		QuantityOffset         float64 /* Quantity offset */
+		DiffTotal              float64 /* Total difference between target and market price */
 		Orders                 []Order
 	}
 
@@ -79,7 +81,7 @@ func LoadSessionDataAdditionalComponents(
 	sessiondata.Session.ThreadID = sessionData.ThreadID
 	sessiondata.Session.SellTransactionCount = sessionData.SellTransactionCount
 	sessiondata.Session.Symbol = sessionData.Symbol[0:3]
-	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*100000000) / 100000000
+	sessiondata.Session.SymbolFunds = math.Round((sessionData.SymbolFunds)*10000) / 10000 /* Available crypto funds in exchange */
 	sessiondata.Session.SymbolFiat = sessionData.SymbolFiat
 	sessiondata.Session.SymbolFiatFunds = math.Round(sessionData.SymbolFiatFunds*100) / 100
 	sessiondata.Session.RateCounter = sessionData.RateCounter.Rate() / 5            /* Average Number of transactions per second proccessed by WsBookTicker */
@@ -88,6 +90,7 @@ func LoadSessionDataAdditionalComponents(
 	sessiondata.Session.QuantityOffset = sessiondata.Session.SymbolFunds            /* Quantity offset */
 
 	sessiondata.Session.Profit = math.Round(sessionData.Global.Profit*100) / 100                       /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
+	sessiondata.Session.ProfitNet = math.Round(sessionData.Global.ProfitNet*100) / 100                 /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
 	sessiondata.Session.ProfitPct = math.Round(sessionData.Global.ProfitPct*100) / 100                 /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
 	sessiondata.Session.ProfitThreadID = math.Round(sessionData.Global.ProfitThreadID*100) / 100       /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
 	sessiondata.Session.ProfitThreadIDPct = math.Round(sessionData.Global.ProfitThreadIDPct*100) / 100 /* Sessions.Global loaded from mySQL via loadSessionDataAdditionalComponentsAsync */
@@ -108,12 +111,37 @@ func LoadSessionDataAdditionalComponents(
 
 			sessiondata.Session.Orders = append(sessiondata.Session.Orders, tmp)
 			sessiondata.Session.QuantityOffset -= tmp.Quantity /* Quantity offset */
+
+			sessiondata.Session.DiffTotal += (tmp.Diff * (1 - configData.ExchangeComission)) /* Total difference between target and market price (minus ExchangeComission used for visual aid in UI) */
 		}
 
+		sessiondata.Session.DiffTotal = math.Round(sessiondata.Session.DiffTotal*1) / 1 /* Total difference between target and market price round up  for session (local function variable)*/
+		sessionData.DiffTotal = sessiondata.Session.DiffTotal                           /* Total difference between target and market price for session (tranfer value to sessionData struct)*/
+
 		if sessiondata.Session.QuantityOffset >= 0 { /* Only display Quantity offset if negative */
+
 			sessiondata.Session.QuantityOffset = 0
-		} else {
+			sessionData.QuantityOffsetFlag = false
+
+		} else if sessiondata.Session.QuantityOffset < 0 { /* Only display Quantity offset if negative */
+
 			sessiondata.Session.QuantityOffset = math.Round(sessiondata.Session.QuantityOffset*100) / 100 /* Quantity offset */
+
+			if !sessionData.QuantityOffsetFlag { /* Only log Quantity offset error if first time */
+
+				logger.LogEntry{
+					Config:   configData,
+					Market:   nil,
+					Session:  sessionData,
+					Order:    &types.Order{},
+					Message:  "Quantity offset: " + strconv.FormatFloat(sessiondata.Session.QuantityOffset, 'f', 2, 64),
+					LogLevel: "DebugLevel",
+				}.Do()
+
+			}
+
+			sessionData.QuantityOffsetFlag = true /* Quantity offset flag */
+
 		}
 
 	}
@@ -145,9 +173,10 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 	/* Get global data and execute GetProfit if more than 10 seconds since last update.
 	This function is used to prevent multiple threads from running mysql.GetProfit and
 	overloading mySQL server since this is a high cost SQL statement. */
-	if profit, profitPct, transactTime, err := mysql.GetGlobal(sessionData); err == nil {
+	if profit, profitnet, profitPct, transactTime, err := mysql.GetGlobal(sessionData); err == nil {
 
 		sessionData.Global.Profit = profit       /* Load global profit from db */
+		sessionData.Global.ProfitNet = profitnet /* Load global net profit from db */
 		sessionData.Global.ProfitPct = profitPct /* Load global profit from db */
 
 		if transactTime == 0 { /* If transactTime is 0 then this is the first time this function is called and insert record into db */
@@ -162,7 +191,7 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 
 		if time.Since(time.Unix(transactTime, 0)).Seconds() > 10 { /* Only execute GetProfit if more than 10 seconds since last update */
 
-			if sessionData.Global.Profit, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil { /* Recalculate total profit and total profit percentage  */
+			if sessionData.Global.Profit, sessionData.Global.ProfitNet, sessionData.Global.ProfitPct, err = mysql.GetProfit(sessionData); err != nil { /* Recalculate total profit and total profit percentage  */
 
 				return /* Return if error */
 

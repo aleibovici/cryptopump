@@ -104,17 +104,21 @@ type Session struct {
 	RateCounter             *ratecounter.RateCounter /* Average Number of transactions per second proccessed by WsBookTicker */
 	BuyDecisionTreeResult   string                   /* Hold BuyDecisionTree result for web UI */
 	SellDecisionTreeResult  string                   /* Hold SellDecisionTree result for web UI */
+	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
+	DiffTotal               float64                  /* This variable holds the difference between the total funds and the total funds in the last session */
 	Global                  *Global
 }
 
 // Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
 type Global struct {
 	Profit            float64 /* Total profit */
+	ProfitNet         float64 /* Net profit */
 	ProfitPct         float64 /* Total profit percentage */
 	ProfitThreadID    float64 /* ThreadID profit */
 	ProfitThreadIDPct float64 /* ThreadID profit percentage */
 	ThreadCount       int     /* Thread count */
 	ThreadAmount      float64 /* Thread cost amount */
+	DiffTotal         float64 /* /* This variable holds the difference between purchase price and current value across all sessions */
 }
 
 // Client struct for client libraries

@@ -245,12 +245,13 @@ func UpdateSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds,
+		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
 		logger.LogEntry{
@@ -278,8 +279,9 @@ func UpdateGlobal(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?,?)",
 		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
@@ -308,8 +310,9 @@ func SaveGlobal(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?,?)",
 		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
@@ -339,12 +342,13 @@ func SaveSession(
 
 	var rows *sql.Rows
 
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?)",
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession,
 		configData.ExchangeName,
 		sessionData.SymbolFiat,
 		sessionData.SymbolFiatFunds,
+		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
 		logger.LogEntry{
@@ -1012,10 +1016,11 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 
 // GetProfit retrieve total and average percentage profit
 func GetProfit(
-	sessionData *types.Session) (fiat float64, percentage float64, err error) {
+	sessionData *types.Session) (profit float64, profitNet float64, percentage float64, err error) {
 
 	var rows *sql.Rows
-	var fiatNullFloat64 sql.NullFloat64       /* handle null mysql returns */
+	var profitNullFloat64 sql.NullFloat64     /* handle null mysql returns */
+	var profitNetNullFloat64 sql.NullFloat64  /* handle null mysql returns */
 	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
@@ -1029,17 +1034,46 @@ func GetProfit(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return fiatNullFloat64.Float64, percentageNullFloat64.Float64, err
+		return profitNullFloat64.Float64, profitNetNullFloat64.Float64, percentageNullFloat64.Float64, err
 
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&fiatNullFloat64, &percentageNullFloat64)
+		err = rows.Scan(&profit, &profitNet, &percentage)
 	}
 
 	rows.Close()
 
-	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
+	return profit, profitNet, (percentage * 100), err
+}
+
+// GetGlobal get global data
+func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, profitPct float64, transactTime int64, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessiondata.Db.Query("call cryptopump.GetGlobal()"); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessiondata,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return 0, 0, 0, 0, err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&profit, &profitNet, &profitPct, &transactTime)
+	}
+
+	rows.Close()
+
+	return profit, profitNet, profitPct, transactTime, err
+
 }
 
 // GetGlobal get global data
