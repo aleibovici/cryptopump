@@ -1076,35 +1076,6 @@ func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, p
 
 }
 
-// GetGlobal get global data
-func GetGlobal(sessiondata *types.Session) (profit float64, profitPct float64, transactTime int64, err error) {
-
-	var rows *sql.Rows
-
-	if rows, err = sessiondata.Db.Query("call cryptopump.GetGlobal()"); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessiondata,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		return 0, 0, 0, err
-	}
-
-	for rows.Next() {
-		err = rows.Scan(&profit, &profitPct, &transactTime)
-	}
-
-	rows.Close()
-
-	return profit, profitPct, transactTime, err
-
-}
-
 // GetThreadCount Retrieve Running Thread Count
 func GetThreadCount(
 	sessionData *types.Session) (count int, err error) {
