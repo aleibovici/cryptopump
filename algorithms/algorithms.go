@@ -1072,18 +1072,28 @@ func SellDecisionTree(
 
 	}
 
-	/* Force Sell Most recent open order*/
+	/* Check for Force Sell */
 	if sessionData.ForceSell {
 
-		/* Retrieve the last 'active' BUY transaction for a Thread */
-		order.OrderID,
-			order.Price,
-			order.ExecutedQuantity,
-			order.CumulativeQuoteQuantity,
-			order.TransactTime,
-			_ = mysql.GetThreadLastTransaction(sessionData)
+		if sessionData.ForceSellOrderID != 0 { /* Force sell a specific orderID */
 
-		return true, order
+			order, err = mysql.GetOrderByOrderID(sessionData) /* Get order details */
+			sessionData.ForceSellOrderID = 0                  /* Clear Force sell OrderID */
+			return true, order
+
+		} else if sessionData.ForceSellOrderID == 0 { /* Force Sell Most recent open order*/
+
+			/* Retrieve the last 'active' BUY transaction for a Thread */
+			order.OrderID,
+				order.Price,
+				order.ExecutedQuantity,
+				order.CumulativeQuoteQuantity,
+				order.TransactTime,
+				_ = mysql.GetThreadLastTransaction(sessionData)
+
+			return true, order
+
+		}
 
 	}
 

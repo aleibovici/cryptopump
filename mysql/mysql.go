@@ -868,6 +868,46 @@ func GetThreadLastTransaction(
 
 }
 
+// GetOrderByOrderID Return order by OrderID (uses ThreadID as filter)
+func GetOrderByOrderID(
+	sessionData *types.Session) (order types.Order, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderByOrderID(?,?)",
+		sessionData.ForceSellOrderID,
+		sessionData.ThreadID); err != nil {
+
+		logger.LogEntry{
+			Config:  nil,
+			Market:  nil,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID: sessionData.ForceSellOrderID,
+			},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return types.Order{}, err
+
+	}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.CumulativeQuoteQuantity,
+			&order.TransactTime)
+	}
+
+	rows.Close()
+
+	return order, err
+
+}
+
 // GetThreadTransactiontUpmarketPriceCount function
 func GetThreadTransactiontUpmarketPriceCount(
 	sessionData *types.Session,
