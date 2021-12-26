@@ -714,7 +714,7 @@ func GetThreadTransactionDistinct(
 
 // GetOrderTransactionPending Get 1 order with pending FILLED status
 func GetOrderTransactionPending(
-	sessionData *types.Session) (orderID int64, symbol string, err error) {
+	sessionData *types.Session) (order types.Order, err error) {
 
 	var rows *sql.Rows
 
@@ -722,29 +722,27 @@ func GetOrderTransactionPending(
 		sessionData.ThreadID); err != nil {
 
 		logger.LogEntry{
-			Config:  nil,
-			Market:  nil,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID: int(orderID),
-			},
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, "", err
+		return types.Order{}, err
 
 	}
 
 	for rows.Next() {
 		err = rows.Scan(
-			&orderID,
-			&symbol)
+			&order.OrderID,
+			&order.Symbol)
 	}
 
 	rows.Close()
 
-	return orderID, symbol, err
+	return order, err
 
 }
 

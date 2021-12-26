@@ -105,22 +105,22 @@ func UpdatePendingOrders(
 	sessionData *types.Session) {
 
 	var err error
-	var orderID int64
+	var order types.Order
 	var orderStatus *types.Order
 
-	if orderID, _, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
+	if order, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
 
 		/* Cleanly exit ThreadID */
 		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 	}
 
-	if orderID != 0 {
+	if order.OrderID != 0 {
 
 		if orderStatus, err = exchange.GetOrder(
 			configData,
 			sessionData,
-			orderID); err != nil {
+			int64(order.OrderID)); err != nil {
 
 			return
 
