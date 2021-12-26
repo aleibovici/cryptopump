@@ -263,14 +263,9 @@ func isBuyUpmarket(
 	}
 
 	/* 	This function retrieve the next transaction from Thread database and verify that
-	the ticker price not half profit close to the transaction.This function avoid multiple
+	the ticker price is not half profit close to the transaction.This function avoid multiple
 	upmarket buy close to each other. */
-	if order.OrderID,
-		order.Price,
-		order.ExecutedQuantity,
-		order.CumulativeQuoteQuantity,
-		order.TransactTime,
-		err = mysql.GetThreadLastTransaction(sessionData); err != nil {
+	if order, err = mysql.GetThreadLastTransaction(sessionData); err != nil {
 
 		sessionData.BuyDecisionTreeResult = "Error"
 
@@ -1083,14 +1078,7 @@ func SellDecisionTree(
 
 		} else if sessionData.ForceSellOrderID == 0 { /* Force Sell Most recent open order*/
 
-			/* Retrieve the last 'active' BUY transaction for a Thread */
-			order.OrderID,
-				order.Price,
-				order.ExecutedQuantity,
-				order.CumulativeQuoteQuantity,
-				order.TransactTime,
-				_ = mysql.GetThreadLastTransaction(sessionData)
-
+			order, err = mysql.GetThreadLastTransaction(sessionData) /* Get order details */
 			return true, order
 
 		}
@@ -1124,12 +1112,7 @@ func SellDecisionTree(
 		if (sessionData.SymbolFiatFunds - configData.SymbolFiatStash) < configData.BuyQuantityFiatDown {
 
 			/* Retrieve the last 'active' BUY transaction for a Thread */
-			order.OrderID,
-				order.Price,
-				order.ExecutedQuantity,
-				order.CumulativeQuoteQuantity,
-				order.TransactTime,
-				_ = mysql.GetThreadLastTransaction(sessionData)
+			order, err = mysql.GetThreadLastTransaction(sessionData)
 
 			if marketData.Price < (order.Price * (1 - configData.BuyRepeatThresholdDown)) {
 
