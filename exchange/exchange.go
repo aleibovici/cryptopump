@@ -345,6 +345,17 @@ func BuyTicker(
 	/* Exit if DryRun mode set to true */
 	if configData.DryRun {
 
+		logger.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				Price: marketData.Price,
+			},
+			Message:  "BUYDRYRUN",
+			LogLevel: "InfoLevel",
+		}.Do()
+
 		return
 
 	}
@@ -519,6 +530,17 @@ func SellTicker(
 	/* Exit if DryRun mode set to true */
 	if configData.DryRun {
 
+		logger.LogEntry{
+			Config:  configData,
+			Market:  marketData,
+			Session: sessionData,
+			Order: &types.Order{
+				Price: marketData.Price,
+			},
+			Message:  "SELLDRYRUN",
+			LogLevel: "InfoLevel",
+		}.Do()
+
 		return
 
 	}
@@ -609,7 +631,7 @@ S:
 					int64(orderResponse.OrderID)); err != nil {
 
 					switch {
-					case strings.Contains(err.Error(), "-2010"), strings.Contains(err.Error(), "-2011"),strings.Contains(err.Error(), "-1021") :
+					case strings.Contains(err.Error(), "-2010"), strings.Contains(err.Error(), "-2011"), strings.Contains(err.Error(), "-1021"):
 						/* -2011 Order filled in full before cancelling */
 						/* -2010 Account has insufficient balance for requested action */
 						/* -1021 Timestamp for this request was 1000ms ahead of the server's time */
