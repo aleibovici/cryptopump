@@ -748,10 +748,10 @@ func GetOrderTransactionPending(
 
 }
 
-// GetThreadTransactionByPrice function
+// GetThreadTransactionByPrice retrieve lowest price order from Thread database
 func GetThreadTransactionByPrice(
 	marketData *types.Market,
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (order types.Order, err error) {
 
 	var rows *sql.Rows
 
@@ -760,32 +760,30 @@ func GetThreadTransactionByPrice(
 		marketData.Price); err != nil {
 
 		logger.LogEntry{
-			Config:  nil,
-			Market:  nil,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID: int(orderID),
-			},
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, 0, 0, 0, err
+		return types.Order{}, err
 
 	}
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cumulativeQuoteQty,
-			&orderID,
-			&price,
-			&executedQuantity,
-			&transactTime)
+			&order.CumulativeQuoteQuantity,
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.TransactTime)
 	}
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
+	return order, err
 
 }
 

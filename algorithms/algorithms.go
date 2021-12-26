@@ -1150,14 +1150,7 @@ func SellDecisionTree(
 	}
 
 	/* Retrieve lowest price order from Thread database */
-	if order.OrderID,
-		order.Price,
-		order.ExecutedQuantity,
-		order.CumulativeQuoteQuantity,
-		order.TransactTime,
-		err = mysql.GetThreadTransactionByPrice(
-		marketData,
-		sessionData); err != nil {
+	if order, err = mysql.GetThreadTransactionByPrice(marketData, sessionData); err != nil {
 
 		sessionData.SellDecisionTreeResult = "Error"
 
