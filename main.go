@@ -276,7 +276,18 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "sell":
 
-				fh.sessionData.ForceSell = true                   /* Force sell */
+				if r.PostFormValue("orderID") == "" { /* Check if the orderID is empty */
+
+					fh.sessionData.ForceSellOrderID = 0 /* Force sell most recent order */
+					fh.sessionData.ForceSell = true     /* Force sell */
+
+				} else {
+
+					fh.sessionData.ForceSellOrderID = functions.StrToInt(r.PostFormValue("orderID")) /* Force sell a specific orderID */
+					fh.sessionData.ForceSell = true                                                  /* Force sell */
+
+				}
+
 				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
 
 			case "configTemplate":

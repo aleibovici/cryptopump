@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `cryptopump` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `cryptopump`;
--- MySQL dump 10.13  Distrib 8.0.22, for macos10.15 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.27, for macos11 (x86_64)
 --
 -- Host: 127.0.0.1    Database: cryptopump
 -- ------------------------------------------------------
--- Server version	8.0.23
+-- Server version	8.0.27
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -55,7 +55,8 @@ CREATE TABLE `orders` (
   `ThreadID` varchar(45) NOT NULL,
   `ThreadIDSession` varchar(45) NOT NULL,
   PRIMARY KEY (`OrderID`),
-  UNIQUE KEY `OrderID_UNIQUE` (`OrderID`)
+  UNIQUE KEY `OrderID_UNIQUE` (`OrderID`),
+  KEY `orders_idx_side_status` (`Side`,`Status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -77,7 +78,7 @@ CREATE TABLE `session` (
   `Status` tinyint(1) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ThreadID_UNIQUE` (`ThreadID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1479 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1565 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +97,7 @@ CREATE TABLE `thread` (
   `Price` float NOT NULL,
   `ExecutedQuantity` float NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8928 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9028 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,6 +255,40 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetOrderByOrderID` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderByOrderID`(IN in_param_OrderID bigint, IN in_param_ThreadID varchar(45))
+BEGIN
+DECLARE declared_in_param_orderid BIGINT; 
+DECLARE declared_in_param_threadid CHAR(50); 
+SET declared_in_param_orderid = in_param_orderid; 
+SET declared_in_param_threadid = in_param_threadid;
+SELECT 
+    `orders`.`orderid` AS `OrderID`,
+    `orders`.`price` AS `Price`,
+    `orders`.`executedquantity` AS `ExecutedQuantity`,
+    `orders`.`cummulativequoteqty` AS `CummulativeQuoteQty`,
+    `orders`.`transacttime` AS `TransactTime`
+FROM
+    `orders`
+WHERE
+    (`orders`.`orderid` = declared_in_param_orderid
+        AND `orders`.`threadid` = declared_in_param_threadid)
+LIMIT 1; 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `GetOrderSymbol` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -405,13 +440,13 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `GetProfit`()
 BEGIN
-SELECT 
-	SUM(`source`.`Profit`) AS `profit`,
-    SUM(`source`.`Profit`) + (`source`.`Diff`) AS `netprofit`,
-    AVG(`source`.`Percentage`) AS `avg`
-FROM
-    (SELECT 
-        `orders`.`Side` AS `Side`,
+SELECT
+        SUM(`source`.`Profit`) AS `profit`,
+        SUM(`source`.`Profit`) + (`source`.`Diff`) AS `netprofit`,
+        AVG(`source`.`Percentage`) AS `avg` 
+    FROM
+        (SELECT
+            `orders`.`Side` AS `Side`,
             `Orders`.`Side` AS `Orders__Side`,
             `orders`.`Status` AS `Status`,
             `Orders`.`Status` AS `Orders__Status`,
@@ -419,19 +454,33 @@ FROM
             `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`,
             `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
             (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`,
-            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
-                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
-                ELSE `Orders`.`CummulativeQuoteQty`
-            END) AS `Percentage`,
-            (SELECT sum(`session`.`DiffTotal`) AS `sum` FROM `session`) AS `Diff`
-    FROM
-        `orders`
-    INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
+            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE 
+                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL 
+                ELSE `Orders`.`CummulativeQuoteQty` END) AS `Percentage`,
+(SELECT
+    sum(`session`.`DiffTotal`) AS `sum` 
+FROM
+    `session`) AS `Diff` 
+FROM
+`orders` 
+INNER JOIN
+`orders` `Orders` 
+    ON `orders`.`OrderID` = `Orders`.`OrderIDSource` 
 WHERE
-    (`source`.`Side` = 'BUY'
-        AND `source`.`Orders__Side` = 'SELL'
-        AND `source`.`Status` = 'FILLED'
-        AND `source`.`Orders__Status` = 'FILLED');
+(
+    `orders`.`Side` = 'BUY'
+) 
+AND (
+    `orders`.`Status` = 'FILLED'
+)
+) `source` 
+WHERE
+(
+1 = 1 
+AND `source`.`Orders__Side` = 'SELL' 
+AND 1 = 1 
+AND `source`.`Orders__Status` = 'FILLED'
+);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -917,4 +966,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-08 21:09:38
+-- Dump completed on 2021-12-26  8:08:18

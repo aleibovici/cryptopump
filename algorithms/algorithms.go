@@ -105,22 +105,22 @@ func UpdatePendingOrders(
 	sessionData *types.Session) {
 
 	var err error
-	var orderID int64
+	var order types.Order
 	var orderStatus *types.Order
 
-	if orderID, _, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
+	if order, err = mysql.GetOrderTransactionPending(sessionData); err != nil {
 
 		/* Cleanly exit ThreadID */
 		threads.Thread{}.Terminate(sessionData, functions.GetFunctionName()+" - "+err.Error())
 
 	}
 
-	if orderID != 0 {
+	if order.OrderID != 0 {
 
 		if orderStatus, err = exchange.GetOrder(
 			configData,
 			sessionData,
-			orderID); err != nil {
+			int64(order.OrderID)); err != nil {
 
 			return
 
@@ -263,14 +263,9 @@ func isBuyUpmarket(
 	}
 
 	/* 	This function retrieve the next transaction from Thread database and verify that
-	the ticker price not half profit close to the transaction.This function avoid multiple
+	the ticker price is not half profit close to the transaction.This function avoid multiple
 	upmarket buy close to each other. */
-	if order.OrderID,
-		order.Price,
-		order.ExecutedQuantity,
-		order.CumulativeQuoteQuantity,
-		order.TransactTime,
-		err = mysql.GetThreadLastTransaction(sessionData); err != nil {
+	if order, err = mysql.GetThreadLastTransaction(sessionData); err != nil {
 
 		sessionData.BuyDecisionTreeResult = "Error"
 
@@ -1072,18 +1067,21 @@ func SellDecisionTree(
 
 	}
 
-	/* Force Sell Most recent open order*/
+	/* Check for Force Sell */
 	if sessionData.ForceSell {
 
-		/* Retrieve the last 'active' BUY transaction for a Thread */
-		order.OrderID,
-			order.Price,
-			order.ExecutedQuantity,
-			order.CumulativeQuoteQuantity,
-			order.TransactTime,
-			_ = mysql.GetThreadLastTransaction(sessionData)
+		if sessionData.ForceSellOrderID != 0 { /* Force sell a specific orderID */
 
-		return true, order
+			order, err = mysql.GetOrderByOrderID(sessionData) /* Get order details */
+			sessionData.ForceSellOrderID = 0                  /* Clear Force sell OrderID */
+			return true, order
+
+		} else if sessionData.ForceSellOrderID == 0 { /* Force Sell Most recent open order*/
+
+			order, err = mysql.GetThreadLastTransaction(sessionData) /* Get order details */
+			return true, order
+
+		}
 
 	}
 
@@ -1114,12 +1112,7 @@ func SellDecisionTree(
 		if (sessionData.SymbolFiatFunds - configData.SymbolFiatStash) < configData.BuyQuantityFiatDown {
 
 			/* Retrieve the last 'active' BUY transaction for a Thread */
-			order.OrderID,
-				order.Price,
-				order.ExecutedQuantity,
-				order.CumulativeQuoteQuantity,
-				order.TransactTime,
-				_ = mysql.GetThreadLastTransaction(sessionData)
+			order, err = mysql.GetThreadLastTransaction(sessionData)
 
 			if marketData.Price < (order.Price * (1 - configData.BuyRepeatThresholdDown)) {
 
@@ -1157,14 +1150,7 @@ func SellDecisionTree(
 	}
 
 	/* Retrieve lowest price order from Thread database */
-	if order.OrderID,
-		order.Price,
-		order.ExecutedQuantity,
-		order.CumulativeQuoteQuantity,
-		order.TransactTime,
-		err = mysql.GetThreadTransactionByPrice(
-		marketData,
-		sessionData); err != nil {
+	if order, err = mysql.GetThreadTransactionByPrice(marketData, sessionData); err != nil {
 
 		sessionData.SellDecisionTreeResult = "Error"
 

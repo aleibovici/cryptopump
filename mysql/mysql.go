@@ -714,7 +714,7 @@ func GetThreadTransactionDistinct(
 
 // GetOrderTransactionPending Get 1 order with pending FILLED status
 func GetOrderTransactionPending(
-	sessionData *types.Session) (orderID int64, symbol string, err error) {
+	sessionData *types.Session) (order types.Order, err error) {
 
 	var rows *sql.Rows
 
@@ -722,36 +722,34 @@ func GetOrderTransactionPending(
 		sessionData.ThreadID); err != nil {
 
 		logger.LogEntry{
-			Config:  nil,
-			Market:  nil,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID: int(orderID),
-			},
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, "", err
+		return types.Order{}, err
 
 	}
 
 	for rows.Next() {
 		err = rows.Scan(
-			&orderID,
-			&symbol)
+			&order.OrderID,
+			&order.Symbol)
 	}
 
 	rows.Close()
 
-	return orderID, symbol, err
+	return order, err
 
 }
 
-// GetThreadTransactionByPrice function
+// GetThreadTransactionByPrice retrieve lowest price order from Thread database
 func GetThreadTransactionByPrice(
 	marketData *types.Market,
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (order types.Order, err error) {
 
 	var rows *sql.Rows
 
@@ -760,32 +758,30 @@ func GetThreadTransactionByPrice(
 		marketData.Price); err != nil {
 
 		logger.LogEntry{
-			Config:  nil,
-			Market:  nil,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID: int(orderID),
-			},
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, 0, 0, 0, err
+		return types.Order{}, err
 
 	}
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cumulativeQuoteQty,
-			&orderID,
-			&price,
-			&executedQuantity,
-			&transactTime)
+			&order.CumulativeQuoteQuantity,
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.TransactTime)
 	}
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
+	return order, err
 
 }
 
@@ -829,9 +825,9 @@ func GetThreadTransactionByPriceHigher(
 
 }
 
-// GetThreadLastTransaction Return the last 'active' BUY transaction for a Thread
+// GetThreadLastTransaction function returns the last BUY transaction for a Thread
 func GetThreadLastTransaction(
-	sessionData *types.Session) (orderID int, price float64, executedQuantity float64, cumulativeQuoteQty float64, transactTime int64, err error) {
+	sessionData *types.Session) (order types.Order, err error) {
 
 	var rows *sql.Rows
 
@@ -839,32 +835,70 @@ func GetThreadLastTransaction(
 		sessionData.ThreadID); err != nil {
 
 		logger.LogEntry{
-			Config:  nil,
-			Market:  nil,
-			Session: sessionData,
-			Order: &types.Order{
-				OrderID: int(orderID),
-			},
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return 0, 0, 0, 0, 0, err
+		return types.Order{}, err
 
 	}
 
 	for rows.Next() {
 		err = rows.Scan(
-			&cumulativeQuoteQty,
-			&orderID,
-			&price,
-			&executedQuantity,
-			&transactTime)
+			&order.CumulativeQuoteQuantity,
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.TransactTime)
 	}
 
 	rows.Close()
 
-	return orderID, price, executedQuantity, cumulativeQuoteQty, transactTime, err
+	return order, err
+
+}
+
+// GetOrderByOrderID Return order by OrderID (uses ThreadID as filter)
+func GetOrderByOrderID(
+	sessionData *types.Session) (order types.Order, err error) {
+
+	var rows *sql.Rows
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderByOrderID(?,?)",
+		sessionData.ForceSellOrderID,
+		sessionData.ThreadID); err != nil {
+
+		logger.LogEntry{
+			Config:  nil,
+			Market:  nil,
+			Session: sessionData,
+			Order: &types.Order{
+				OrderID: sessionData.ForceSellOrderID,
+			},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return types.Order{}, err
+
+	}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&order.OrderID,
+			&order.Price,
+			&order.ExecutedQuantity,
+			&order.CumulativeQuoteQuantity,
+			&order.TransactTime)
+	}
+
+	rows.Close()
+
+	return order, err
 
 }
 

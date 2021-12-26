@@ -81,6 +81,13 @@ func (logEntry LogEntry) Do() {
 				"orderPrice": fmt.Sprintf("%.4f", logEntry.Order.Price),
 			}).Info(logEntry.Message)
 
+		case "BUYDRYRUN":
+
+			log.WithFields(log.Fields{
+				"threadID":   logEntry.Session.ThreadID,
+				"orderPrice": fmt.Sprintf("%.4f", logEntry.Order.Price),
+			}).Info(logEntry.Message)
+
 		case "SELL":
 
 			log.WithFields(log.Fields{
@@ -88,6 +95,13 @@ func (logEntry LogEntry) Do() {
 				"OrderIDSource": logEntry.Order.OrderIDSource,
 				"orderID":       logEntry.Order.OrderID,
 				"orderPrice":    fmt.Sprintf("%.4f", logEntry.Order.Price),
+			}).Info(logEntry.Message)
+
+		case "SELLDRYRUN":
+
+			log.WithFields(log.Fields{
+				"threadID":   logEntry.Session.ThreadID,
+				"orderPrice": fmt.Sprintf("%.4f", logEntry.Order.Price),
 			}).Info(logEntry.Message)
 
 		case "CANCELED":

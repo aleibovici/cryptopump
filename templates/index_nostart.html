@@ -52,17 +52,21 @@
                 $('#divIDSessionRateCounter').html(json.Session.RateCounter);
                 $('#divIDSessionBuyDecisionTreeResult').html(json.Session.BuyDecisionTreeResult);
                 $('#divIDSessionSellDecisionTreeResult').html(json.Session.SellDecisionTreeResult);
-
+                
                 function buildHtmlTable(selector) {
                     var columns = addAllColumnHeaders(json.Session.Orders, selector);
 
                     for (var i = 0; i < json.Session.Orders.length; i++) {
                         var row$ = $('<tr/>');
+                        var orderID$ = 0; // variable for orderID sale
                         for (var colIndex = 0; colIndex < columns.length; colIndex++) {
-                        var cellValue = json.Session.Orders[i][columns[colIndex]];
-                        if (cellValue == null) cellValue = "";
-                        row$.append($('<td/>').html(cellValue));
+                            if (colIndex == 0) {orderID$ = json.Session.Orders[i][columns[colIndex]]}; // variable for orderID sale
+                            var cellValue = json.Session.Orders[i][columns[colIndex]];
+                            if (cellValue == null) cellValue = "";
+                            row$.append($('<td/>').html(cellValue));
                         }
+                        var sellButton = $('<input type="button" value="Sell" onclick="OrderSell(\'' + orderID$ + '\')"/>'); // add sell button to each row in Orders table
+                        row$.append($('<td/>').html(sellButton));
                         $(selector).append(row$);
                     }
                 }
@@ -80,6 +84,8 @@
                             }
                             }
                         }
+                    var sellHeader = $('</>Action</>'); // action header to Orders table
+                    headerTr$.append($('<th/>').html(sellHeader)); // add action header to Orders table
                     $(selector).append(headerTr$);
                     return columnSet;
                 }
@@ -87,7 +93,15 @@
                 $('#excelDataTable').empty();
                 buildHtmlTable('#excelDataTable')
                 
-            }, 1000);
+            }, 2000);
+
+            /* Submit the form with a specific orderID for sale */
+            function OrderSell(OrderID) {
+                document.getElementById('submitselect').value='sell';
+                document.getElementById('orderID').value=OrderID;
+                document.getElementById("myForm").submit();
+            }
+
         </script>
 
     </head>
@@ -164,6 +178,7 @@
                 </div>
 
                 <div class="row">
+                    
                     <div class="col text-center" style="border: 1px solid none" >{{ .HTMLSnippet }}</div>
                     
                     <div class="col-md-auto text-center" style="border: 1px solid none">
@@ -176,9 +191,10 @@
                 </div>
 
             <!-- Config Settings -->
-            <form method="POST" action="/">
+            <form name="myForm" id="myForm" method="POST" action="/">
 
                 <input type="hidden" name="submitselect" value="" id="submitselect" />
+                <input type="hidden" name="orderID" value="" id="orderID" />
 
                 <div class="container-fluid form-group">
 

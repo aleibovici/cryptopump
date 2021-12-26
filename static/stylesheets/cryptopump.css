@@ -59,7 +59,8 @@
 
 .table-wrapper {
   display: inline-block;
-  margin: 10px;
+  border: none none 1px;
+  margin: 0px;
   max-height: 400px;
   min-width: 300px;
   overflow-x: hidden;

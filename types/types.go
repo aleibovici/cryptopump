@@ -87,6 +87,7 @@ type Session struct {
 	ConfigTemplate          int
 	ForceBuy                bool                     /* This boolean when True force BUY transaction */
 	ForceSell               bool                     /* This boolean when True force SELL transaction */
+	ForceSellOrderID        int                      /* This variable stores the OrderID of ForceSell */
 	ListenKey               string                   /* Listen key for user stream service */
 	MasterNode              bool                     /* This boolean is true when Master Node is elected */
 	TgBotAPI                *tgbotapi.BotAPI         /* This variable holds Telegram session bot */

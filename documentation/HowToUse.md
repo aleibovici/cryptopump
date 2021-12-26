@@ -104,6 +104,8 @@ The higher the value, the more bullish the market needs to be in order to execut
 
 - Diff: this value indicates the difference between current transaction sale price and zero margin sale (includes exchange fee).
 
+- Action [Sell]: The Sell button allows you to execute a sale of an existing order. The 'Diff' lets you know if the order is likely to have a profitable sale or if it is underwater. The sale will occur on the spot market at current market prices.
+
 ## STATUS
 
 In the bottom right corner the system status is displayed:
@@ -141,9 +143,9 @@ In the bottom right corner the system status is displayed:
 
 - Update: write the changes made within the webui into the configuration file. 
 
-- Buy market: executes a buy order at the price in that particular moment. 
+- Buy market: Buy order. The purchase will occur on the spot market at current market prices.
 
-- Sell market: executes a sell order at the price in that particular moment, each press will sell one particular order, press multiple times to sell all. 
+- Sell market: Sell the top order in the orders table. The sale will occur on the spot market at current market prices.
 
 
 ### TELEGRAM:
