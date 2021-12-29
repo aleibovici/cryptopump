@@ -160,9 +160,17 @@ func binanceGetClient(
 	binance.WebsocketKeepalive = false
 	binance.WebsocketTimeout = time.Second * 30
 
-	/* Exchange test network, used with launch.json */
 	/* If the -test.v flag is set, the test database is used */
-	if configData.TestNet || flag.Lookup("test.v") != nil {
+	if flag.Lookup("test.v") != nil {
+
+		configData.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
+		configData.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
+		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+
+	}
+
+	/* Exchange test network, used with launch.json */
+	if configData.TestNet {
 
 		binance.UseTestnet = true
 		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
