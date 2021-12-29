@@ -5,7 +5,9 @@ language: go
 go:
   - 1.17.x
 
-# Only clone the most recent commit.
+#git:
+#  depth: 3
+# Or remove the --depth flag entirely with:
 git:
   depth: false
 
@@ -31,5 +33,4 @@ env:
 # failing test, we want to see both. Configure golangci-lint with a
 # .golangci.yml file at the top level of your repo.
 script:
-  - golangci-lint run       # run a bunch of code checkers/linters in parallel
-  - go test -v -race ./...  # Run all the tests with the race detector enabled
+  - go test -v ./...  # Run all the tests with the race detector enabled
