@@ -356,68 +356,6 @@ func SaveGlobal(
 
 }
 
-// UpdateGlobal Update global settings
-func UpdateGlobal(
-	sessionData *types.Session) (err error) {
-
-	var rows *sql.Rows
-
-	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?,?)",
-		sessionData.Global.Profit,
-		sessionData.Global.ProfitNet,
-		sessionData.Global.ProfitPct,
-		time.Now().Unix()); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		return err
-
-	}
-
-	rows.Close()
-
-	return nil
-
-}
-
-// SaveGlobal Save initial global settings
-func SaveGlobal(
-	sessionData *types.Session) (err error) {
-
-	var rows *sql.Rows
-
-	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?,?)",
-		sessionData.Global.Profit,
-		sessionData.Global.ProfitNet,
-		sessionData.Global.ProfitPct,
-		time.Now().Unix()); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-		return err
-
-	}
-
-	rows.Close()
-
-	return nil
-
-}
-
 // SaveSession Save new session to Session table.
 func SaveSession(
 	configData *types.Config,
