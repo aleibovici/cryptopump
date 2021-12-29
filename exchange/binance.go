@@ -2,6 +2,8 @@ package exchange
 
 import (
 	"context"
+	"flag"
+	"os"
 	"time"
 
 	"github.com/aleibovici/cryptopump/functions"
@@ -158,6 +160,23 @@ func binanceGetClient(
 
 	binance.WebsocketKeepalive = false
 	binance.WebsocketTimeout = time.Second * 30
+
+	/* If TRAVIS flag is set, the testnet API is used */
+	if os.Getenv("TRAVIS") == "true" {
+
+		configData.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
+		configData.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
+		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+
+	}
+
+	/* If the -test.v flag is set, the testnet API is used */
+	if flag.Lookup("test.v") != nil {
+
+		binance.UseTestnet = true
+		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+
+	}
 
 	/* Exchange test network, used with launch.json */
 	if configData.TestNet {

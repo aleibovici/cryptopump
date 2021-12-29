@@ -74,46 +74,6 @@ func TestGetClient(t *testing.T) {
 	}
 }
 
-func TestBuyOrder(t *testing.T) {
-	type args struct {
-		configData  *types.Config
-		sessionData *types.Session
-		quantity    string
-	}
-
-	tests := []struct {
-		name      string
-		args      args
-		wantOrder *types.Order
-		wantErr   bool
-	}{
-		{
-			name: "success",
-			args: args{
-				quantity:    functions.Float64ToStr(getBuyQuantity(marketData, sessionData, 100), 4),
-				configData:  configData,
-				sessionData: sessionData,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotOrder, err := BuyOrder(tt.args.configData, tt.args.sessionData, tt.args.quantity)
-			if err == nil {
-				return
-			}
-			if (err != nil) != tt.wantErr {
-				t.Errorf("BuyOrder() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotOrder, tt.wantOrder) {
-				t.Errorf("BuyOrder() = %v, want %v", gotOrder, tt.wantOrder)
-			}
-		})
-	}
-}
-
 func TestGetInfo(t *testing.T) {
 	type args struct {
 		configData  *types.Config
@@ -174,81 +134,6 @@ func TestGetLotSize(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			GetLotSize(tt.args.configData, tt.args.sessionData)
-		})
-	}
-}
-
-func TestGetSymbolFiatFunds(t *testing.T) {
-	type args struct {
-		configData  *types.Config
-		sessionData *types.Session
-	}
-
-	tests := []struct {
-		name        string
-		args        args
-		wantBalance float64
-		wantErr     bool
-	}{
-		{
-			name: "success",
-			args: args{
-				configData:  configData,
-				sessionData: sessionData,
-			},
-			wantBalance: 1,
-			wantErr:     false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotBalance, err := GetSymbolFiatFunds(tt.args.configData, tt.args.sessionData)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetSymbolFiatFunds() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotBalance < tt.wantBalance {
-				t.Errorf("GetSymbolFiatFunds() = %v, want %v", gotBalance, tt.wantBalance)
-			}
-		})
-	}
-}
-
-func TestGetSymbolFunds(t *testing.T) {
-	type args struct {
-		configData  *types.Config
-		sessionData *types.Session
-	}
-
-	tests := []struct {
-		name        string
-		args        args
-		wantBalance float64
-		wantErr     bool
-	}{
-		{
-			name: "success",
-			args: args{
-				configData:  configData,
-				sessionData: sessionData,
-			},
-			wantBalance: 0,
-			wantErr:     false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotBalance, err := GetSymbolFunds(tt.args.configData, tt.args.sessionData)
-			if (err != nil) != tt.wantErr && gotBalance > tt.wantBalance {
-				return
-			}
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetSymbolFunds() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotBalance < tt.wantBalance {
-				t.Errorf("GetSymbolFunds() = %v, want %v", gotBalance, tt.wantBalance)
-			}
 		})
 	}
 }
@@ -333,35 +218,6 @@ func TestGetPriceChangeStats(t *testing.T) {
 	}
 }
 
-func Test_getSellQuantity(t *testing.T) {
-	type args struct {
-		order       types.Order
-		sessionData *types.Session
-	}
-
-	tests := []struct {
-		name         string
-		args         args
-		wantQuantity float64
-	}{
-		{
-			name: "success",
-			args: args{
-				order:       types.Order{},
-				sessionData: sessionData,
-			},
-			wantQuantity: 0,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if gotQuantity := getSellQuantity(tt.args.order, tt.args.sessionData); gotQuantity != tt.wantQuantity {
-				t.Errorf("getSellQuantity() = %v, want %v", gotQuantity, tt.wantQuantity)
-			}
-		})
-	}
-}
-
 func TestGetUserStreamServiceListenKey(t *testing.T) {
 	type args struct {
 		configData  *types.Config
@@ -422,50 +278,6 @@ func TestKeepAliveUserStreamServiceListenKey(t *testing.T) {
 	}
 }
 
-func TestSellOrder(t *testing.T) {
-	type args struct {
-		configData  *types.Config
-		marketData  *types.Market
-		sessionData *types.Session
-		quantity    string
-	}
-
-	tests := []struct {
-		name      string
-		args      args
-		wantOrder *types.Order
-		wantErr   bool
-	}{
-		{
-			name: "success",
-			args: args{
-				configData:  configData,
-				marketData:  marketData,
-				sessionData: sessionData,
-				quantity:    functions.Float64ToStr(getBuyQuantity(marketData, sessionData, 100), 4),
-			},
-			wantOrder: &types.Order{},
-			wantErr:   false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotOrder, err := SellOrder(tt.args.configData, tt.args.marketData, tt.args.sessionData, tt.args.quantity)
-			if err == nil {
-				return
-			}
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SellOrder() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(gotOrder, tt.wantOrder) {
-				t.Errorf("SellOrder() = %v, want %v", gotOrder, tt.wantOrder)
-			}
-		})
-	}
-}
-
 func TestNewSetServerTimeService(t *testing.T) {
 	type args struct {
 		configData  *types.Config
@@ -489,6 +301,57 @@ func TestNewSetServerTimeService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := NewSetServerTimeService(tt.args.configData, tt.args.sessionData); (err != nil) != tt.wantErr {
 				t.Errorf("NewSetServerTimeService() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_getSellQuantity(t *testing.T) {
+	type args struct {
+		order       types.Order
+		sessionData *types.Session
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantQuantity float64
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotQuantity := getSellQuantity(tt.args.order, tt.args.sessionData); gotQuantity != tt.wantQuantity {
+				t.Errorf("getSellQuantity() = %v, want %v", gotQuantity, tt.wantQuantity)
+			}
+		})
+	}
+}
+
+func Test_getBuyQuantity(t *testing.T) {
+	type args struct {
+		marketData   *types.Market
+		sessionData  *types.Session
+		fiatQuantity float64
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantQuantity float64
+	}{
+		{
+			name: "success",
+			args: args{
+				marketData:   marketData,
+				sessionData:  sessionData,
+				fiatQuantity: 0,
+			},
+			wantQuantity: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotQuantity := getBuyQuantity(tt.args.marketData, tt.args.sessionData, tt.args.fiatQuantity); gotQuantity != tt.wantQuantity {
+				t.Errorf("getBuyQuantity() = %v, want %v", gotQuantity, tt.wantQuantity)
 			}
 		})
 	}

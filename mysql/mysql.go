@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"math"
 	"os"
@@ -160,7 +161,11 @@ func SaveOrder(
 	orderIDSource int64, /* OrderIDSource */
 	orderPrice float64 /* OrderPrice */) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveOrder(?,?,?,?,?,?,?,?,?,?,?,?)",
 		order.ClientOrderID,
@@ -192,7 +197,7 @@ func SaveOrder(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -207,7 +212,11 @@ func UpdateOrder(
 	Price float64,
 	Status string) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.UpdateOrder(?,?,?,?,?)",
 		OrderID,
@@ -232,7 +241,7 @@ func UpdateOrder(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -243,7 +252,11 @@ func UpdateSession(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.UpdateSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
@@ -267,7 +280,77 @@ func UpdateSession(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
+
+	return nil
+
+}
+
+// UpdateGlobal Update global settings
+func UpdateGlobal(
+	sessionData *types.Session) (err error) {
+
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
+
+	if rows, err = sessionData.Db.Query("call cryptopump.UpdateGlobal(?,?,?,?)",
+		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
+		sessionData.Global.ProfitPct,
+		time.Now().Unix()); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return err
+
+	}
+
+	defer rows.Close() /* Close rows */
+
+	return nil
+
+}
+
+// SaveGlobal Save initial global settings
+func SaveGlobal(
+	sessionData *types.Session) (err error) {
+
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
+
+	if rows, err = sessionData.Db.Query("call cryptopump.SaveGlobal(?,?,?,?)",
+		sessionData.Global.Profit,
+		sessionData.Global.ProfitNet,
+		sessionData.Global.ProfitPct,
+		time.Now().Unix()); err != nil {
+
+		logger.LogEntry{
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		return err
+
+	}
+
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -340,7 +423,11 @@ func SaveSession(
 	configData *types.Config,
 	sessionData *types.Session) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveSession(?,?,?,?,?,?,?)",
 		sessionData.ThreadID,
@@ -364,7 +451,7 @@ func SaveSession(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -374,7 +461,11 @@ func SaveSession(
 func DeleteSession(
 	sessionData *types.Session) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteSession(?)",
 		sessionData.ThreadID); err != nil {
@@ -392,7 +483,7 @@ func DeleteSession(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -402,7 +493,11 @@ func DeleteSession(
 func GetSessionStatus(
 	sessionData *types.Session) (threadID string, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetSessionStatus()"); err != nil {
 
@@ -427,7 +522,7 @@ func GetSessionStatus(
 		}
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return threadID, nil
 
@@ -441,7 +536,11 @@ func SaveThreadTransaction(
 	Price float64,
 	ExecutedQuantity float64) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.SaveThreadTransaction(?,?,?,?,?,?)",
 		sessionData.ThreadID,
@@ -467,7 +566,7 @@ func SaveThreadTransaction(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -478,7 +577,11 @@ func DeleteThreadTransactionByOrderID(
 	sessionData *types.Session,
 	orderID int) (err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteThreadTransactionByOrderID(?)",
 		orderID); err != nil {
@@ -498,7 +601,7 @@ func DeleteThreadTransactionByOrderID(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return nil
 
@@ -508,7 +611,11 @@ func DeleteThreadTransactionByOrderID(
 func GetThreadTransactionCount(
 	sessionData *types.Session) (count int, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionCount(?)",
 		sessionData.ThreadID); err != nil {
@@ -530,7 +637,7 @@ func GetThreadTransactionCount(
 		err = rows.Scan(&count)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return count, err
 
@@ -541,7 +648,11 @@ func GetLastOrderTransactionPrice(
 	sessionData *types.Session,
 	Side string) (price float64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetLastOrderTransactionPrice(?,?)",
 		sessionData.ThreadID,
@@ -564,7 +675,7 @@ func GetLastOrderTransactionPrice(
 		err = rows.Scan(&price)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return price, err
 
@@ -574,7 +685,11 @@ func GetLastOrderTransactionPrice(
 func GetLastOrderTransactionSide(
 	sessionData *types.Session) (side string, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetLastOrderTransactionSide(?)",
 		sessionData.ThreadID); err != nil {
@@ -596,7 +711,7 @@ func GetLastOrderTransactionSide(
 		err = rows.Scan(&side)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return side, err
 
@@ -606,7 +721,11 @@ func GetLastOrderTransactionSide(
 func GetOrderTransactionSideLastTwo(
 	sessionData *types.Session) (side1 string, side2 string, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionSideLastTwo(?)",
 		sessionData.ThreadID); err != nil {
@@ -628,7 +747,7 @@ func GetOrderTransactionSideLastTwo(
 		err = rows.Scan(&side1, &side2)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return side1, side2, err
 
@@ -638,7 +757,11 @@ func GetOrderTransactionSideLastTwo(
 func GetOrderSymbol(
 	sessionData *types.Session) (symbol string, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderSymbol(?)",
 		sessionData.ThreadID); err != nil {
@@ -660,7 +783,7 @@ func GetOrderSymbol(
 		err = rows.Scan(&symbol)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return symbol, err
 
@@ -670,7 +793,11 @@ func GetOrderSymbol(
 func GetThreadTransactionDistinct(
 	sessionData *types.Session) (threadID string, threadIDSession string, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionDistinct()"); err != nil {
 
@@ -706,7 +833,7 @@ func GetThreadTransactionDistinct(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return threadID, threadIDSession, err
 
@@ -716,7 +843,11 @@ func GetThreadTransactionDistinct(
 func GetOrderTransactionPending(
 	sessionData *types.Session) (order types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionPending(?)",
 		sessionData.ThreadID); err != nil {
@@ -740,7 +871,7 @@ func GetOrderTransactionPending(
 			&order.Symbol)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return order, err
 
@@ -751,7 +882,11 @@ func GetThreadTransactionByPrice(
 	marketData *types.Market,
 	sessionData *types.Session) (order types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByPrice(?,?)",
 		sessionData.ThreadID,
@@ -779,7 +914,7 @@ func GetThreadTransactionByPrice(
 			&order.TransactTime)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return order, err
 
@@ -791,7 +926,11 @@ func GetThreadTransactionByPriceHigher(
 	marketData *types.Market,
 	sessionData *types.Session) (order types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByPriceHigher(?,?)",
 		sessionData.ThreadID,
@@ -819,7 +958,7 @@ func GetThreadTransactionByPriceHigher(
 			&order.TransactTime)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return order, err
 
@@ -829,7 +968,11 @@ func GetThreadTransactionByPriceHigher(
 func GetThreadLastTransaction(
 	sessionData *types.Session) (order types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadLastTransaction(?)",
 		sessionData.ThreadID); err != nil {
@@ -856,7 +999,7 @@ func GetThreadLastTransaction(
 			&order.TransactTime)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return order, err
 
@@ -866,7 +1009,11 @@ func GetThreadLastTransaction(
 func GetOrderByOrderID(
 	sessionData *types.Session) (order types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderByOrderID(?,?)",
 		sessionData.ForceSellOrderID,
@@ -896,7 +1043,7 @@ func GetOrderByOrderID(
 			&order.TransactTime)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return order, err
 
@@ -907,7 +1054,11 @@ func GetThreadTransactiontUpmarketPriceCount(
 	sessionData *types.Session,
 	price float64) (count int, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactiontUpmarketPriceCount(?,?)",
 		sessionData.ThreadID,
@@ -930,7 +1081,7 @@ func GetThreadTransactiontUpmarketPriceCount(
 		err = rows.Scan(&count)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return count, err
 
@@ -941,7 +1092,11 @@ func GetOrderTransactionCount(
 	sessionData *types.Session,
 	side string) (count float64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionCount(?,?,?)",
 		sessionData.ThreadID,
@@ -965,7 +1120,7 @@ func GetOrderTransactionCount(
 		err = rows.Scan(&count)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return count, err
 
@@ -975,7 +1130,11 @@ func GetOrderTransactionCount(
 func GetThreadTransactionByThreadID(
 	sessionData *types.Session) (orders []types.Order, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	order := types.Order{}
 
@@ -1009,7 +1168,7 @@ func GetThreadTransactionByThreadID(
 
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return orders, err
 
@@ -1018,9 +1177,13 @@ func GetThreadTransactionByThreadID(
 // GetProfitByThreadID retrieve total and average percentage profit by ThreadID
 func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage float64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows                        /* Rows */
 	var fiatNullFloat64 sql.NullFloat64       /* handle null mysql returns */
 	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfitByThreadID(?)",
 		sessionData.ThreadID); err != nil {
@@ -1042,7 +1205,7 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 		err = rows.Scan(&fiatNullFloat64, &percentageNullFloat64)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return fiatNullFloat64.Float64, (percentageNullFloat64.Float64 * 100), err
 
@@ -1052,10 +1215,14 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 func GetProfit(
 	sessionData *types.Session) (profit float64, profitNet float64, percentage float64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows                        /* Rows */
 	var profitNullFloat64 sql.NullFloat64     /* handle null mysql returns */
 	var profitNetNullFloat64 sql.NullFloat64  /* handle null mysql returns */
 	var percentageNullFloat64 sql.NullFloat64 /* handle null mysql returns */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
 
@@ -1076,22 +1243,26 @@ func GetProfit(
 		err = rows.Scan(&profit, &profitNet, &percentage)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return profit, profitNet, (percentage * 100), err
 }
 
 // GetGlobal get global data
-func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, profitPct float64, transactTime int64, err error) {
+func GetGlobal(sessionData *types.Session) (profit float64, profitNet float64, profitPct float64, transactTime int64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
 
-	if rows, err = sessiondata.Db.Query("call cryptopump.GetGlobal()"); err != nil {
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
+
+	if rows, err = sessionData.Db.Query("call cryptopump.GetGlobal()"); err != nil {
 
 		logger.LogEntry{
 			Config:   nil,
 			Market:   nil,
-			Session:  sessiondata,
+			Session:  sessionData,
 			Order:    &types.Order{},
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
@@ -1104,7 +1275,7 @@ func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, p
 		err = rows.Scan(&profit, &profitNet, &profitPct, &transactTime)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return profit, profitNet, profitPct, transactTime, err
 
@@ -1114,7 +1285,11 @@ func GetGlobal(sessiondata *types.Session) (profit float64, profitNet float64, p
 func GetThreadCount(
 	sessionData *types.Session) (count int, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows /* Rows */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadCount()"); err != nil {
 
@@ -1135,7 +1310,7 @@ func GetThreadCount(
 		err = rows.Scan(&count)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return count, err
 
@@ -1145,8 +1320,12 @@ func GetThreadCount(
 func GetThreadAmount(
 	sessionData *types.Session) (amount float64, err error) {
 
-	var rows *sql.Rows
+	var rows *sql.Rows                    /* Rows */
 	var amountNullFloat64 sql.NullFloat64 /* handle null mysql returns */
+
+	if flag.Lookup("test.v") != nil { /* If the -test.v flag is set, the test database is used */
+		sessionData.Db.Begin() /* Start transaction */
+	}
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionAmount()"); err != nil {
 
@@ -1167,7 +1346,7 @@ func GetThreadAmount(
 		err = rows.Scan(&amountNullFloat64)
 	}
 
-	rows.Close()
+	defer rows.Close() /* Close rows */
 
 	return math.Round(amountNullFloat64.Float64*100) / 100, err
 
