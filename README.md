@@ -2,6 +2,7 @@
 
 CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed and flexibility.
 
+[![Build Status](https://app.travis-ci.com/aleibovici/cryptopump.svg?branch=main)](https://app.travis-ci.com/aleibovici/cryptopump)
 [![Go Report Card](https://goreportcard.com/badge/github.com/aleibovici/cryptopump)](https://goreportcard.com/report/github.com/aleibovici/cryptopump)
 [![Coverage Status](https://coveralls.io/repos/github/aleibovici/cryptopump/badge.svg?branch=main)](https://coveralls.io/github/aleibovici/cryptopump?branch=main)
 [![Codacy Security Scan](https://github.com/aleibovici/cryptopump/actions/workflows/codacy-analysis.yml/badge.svg?branch=main)](https://github.com/aleibovici/cryptopump/actions/workflows/codacy-analysis.yml)
