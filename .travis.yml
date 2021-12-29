@@ -16,7 +16,6 @@ branches:
   only:
   - main
   - beta
-  - features
 
 # Skip the install step. Don't `go get` dependencies. Only build with the code
 # in vendor/
