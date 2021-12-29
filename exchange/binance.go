@@ -2,6 +2,7 @@ package exchange
 
 import (
 	"context"
+	"flag"
 	"time"
 
 	"github.com/aleibovici/cryptopump/functions"
@@ -160,7 +161,8 @@ func binanceGetClient(
 	binance.WebsocketTimeout = time.Second * 30
 
 	/* Exchange test network, used with launch.json */
-	if configData.TestNet {
+	/* If the -test.v flag is set, the test database is used */
+	if configData.TestNet || flag.Lookup("test.v") != nil {
 
 		binance.UseTestnet = true
 		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
