@@ -20,20 +20,8 @@ type LogEntry struct {
 	LogLevel string         /* Logrus log level */
 }
 
-// Do is LogEntry method to run system logging
-func (logEntry LogEntry) Do() {
-
-	var err error
-	var filename string
-	var file *os.File
-
-	/* Log as JSON instead of the default ASCII formatter */
-	log.SetFormatter(&log.TextFormatter{
-		DisableColors:   false,
-		TimestampFormat: "2006-01-02 15:04:05",
-		FullTimestamp:   true,
-		DisableSorting:  false,
-	})
+/* Level define log filename and the log level for the log entry */
+func (logEntry LogEntry) level() (filename string) {
 
 	/* Define the log level for the entry */
 	switch strings.ToLower(logEntry.LogLevel) {
@@ -48,14 +36,40 @@ func (logEntry LogEntry) Do() {
 		filename = "cryptopump_debug.log"
 	}
 
-	/* io.Writer output set for file */
-	if file, err = os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666); err != nil {
+	return filename
 
-		log.Fatal(err)
+}
+
+/* Set the log formatter */
+func (logEntry LogEntry) formatter() {
+
+	/* Log as JSON instead of the default ASCII formatter */
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors:   false,
+		TimestampFormat: "2006-01-02 15:04:05",
+		FullTimestamp:   true,
+		DisableSorting:  false,
+	})
+
+}
+
+// Do is LogEntry method to run system logging
+func (logEntry LogEntry) Do() {
+
+	var err error
+	var file *os.File
+
+	logEntry.formatter()         /* Set the log formatter */
+	filename := logEntry.level() /* Define the log level for the entry */
+
+	/* io.Writer output set for file */
+	if file, err = os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666); err != nil { /* Open the file */
+
+		log.Fatal(err) /* Log the error */
 
 	}
 
-	log.SetOutput(file)
+	log.SetOutput(file) /* Set the output for the logger */
 
 	switch {
 	case log.StandardLogger().GetLevel() == log.InfoLevel:
