@@ -934,7 +934,7 @@ func WsBookTicker(
 func BuyDecisionTree(
 	configData *types.Config,
 	marketData *types.Market,
-	sessionData *types.Session) (bool, float64) {
+	sessionData *types.Session) (is bool, buyQuantityFiat float64) {
 
 	/* Protect against the exchange sending zeroed ticker pricing (seen in few occasions with Binance TestNet)*/
 	if marketData.Price == 0 {
@@ -1055,10 +1055,9 @@ func BuyDecisionTree(
 func SellDecisionTree(
 	configData *types.Config,
 	marketData *types.Market,
-	sessionData *types.Session) (bool, types.Order) {
+	sessionData *types.Session) (is bool, order types.Order) {
 
 	var err error
-	var order types.Order
 
 	/* Return false if no transactions found */
 	if sessionData.ThreadCount == 0 {
