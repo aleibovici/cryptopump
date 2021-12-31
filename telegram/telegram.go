@@ -38,6 +38,7 @@ func (message Message) Send(sessionData *types.Session) {
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
+		
 	}
 
 }

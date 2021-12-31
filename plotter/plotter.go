@@ -72,10 +72,12 @@ func (d Data) Plot(sessionData *types.Session) (htmlSnippet template.HTML) {
 }
 
 func renderToHTML(c interface{}) template.HTML {
+
 	var buf bytes.Buffer
-	r := c.(chartrender.Renderer)
-	err := r.Render(&buf)
-	if err != nil {
+
+	r := c.(chartrender.Renderer) /* interface{} to Renderer */
+
+	if err := r.Render(&buf); err != nil { /* Render to buffer */
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
@@ -86,10 +88,11 @@ func renderToHTML(c interface{}) template.HTML {
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		return ""
+		return "" /* Return empty string */
+
 	}
 
-	return template.HTML(buf.String())
+	return template.HTML(buf.String()) /* Return rendered HTML */
 }
 
 /* Create a base KLine Chart */
