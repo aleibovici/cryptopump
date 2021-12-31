@@ -248,11 +248,8 @@ func binanceNewSetServerTimeService(
 
 }
 
-/* Retrieve symbol fiat funds available */
-func binanceGetSymbolFiatFunds(
-	sessionData *types.Session) (balance float64, err error) {
-
-	var account *binance.Account
+/* Get account */
+func binanceGetAccount(sessionData *types.Session) (account *binance.Account, err error) {
 
 	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
 
@@ -265,15 +262,29 @@ func binanceGetSymbolFiatFunds(
 			LogLevel: "DebugLevel",
 		}.Do()
 
+	}
+
+	return account, err
+
+}
+
+/* Retrieve symbol fiat funds available */
+func binanceGetSymbolFiatFunds(
+	sessionData *types.Session) (balance float64, err error) {
+
+	var account *binance.Account
+
+	if account, err = binanceGetAccount(sessionData); err != nil {
+
 		return 0, err
 
 	}
 
-	for key := range account.Balances {
+	for key := range account.Balances { /* Loop through balances */
 
-		if account.Balances[key].Asset == sessionData.SymbolFiat {
+		if account.Balances[key].Asset == sessionData.SymbolFiat { /* If the balance is the fiat balance */
 
-			return functions.StrToFloat64(account.Balances[key].Free), err
+			return functions.StrToFloat64(account.Balances[key].Free), err /* Return balance */
 
 		}
 
@@ -289,26 +300,17 @@ func binanceGetSymbolFunds(
 
 	var account *binance.Account
 
-	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
-
-		logger.LogEntry{
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
+	if account, err = binanceGetAccount(sessionData); err != nil {
 
 		return 0, err
 
 	}
 
-	for key := range account.Balances {
+	for key := range account.Balances { /* Loop through balances */
 
-		if account.Balances[key].Asset == sessionData.Symbol[0:3] {
+		if account.Balances[key].Asset == sessionData.Symbol[0:3] { /* Check if asset is correct */
 
-			return functions.StrToFloat64(account.Balances[key].Free), err
+			return functions.StrToFloat64(account.Balances[key].Free), err /* Return balance */
 
 		}
 
