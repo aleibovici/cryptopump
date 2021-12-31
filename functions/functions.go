@@ -31,7 +31,7 @@ func StrToFloat64(value string) (r float64) {
 
 	if r, err = strconv.ParseFloat(value, 8); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -69,7 +69,7 @@ func StrToInt(value string) (r int) {
 
 	if r, err = strconv.Atoi(value); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -91,7 +91,7 @@ func MustGetenv(k string) string {
 	v := os.Getenv(k)
 	if v == "" {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -132,7 +132,7 @@ func stringToTime(str string) (r time.Time) {
 
 	if r, err = time.Parse(time.Kitchen, str); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -223,7 +223,7 @@ func ExecuteTemplate(
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   nil,
 				Market:   nil,
 				Session:  nil,
@@ -286,7 +286,7 @@ func DeleteConfigFile(sessionData *types.Session) {
 
 	if err := os.Remove(path + filename); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -319,7 +319,7 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
@@ -337,7 +337,7 @@ func GetConfigData(
 			/* Create new ThreadID config file and load configuration */
 			if err := viper.WriteConfigAs(writePath + filename); err != nil {
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
@@ -352,7 +352,7 @@ func GetConfigData(
 
 			if err := viper.ReadInConfig(); err != nil {
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
 					Market:   nil,
 					Session:  nil,
@@ -392,7 +392,7 @@ func getConfigTemplateList(sessionData *types.Session) []string {
 
 	if err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -432,7 +432,7 @@ func LoadConfigTemplate(
 	viper.SetConfigFile("./config/" + filename)
 	if err := viper.ReadInConfig(); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -448,7 +448,7 @@ func LoadConfigTemplate(
 	viper.SetConfigFile(filenameOld)
 	if err := viper.ReadInConfig(); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -561,7 +561,7 @@ func SaveConfigData(
 
 	if err := viper.WriteConfig(); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,

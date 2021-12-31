@@ -19,7 +19,7 @@ func (Thread) Terminate(sessionData *types.Session, message string) {
 
 	if message != "" {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -50,7 +50,7 @@ func (Thread) Terminate(sessionData *types.Session, message string) {
 	/* Delete session from Session table */
 	if err := mysql.DeleteSession(sessionData); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -61,7 +61,7 @@ func (Thread) Terminate(sessionData *types.Session, message string) {
 
 	} else {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -116,7 +116,7 @@ func (Thread) Unlock(sessionData *types.Session) {
 
 	if err := os.Remove(sessionData.ThreadID + ".lock"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,

@@ -77,7 +77,7 @@ func renderToHTML(c interface{}) template.HTML {
 	err := r.Render(&buf)
 	if err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,

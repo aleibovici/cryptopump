@@ -46,9 +46,7 @@ func init() {
 
 	if err := viper.ReadInConfig(); err != nil {
 
-		fmt.Println("Failed to read configuration file")
-
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -82,6 +80,7 @@ func main() {
 		ConfigTemplate:          0,
 		ForceBuy:                false,
 		ForceSell:               false,
+		ForceSellOrderID:        0,
 		ListenKey:               "",
 		MasterNode:              false,
 		TgBotAPI:                &tgbotapi.BotAPI{},
@@ -97,6 +96,9 @@ func main() {
 		Latency:                 0,
 		Status:                  false,
 		RateCounter:             ratecounter.NewRateCounter(5 * time.Second),
+		BuyDecisionTreeResult:   "",
+		SellDecisionTreeResult:  "",
+		QuantityOffsetFlag:      false,
 		DiffTotal:               0,
 		Global:                  &types.Global{},
 	}
@@ -112,6 +114,8 @@ func main() {
 		Direction:                 0,
 		TimeStamp:                 time.Time{},
 		Series:                    &techan.TimeSeries{},
+		Ma7:                       0,
+		Ma14:                      0,
 	}
 
 	configData := &types.Config{}
@@ -163,7 +167,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			if tmp, err = loader.LoadSessionDataAdditionalComponents(fh.sessionData, fh.marketData, fh.configData); err != nil { /* Load dynamic components for javascript autoloader for html output */
 
-				logger.LogEntry{ /* Log error */
+				logger.LogEntry{ /* Log Entry */
 					Config:   fh.configData,
 					Market:   fh.marketData,
 					Session:  fh.sessionData,
@@ -178,7 +182,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			if _, err := w.Write(tmp); err != nil { /* Write writes the data to the connection as part of an HTTP reply. */
 
-				logger.LogEntry{ /* Log error */
+				logger.LogEntry{ /* Log Entry */
 					Config:   fh.configData,
 					Market:   fh.marketData,
 					Session:  fh.sessionData,
@@ -201,7 +205,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			/* This function reads and parse the html form */
 			if err := r.ParseForm(); err != nil {
 
-				logger.LogEntry{ /* Logging */
+				logger.LogEntry{ /* Log Entry */
 					Config:   fh.configData,
 					Market:   nil,
 					Session:  fh.sessionData,
@@ -219,11 +223,13 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			switch r.PostFormValue("submitselect") {
 			case "new":
 
-				/* Spawn a new process  */
-				path, err := os.Executable() /* Get the path of the executable */
-				if err != nil {
+				var path string /* Path to the executable */
+				var err error
 
-					logger.LogEntry{ /* Log the error */
+				/* Spawn a new process  */
+				if path, err = os.Executable(); err != nil { /* Get the path of the executable */
+
+					logger.LogEntry{ /* Log Entry */
 						Config:   fh.configData,
 						Market:   nil,
 						Session:  fh.sessionData,
@@ -238,10 +244,9 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 				cmd.Stdout = os.Stdout    /* Redirect stdout to os.Stdout */
 				cmd.Stderr = os.Stderr    /* Redirect stderr to os.Stderr */
 
-				err = cmd.Start() /* Start the new process */
-				if err != nil {
+				if err = cmd.Start(); err != nil { /* Start the new process */
 
-					logger.LogEntry{ /* Log the error */
+					logger.LogEntry{ /* Log error */
 						Config:   fh.configData,
 						Market:   nil,
 						Session:  fh.sessionData,
@@ -395,18 +400,7 @@ func execution(
 	/* Retrieve available symbol funds
 	This is only used for retrieving balances for the first time, ans is then followed by
 	the Websocket routine to retrieve realtime user data  */
-	if sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData); err != nil { /* GetSymbolFunds returns an error if the connection to the exchange is not successful */
-
-		logger.LogEntry{ /* Log Entry */
-			Config:   nil,
-			Market:   nil,
-			Session:  sessionData,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-	}
+	sessionData.SymbolFunds, err = exchange.GetSymbolFunds(configData, sessionData)
 
 	/* Retrieve exchange lot size for ticker and store in sessionData */
 	exchange.GetLotSize(configData, sessionData)
@@ -435,18 +429,7 @@ func execution(
 		}
 
 		/* Update ThreadCount */
-		if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil { /* GetThreadTransactionCount returns an error if the connection to the database is not successful */
-
-			logger.LogEntry{ /* Log Entry */
-				Config:   configData,
-				Market:   marketData,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
-
-		}
+		sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData)
 
 		/* Update Number of Sale Transactions per hour */
 		sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")

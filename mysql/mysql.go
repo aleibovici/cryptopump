@@ -47,7 +47,7 @@ func DBInit() *sql.DB {
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   nil,
 				Market:   nil,
 				Session:  nil,
@@ -181,7 +181,7 @@ func SaveOrder(
 		sessionData.ThreadID,
 		sessionData.ThreadIDSession); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -225,7 +225,7 @@ func UpdateOrder(
 		Price,
 		Status); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -267,7 +267,7 @@ func UpdateSession(
 		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
@@ -302,7 +302,7 @@ func UpdateGlobal(
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -337,7 +337,7 @@ func SaveGlobal(
 		sessionData.Global.ProfitPct,
 		time.Now().Unix()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -376,7 +376,7 @@ func SaveSession(
 		sessionData.DiffTotal,
 		sessionData.Status); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
@@ -408,7 +408,7 @@ func DeleteSession(
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteSession(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -439,7 +439,7 @@ func GetSessionStatus(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetSessionStatus()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -488,7 +488,7 @@ func SaveThreadTransaction(
 		Price,
 		ExecutedQuantity); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -524,7 +524,7 @@ func DeleteThreadTransactionByOrderID(
 	if rows, err = sessionData.Db.Query("call cryptopump.DeleteThreadTransactionByOrderID(?)",
 		orderID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -558,7 +558,7 @@ func GetThreadTransactionCount(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionCount(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -596,7 +596,7 @@ func GetLastOrderTransactionPrice(
 		sessionData.ThreadID,
 		Side); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -632,7 +632,7 @@ func GetLastOrderTransactionSide(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetLastOrderTransactionSide(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -668,7 +668,7 @@ func GetOrderTransactionSideLastTwo(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionSideLastTwo(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -704,7 +704,7 @@ func GetOrderSymbol(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderSymbol(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -739,7 +739,7 @@ func GetThreadTransactionDistinct(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionDistinct()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -790,7 +790,7 @@ func GetOrderTransactionPending(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetOrderTransactionPending(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -830,7 +830,7 @@ func GetThreadTransactionByPrice(
 		sessionData.ThreadID,
 		marketData.Price); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -874,7 +874,7 @@ func GetThreadTransactionByPriceHigher(
 		sessionData.ThreadID,
 		marketData.Price); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   marketData,
 			Session:  sessionData,
@@ -915,7 +915,7 @@ func GetThreadLastTransaction(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadLastTransaction(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -957,7 +957,7 @@ func GetOrderByOrderID(
 		sessionData.ForceSellOrderID,
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  nil,
 			Market:  nil,
 			Session: sessionData,
@@ -1002,7 +1002,7 @@ func GetThreadTransactiontUpmarketPriceCount(
 		sessionData.ThreadID,
 		price); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1041,7 +1041,7 @@ func GetOrderTransactionCount(
 		side,
 		(60 * -1)); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1079,7 +1079,7 @@ func GetThreadTransactionByThreadID(
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionByThreadID(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1126,7 +1126,7 @@ func GetProfitByThreadID(sessionData *types.Session) (fiat float64, percentage f
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfitByThreadID(?)",
 		sessionData.ThreadID); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1164,7 +1164,7 @@ func GetProfit(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetProfit()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1197,7 +1197,7 @@ func GetGlobal(sessionData *types.Session) (profit float64, profitNet float64, p
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetGlobal()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1231,7 +1231,7 @@ func GetThreadCount(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadCount()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -1267,7 +1267,7 @@ func GetThreadAmount(
 
 	if rows, err = sessionData.Db.Query("call cryptopump.GetThreadTransactionAmount()"); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,

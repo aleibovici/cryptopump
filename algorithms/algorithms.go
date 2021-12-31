@@ -32,7 +32,7 @@ func (c Channel) Stop(
 	configData *types.Config,
 	sessionData *types.Session) {
 
-	logger.LogEntry{
+	logger.LogEntry{ /* Log Entry */
 		Config:   configData,
 		Market:   nil,
 		Session:  sessionData,
@@ -44,7 +44,7 @@ func (c Channel) Stop(
 	defer wg.Done()       /* Decrease waiting group upon completion */
 	channel <- struct{}{} /* Stop websocket channel */
 
-	logger.LogEntry{
+	logger.LogEntry{ /* Log Entry */
 		Config:   configData,
 		Market:   nil,
 		Session:  sessionData,
@@ -60,7 +60,7 @@ func (c Channel) Stop(
 // SetTrue set all goroutines to stop
 func (c Channel) SetTrue(sessionData *types.Session) {
 
-	logger.LogEntry{
+	logger.LogEntry{ /* Log Entry */
 		Config:   nil,
 		Market:   nil,
 		Session:  sessionData,
@@ -311,7 +311,7 @@ func isBuyUpmarket(
 
 	}
 
-	logger.LogEntry{
+	logger.LogEntry{ /* Log Entry */
 		Config:   configData,
 		Market:   marketData,
 		Session:  sessionData,
@@ -420,7 +420,7 @@ func isBuyDownmarket(
 
 	}
 
-	logger.LogEntry{
+	logger.LogEntry{ /* Log Entry */
 		Config:   configData,
 		Market:   marketData,
 		Session:  sessionData,
@@ -445,7 +445,7 @@ func isBuyInitial(
 		/* Do not log if DryRun mode set to true */
 		if !configData.DryRun {
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,
@@ -477,7 +477,7 @@ func WsUserDataServe(
 	/* Retrieve listen key for user stream service */
 	if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
@@ -511,7 +511,7 @@ func WsUserDataServe(
 		/* Unmarshal and process executionReport */
 		if err := json.Unmarshal(message, &executionReport); err != nil {
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   nil,
 				Session:  sessionData,
@@ -529,7 +529,7 @@ func WsUserDataServe(
 		/* Unmarshal and process outboundAccountPosition */
 		if err := json.Unmarshal(message, &outboundAccountPosition); err != nil {
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   nil,
 				Session:  sessionData,
@@ -569,7 +569,7 @@ func WsUserDataServe(
 
 	errHandler := func(err error) {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,
@@ -608,18 +608,7 @@ func WsUserDataServe(
 		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
 
 		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
-		if sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData); err != nil {
-
-			logger.LogEntry{
-				Config:   configData,
-				Market:   nil,
-				Session:  sessionData,
-				Order:    &types.Order{},
-				Message:  functions.GetFunctionName() + " - " + err.Error(),
-				LogLevel: "DebugLevel",
-			}.Do()
-
-		}
+		sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData)
 
 	}
 
@@ -698,7 +687,7 @@ func WsKline(
 
 	errHandler := func(err error) {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
@@ -837,18 +826,7 @@ func WsBookTicker(
 				sessionData)
 
 			/* Update ThreadCount after SELL */
-			if sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData); err != nil {
-
-				logger.LogEntry{
-					Config:   configData,
-					Market:   marketData,
-					Session:  sessionData,
-					Order:    &types.Order{},
-					Message:  functions.GetFunctionName() + " - " + err.Error(),
-					LogLevel: "DebugLevel",
-				}.Do()
-
-			}
+			sessionData.ThreadCount, err = mysql.GetThreadTransactionCount(sessionData)
 
 			/* Update Number of Sale Transactions per hour */
 			sessionData.SellTransactionCount, err = mysql.GetOrderTransactionCount(sessionData, "SELL")
@@ -866,7 +844,7 @@ func WsBookTicker(
 
 	errHandler := func(err error) {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
@@ -1131,7 +1109,7 @@ func SellDecisionTree(
 		if order, err := mysql.GetThreadTransactionByPriceHigher(marketData, sessionData); err == nil &&
 			(marketData.Price <= (order.Price * (1 - configData.Stoploss))) {
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,

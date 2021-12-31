@@ -53,7 +53,7 @@ func (d Data) LoadKline(
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,
@@ -112,7 +112,7 @@ func (d Data) LoadKlinePast(
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   configData,
 				Market:   marketData,
 				Session:  sessionData,

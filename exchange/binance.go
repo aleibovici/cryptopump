@@ -212,6 +212,15 @@ func binanceGetUserStreamServiceListenKey(
 
 	if listenKey, err = sessionData.Clients.Binance.NewStartUserStreamService().Do(context.Background()); err != nil {
 
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
 		return "", err
 
 	}
@@ -253,7 +262,7 @@ func binanceGetAccount(sessionData *types.Session) (account *binance.Account, er
 
 	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -301,6 +310,15 @@ func binanceGetSymbolFunds(
 	var account *binance.Account
 
 	if account, err = binanceGetAccount(sessionData); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return 0, err
 
@@ -397,7 +415,7 @@ func binanceBuyOrder(
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeMarket).
 		Quantity(quantity).Do(context.Background()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
