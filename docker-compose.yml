@@ -1,0 +1,42 @@
+version: '3.6'
+
+services:
+
+  cryptopump_db:
+    image: cryptopump_db:latest
+    container_name: cryptopump_db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    tty: true
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+
+  cryptopump_app:
+    image: cryptopump:latest
+    container_name: cryptopump_app
+    restart: always
+    environment:
+      - DB_USER=root
+      - DB_PASS=password
+      - DB_TCP_HOST=cryptopump_db
+      - DB_PORT=3306
+      - DB_NAME=cryptopump
+    ports:
+      - "8080-8090:8080-8090"
+      - "22:22"
+    tty: true
+    networks:
+      - backend
+    depends_on:
+      - cryptopump_db
+
+networks:
+  backend:
+
+volumes:
+  db_data:
