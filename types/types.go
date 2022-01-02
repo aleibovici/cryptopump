@@ -162,10 +162,6 @@ type Market struct {
 // Config struct for configuration
 type Config struct {
 	ThreadID                               string /* For index.html population */
-	Apikey                                 string /* Exchange API Key */
-	Secretkey                              string /* Exchange Secret Key */
-	ApikeyTestNet                          string /* API key for exchange test network, used with launch.json */
-	SecretkeyTestNet                       string /* Secret key for exchange test network, used with launch.json */
 	Buy24hsHighpriceEntry                  float64
 	BuyDirectionDown                       int
 	BuyDirectionUp                         int
@@ -198,8 +194,17 @@ type Config struct {
 	ConfigTemplateList                     interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                           string      /* Exchange name */
 	TestNet                                bool        /* Use Exchange TestNet */
-	TgBotApikey                            string      /* Telegram bot API key */
 	HTMLSnippet                            interface{} /* Store kline plotter graph for html output */
+	ConfigGlobal                           *ConfigGlobal
+}
+
+// ConfigGlobal struct for global configuration
+type ConfigGlobal struct {
+	Apikey           string /* Exchange API Key */
+	Secretkey        string /* Exchange Secret Key */
+	ApikeyTestNet    string /* API key for exchange test network, used with launch.json */
+	SecretkeyTestNet string /* Secret key for exchange test network, used with launch.json */
+	TgBotApikey      string /* Telegram bot API key */
 }
 
 // OutboundAccountPosition Struct for User Data Streams for Binance

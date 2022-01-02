@@ -164,9 +164,9 @@ func binanceGetClient(
 	/* If TRAVIS flag is set, the testnet API is used */
 	if os.Getenv("TRAVIS") == "true" {
 
-		configData.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
-		configData.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		configData.ConfigGlobal.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
+		configData.ConfigGlobal.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
@@ -174,7 +174,7 @@ func binanceGetClient(
 	if flag.Lookup("test.v") != nil {
 
 		binance.UseTestnet = true
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
@@ -182,11 +182,11 @@ func binanceGetClient(
 	if configData.TestNet {
 
 		binance.UseTestnet = true
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
-	return binance.NewClient(configData.Apikey, configData.Secretkey)
+	return binance.NewClient(configData.ConfigGlobal.Apikey, configData.ConfigGlobal.Secretkey)
 
 }
 

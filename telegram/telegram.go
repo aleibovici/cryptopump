@@ -38,7 +38,7 @@ func (message Message) Send(sessionData *types.Session) {
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
-		
+
 	}
 
 }
@@ -50,7 +50,7 @@ func (Connect) Do(
 
 	var err error
 
-	if sessionData.TgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
+	if sessionData.TgBotAPI, err = tgbotapi.NewBotAPI(configData.ConfigGlobal.TgBotApikey); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
@@ -77,7 +77,7 @@ func CheckUpdates(
 	var updates tgbotapi.UpdatesChannel
 
 	/* Exit if no API key found */
-	if configData.TgBotApikey == "" {
+	if configData.ConfigGlobal.TgBotApikey == "" {
 
 		return
 

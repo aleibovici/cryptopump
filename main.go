@@ -39,12 +39,26 @@ type myHandler struct {
 
 func init() {
 
-	viper.SetConfigName("config")   /* Set the file name of the configurations file */
-	viper.AddConfigPath("./config") /* Set the path to look for the configurations file */
-	viper.SetConfigType("yml")      /* */
+	viper.SetConfigType("yml")      /* Set the type of the configurations file */
 	viper.AutomaticEnv()            /* Enable VIPER to read Environment Variables */
+	viper.AddConfigPath("./config") /* Set the path to look for the configurations file */
 
+	viper.SetConfigName("config") /* Set the file name of the configurations file */
 	if err := viper.ReadInConfig(); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+
+	viper.SetConfigName("config_global") /* Set the file name of the configurations file */
+	if err := viper.MergeInConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,

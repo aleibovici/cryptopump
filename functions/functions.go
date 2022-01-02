@@ -468,11 +468,7 @@ func loadConfigData(
 	sessionData *types.Session) *types.Config {
 
 	configData := &types.Config{
-		ThreadID:                               sessionData.ThreadID, /* For index.html population */
-		Apikey:                                 viper.GetString("config.apiKey"),
-		Secretkey:                              viper.GetString("config.secretKey"),
-		ApikeyTestNet:                          viper.GetString("config.apiKeyTestNet"),    /* API key for exchange test network, used with launch.json */
-		SecretkeyTestNet:                       viper.GetString("config.secretKeyTestNet"), /* Secret key for exchange test network, used with launch.json */
+		ThreadID:                               sessionData.ThreadID,
 		Buy24hsHighpriceEntry:                  viper.GetFloat64("config.buy_24hs_highprice_entry"),
 		BuyDirectionDown:                       viper.GetInt("config.buy_direction_down"),
 		BuyDirectionUp:                         viper.GetInt("config.buy_direction_up"),
@@ -486,7 +482,6 @@ func loadConfigData(
 		BuyRsi7Entry:                           viper.GetFloat64("config.buy_rsi7_entry"),
 		BuyWait:                                viper.GetInt("config.buy_wait"),
 		ExchangeComission:                      viper.GetFloat64("config.exchange_comission"),
-		ExchangeName:                           viper.GetString("config.exchangename"),
 		ProfitMin:                              viper.GetFloat64("config.profit_min"),
 		SellWaitBeforeCancel:                   viper.GetInt("config.sellwaitbeforecancel"),
 		SellWaitAfterCancel:                    viper.GetInt("config.sellwaitaftercancel"),
@@ -499,13 +494,20 @@ func loadConfigData(
 		TimeEnforce:                            viper.GetBool("config.time_enforce"),
 		TimeStart:                              viper.GetString("config.time_start"),
 		TimeStop:                               viper.GetString("config.time_stop"),
-		TestNet:                                viper.GetBool("config.testnet"),
-		TgBotApikey:                            viper.GetString("config.tgbotapikey"),
 		Debug:                                  viper.GetBool("config.debug"),
 		Exit:                                   viper.GetBool("config.exit"),
 		DryRun:                                 viper.GetBool("config.dryrun"),
 		NewSession:                             viper.GetBool("config.newsession"),
 		ConfigTemplateList:                     getConfigTemplateList(sessionData),
+		ExchangeName:                           viper.GetString("config.exchangename"),
+		TestNet:                                viper.GetBool("config.testnet"),
+		HTMLSnippet:                            nil,
+		ConfigGlobal: &types.ConfigGlobal{
+			Apikey:           viper.GetString("config_global.apiKey"),
+			Secretkey:        viper.GetString("config_global.secretKey"),
+			ApikeyTestNet:    viper.GetString("config_global.apiKeyTestNet"),
+			SecretkeyTestNet: viper.GetString("config_global.secretKeyTestNet"),
+			TgBotApikey:      viper.GetString("config_global.tgbotapikey")},
 	}
 
 	return configData
@@ -559,6 +561,7 @@ func SaveConfigData(
 		viper.Set("config.newsession", r.PostFormValue(("newsession")))
 	}
 
+	viper.SetConfigName("config") /* Set the file name of the configurations file */
 	if err := viper.WriteConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
