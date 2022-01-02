@@ -561,7 +561,6 @@ func SaveConfigData(
 		viper.Set("config.newsession", r.PostFormValue(("newsession")))
 	}
 
-	viper.SetConfigName("config") /* Set the file name of the configurations file */
 	if err := viper.WriteConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
