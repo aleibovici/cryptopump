@@ -8,6 +8,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/paulbellamy/ratecounter"
 	"github.com/sdcoffey/techan"
+	"github.com/spf13/viper"
 )
 
 // Order struct define an exchange order
@@ -108,6 +109,7 @@ type Session struct {
 	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
 	DiffTotal               float64                  /* This variable holds the difference between the total funds and the total funds in the last session */
 	Global                  *Global
+	Admin                   bool /* This flag is true when the admin page is selected */
 }
 
 // Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
@@ -256,4 +258,10 @@ type ExecutionReport struct {
 	CumulativeQuoteQty    string `json:"Z"` //Cumulative quote asset transacted quantity
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
+}
+
+// ViperData struct for Viper configuration files
+type ViperData struct {
+	V1 *viper.Viper `json:"v1"` /* Session configurations file */
+	V2 *viper.Viper `json:"v2"` /* Global configurations file */
 }

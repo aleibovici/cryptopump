@@ -35,47 +35,49 @@ type myHandler struct {
 	sessionData *types.Session
 	marketData  *types.Market
 	configData  *types.Config
-}
-
-func init() {
-
-	viper.SetConfigType("yml")      /* Set the type of the configurations file */
-	viper.AutomaticEnv()            /* Enable VIPER to read Environment Variables */
-	viper.AddConfigPath("./config") /* Set the path to look for the configurations file */
-
-	viper.SetConfigName("config") /* Set the file name of the configurations file */
-	if err := viper.ReadInConfig(); err != nil {
-
-		logger.LogEntry{ /* Log Entry */
-			Config:   nil,
-			Market:   nil,
-			Session:  nil,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-	}
-
-	viper.SetConfigName("config_global") /* Set the file name of the configurations file */
-	if err := viper.MergeInConfig(); err != nil {
-
-		logger.LogEntry{ /* Log Entry */
-			Config:   nil,
-			Market:   nil,
-			Session:  nil,
-			Order:    &types.Order{},
-			Message:  functions.GetFunctionName() + " - " + err.Error(),
-			LogLevel: "DebugLevel",
-		}.Do()
-
-	}
-
-	viper.WatchConfig()
-
+	viperData   *types.ViperData
 }
 
 func main() {
+
+	viperData := &types.ViperData{ /* Viper Configuration */
+		V1: viper.New(), /* Session configurations file */
+		V2: viper.New(), /* Global configurations file */
+	}
+
+	viperData.V1.SetConfigType("yml")      /* Set the type of the configurations file */
+	viperData.V1.AddConfigPath("./config") /* Set the path to look for the configurations file */
+	viperData.V1.SetConfigName("config")   /* Set the file name of the configurations file */
+	if err := viperData.V1.ReadInConfig(); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+	viperData.V1.WatchConfig()
+
+	viperData.V2.SetConfigType("yml")           /* Set the type of the configurations file */
+	viperData.V2.AddConfigPath("./config")      /* Set the path to look for the configurations file */
+	viperData.V2.SetConfigName("config_global") /* Set the file name of the configurations file */
+	if err := viperData.V2.ReadInConfig(); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+	viperData.V2.WatchConfig()
 
 	sessionData := &types.Session{
 		ThreadID:                "",
@@ -115,6 +117,7 @@ func main() {
 		QuantityOffsetFlag:      false,
 		DiffTotal:               0,
 		Global:                  &types.Global{},
+		Admin:                   false,
 	}
 
 	marketData := &types.Market{
@@ -139,7 +142,9 @@ func main() {
 	myHandler := &myHandler{
 		sessionData: sessionData,
 		marketData:  marketData,
-		configData:  configData}
+		configData:  configData,
+		viperData:   viperData,
+	}
 
 	port := functions.GetPort() /* Determine port for HTTP service. */
 
@@ -160,7 +165,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains") /* Add Strict-Transport-Security header */
 	w.Header().Add("X-Frame-Options", "DENY")                                          /* Add X-Frame-Options header */
 
-	fh.configData = functions.GetConfigData(fh.sessionData) /* Get configuration data */
+	fh.configData = functions.GetConfigData(fh.viperData, fh.sessionData) /* Get configuration data */
 
 	switch r.Method {
 	case "GET":
@@ -235,6 +240,17 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			/* This function uses a hidden field 'submitselect' in each HTML template to detect the actions triggered by users.
 			HTML action must include 'document.getElementById('submitselect').value='about';this.form.submit()' */
 			switch r.PostFormValue("submitselect") {
+			case "adminEnter":
+
+				fh.sessionData.Admin = true                                 /* Set admin flag */
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData) /* This is the template execution for 'admin' */
+
+			case "adminExit":
+
+				fh.sessionData.Admin = false                                    /* Unset admin flag */
+				functions.SaveConfigGlobalData(fh.viperData, r, fh.sessionData) /* Save global data */
+				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)     /* This is the template execution for 'index' */
+
 			case "new":
 
 				var path string /* Path to the executable */
@@ -275,9 +291,9 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "start":
 
-				go execution(fh.configData, fh.sessionData, fh.marketData) /* Start the execution process */
-				time.Sleep(2 * time.Second)                                /* Sleep time to wait for ThreadID to start */
-				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301)          /* Redirect to root 'index' */
+				go execution(fh.viperData, fh.configData, fh.sessionData, fh.marketData) /* Start the execution process */
+				time.Sleep(2 * time.Second)                                              /* Sleep time to wait for ThreadID to start */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301)                        /* Redirect to root 'index' */
 
 			case "stop":
 
@@ -285,8 +301,8 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 			case "update":
 
-				functions.SaveConfigData(r, fh.sessionData)       /* Save the configuration data */
-				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301) /* Redirect to root 'index' */
+				functions.SaveConfigData(fh.viperData, r, fh.sessionData) /* Save the configuration data */
+				http.Redirect(w, r, fmt.Sprintf(r.URL.Path), 301)         /* Redirect to root 'index' */
 
 			case "buy":
 
@@ -312,7 +328,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 			case "configTemplate":
 
 				fh.sessionData.ConfigTemplate = functions.StrToInt(r.PostFormValue("configTemplateList")) /* Retrieve Configuration Template Key selection */
-				configData := functions.LoadConfigTemplate(fh.sessionData)                                /* Load the configuration data */
+				configData := functions.LoadConfigTemplate(fh.viperData, fh.sessionData)                  /* Load the configuration data */
 				functions.ExecuteTemplate(w, configData, fh.sessionData)                                  /* This is the template execution for 'index' */
 
 			}
@@ -323,6 +339,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func execution(
+	viperData *types.ViperData,
 	configData *types.Config,
 	sessionData *types.Session,
 	marketData *types.Market) {
@@ -349,7 +366,7 @@ func execution(
 
 		threads.Thread{}.Lock(sessionData) /* Lock thread file */
 
-		configData = functions.GetConfigData(sessionData) /* Get Config Data */
+		configData = functions.GetConfigData(viperData, sessionData) /* Get Config Data */
 
 		if sessionData.Symbol, err = mysql.GetOrderSymbol(sessionData); err != nil { /* GetOrderSymbol returns an error if the connection to the database is not successful */
 
@@ -398,7 +415,7 @@ func execution(
 
 	}
 
-	asyncFunctions(configData, sessionData) /* Starts async functions that are executed at specific intervals */
+	asyncFunctions(viperData, configData, sessionData) /* Starts async functions that are executed at specific intervals */
 
 	/* Retrieve available fiat funds and update database
 	This is only used for retrieving balances for the first time, and is then followed by
@@ -525,6 +542,7 @@ func execution(
 			wg)
 
 		go algorithms.WsBookTicker( /* Websocket routine to retrieve realtime ticker prices */
+			viperData,
 			configData,
 			marketData,
 			sessionData,
@@ -544,7 +562,7 @@ func execution(
 		sessionData.StopWs = false /* Reset goroutine channels */
 
 		/* Reload configuration in case of WsBookTicker broken connection */
-		configData = functions.GetConfigData(sessionData) /* Get Config Data */
+		configData = functions.GetConfigData(viperData, sessionData) /* Get Config Data */
 
 		time.Sleep(3000 * time.Millisecond) /* Sleep for 3 seconds */
 
@@ -566,6 +584,7 @@ func execution(
 
 // asyncFunctions starts async functions that are executed at specific intervals
 func asyncFunctions(
+	viperData *types.ViperData,
 	configData *types.Config,
 	sessionData *types.Session) {
 
@@ -578,7 +597,7 @@ func asyncFunctions(
 
 	/* Retrieve config data every 10 seconds. */
 	scheduler.RunTaskAtInterval(
-		func() { configData = functions.GetConfigData(sessionData) },
+		func() { configData = functions.GetConfigData(viperData, sessionData) },
 		time.Second*10,
 		time.Second*0)
 

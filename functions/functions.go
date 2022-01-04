@@ -20,7 +20,6 @@ import (
 	"github.com/tcnksm/go-httpstat"
 
 	"github.com/rs/xid"
-	"github.com/spf13/viper"
 )
 
 // StrToFloat64 function
@@ -185,7 +184,11 @@ func IsFundsAvailable(
 func selectTemplate(
 	sessionData *types.Session) (template string) {
 
-	if sessionData.ThreadID == "" {
+	if sessionData.Admin {
+
+		template = "admin.html" /* Admin template */
+
+	} else if sessionData.ThreadID == "" {
 
 		template = "index.html"
 
@@ -301,11 +304,40 @@ func DeleteConfigFile(sessionData *types.Session) {
 
 }
 
+// SaveConfigGlobalData save viper configuration from html
+func SaveConfigGlobalData(
+	viperData *types.ViperData,
+	r *http.Request,
+	sessionData *types.Session) {
+
+	viperData.V2.Set("config_global.apiKey", r.FormValue("Apikey"))
+	viperData.V2.Set("config_global.secretKey", r.FormValue("Secretkey"))
+	viperData.V2.Set("config_global.apiKeyTestNet", r.FormValue("ApikeyTestNet"))
+	viperData.V2.Set("config_global.secretKeyTestNet", r.FormValue("SecretkeyTestNet"))
+	viperData.V2.Set("config_global.tgbotapikey", r.FormValue("TgBotApikey"))
+
+	/* Save the configuration file */
+	if err := viperData.V2.WriteConfig(); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  nil,
+			Order:    &types.Order{},
+			Message:  GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
+
+	}
+
+}
+
 // GetConfigData Retrieve or create config file based on ThreadID
 func GetConfigData(
+	viperData *types.ViperData,
 	sessionData *types.Session) *types.Config {
 
-	configData := loadConfigData(sessionData)
+	configData := loadConfigData(viperData, sessionData)
 
 	if sessionData.ThreadID != "" {
 
@@ -315,9 +347,9 @@ func GetConfigData(
 		if _, err := os.Stat(writePath + filename); err == nil {
 
 			/* Test for existing ThreadID config file and load configuration */
-			viper.SetConfigFile(writePath + filename)
+			viperData.V1.SetConfigFile(writePath + filename)
 
-			if err := viper.ReadInConfig(); err != nil {
+			if err := viperData.V1.ReadInConfig(); err != nil {
 
 				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
@@ -330,12 +362,12 @@ func GetConfigData(
 
 			}
 
-			configData = loadConfigData(sessionData)
+			configData = loadConfigData(viperData, sessionData)
 
 		} else if os.IsNotExist(err) {
 
 			/* Create new ThreadID config file and load configuration */
-			if err := viper.WriteConfigAs(writePath + filename); err != nil {
+			if err := viperData.V1.WriteConfigAs(writePath + filename); err != nil {
 
 				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
@@ -348,9 +380,9 @@ func GetConfigData(
 
 			}
 
-			viper.SetConfigFile(writePath + filename)
+			viperData.V1.SetConfigFile(writePath + filename)
 
-			if err := viper.ReadInConfig(); err != nil {
+			if err := viperData.V1.ReadInConfig(); err != nil {
 
 				logger.LogEntry{ /* Log Entry */
 					Config:   nil,
@@ -363,7 +395,7 @@ func GetConfigData(
 
 			}
 
-			configData = loadConfigData(sessionData)
+			configData = loadConfigData(viperData, sessionData)
 
 		}
 
@@ -412,6 +444,7 @@ func getConfigTemplateList(sessionData *types.Session) []string {
 // LoadConfigTemplate Load the selected configuration template
 // Three's a BUG where it only works before the first UPDATE
 func LoadConfigTemplate(
+	viperData *types.ViperData,
 	sessionData *types.Session) *types.Config {
 
 	var filename string
@@ -426,11 +459,11 @@ func LoadConfigTemplate(
 		}
 	}
 
-	filenameOld := viper.ConfigFileUsed()
+	filenameOld := viperData.V1.ConfigFileUsed()
 
 	/* Set selected template as current config and load settings and return configData*/
-	viper.SetConfigFile("./config/" + filename)
-	if err := viper.ReadInConfig(); err != nil {
+	viperData.V1.SetConfigFile("./config/" + filename)
+	if err := viperData.V1.ReadInConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
@@ -442,11 +475,11 @@ func LoadConfigTemplate(
 		}.Do()
 	}
 
-	configData := loadConfigData(sessionData)
+	configData := loadConfigData(viperData, sessionData)
 
 	/* Set origina template as current config */
-	viper.SetConfigFile(filenameOld)
-	if err := viper.ReadInConfig(); err != nil {
+	viperData.V1.SetConfigFile(filenameOld)
+	if err := viperData.V1.ReadInConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
@@ -465,49 +498,50 @@ func LoadConfigTemplate(
 
 /* This routine load viper configuration data into map[string]interface{} */
 func loadConfigData(
+	viperData *types.ViperData,
 	sessionData *types.Session) *types.Config {
 
 	configData := &types.Config{
 		ThreadID:                               sessionData.ThreadID,
-		Buy24hsHighpriceEntry:                  viper.GetFloat64("config.buy_24hs_highprice_entry"),
-		BuyDirectionDown:                       viper.GetInt("config.buy_direction_down"),
-		BuyDirectionUp:                         viper.GetInt("config.buy_direction_up"),
-		BuyQuantityFiatUp:                      viper.GetFloat64("config.buy_quantity_fiat_up"),
-		BuyQuantityFiatDown:                    viper.GetFloat64("config.buy_quantity_fiat_down"),
-		BuyQuantityFiatInit:                    viper.GetFloat64("config.buy_quantity_fiat_init"),
-		BuyRepeatThresholdDown:                 viper.GetFloat64("config.buy_repeat_threshold_down"),
-		BuyRepeatThresholdDownSecond:           viper.GetFloat64("config.buy_repeat_threshold_down_second"),
-		BuyRepeatThresholdDownSecondStartCount: viper.GetInt("config.buy_repeat_threshold_down_second_start_count"),
-		BuyRepeatThresholdUp:                   viper.GetFloat64("config.buy_repeat_threshold_up"),
-		BuyRsi7Entry:                           viper.GetFloat64("config.buy_rsi7_entry"),
-		BuyWait:                                viper.GetInt("config.buy_wait"),
-		ExchangeComission:                      viper.GetFloat64("config.exchange_comission"),
-		ProfitMin:                              viper.GetFloat64("config.profit_min"),
-		SellWaitBeforeCancel:                   viper.GetInt("config.sellwaitbeforecancel"),
-		SellWaitAfterCancel:                    viper.GetInt("config.sellwaitaftercancel"),
-		SellToCover:                            viper.GetBool("config.selltocover"),
-		SellHoldOnRSI3:                         viper.GetFloat64("config.sellholdonrsi3"),
-		Stoploss:                               viper.GetFloat64("config.stoploss"),
-		SymbolFiat:                             viper.GetString("config.symbol_fiat"),
-		SymbolFiatStash:                        viper.GetFloat64("config.symbol_fiat_stash"),
-		Symbol:                                 viper.GetString("config.symbol"),
-		TimeEnforce:                            viper.GetBool("config.time_enforce"),
-		TimeStart:                              viper.GetString("config.time_start"),
-		TimeStop:                               viper.GetString("config.time_stop"),
-		Debug:                                  viper.GetBool("config.debug"),
-		Exit:                                   viper.GetBool("config.exit"),
-		DryRun:                                 viper.GetBool("config.dryrun"),
-		NewSession:                             viper.GetBool("config.newsession"),
+		Buy24hsHighpriceEntry:                  viperData.V1.GetFloat64("config.buy_24hs_highprice_entry"),
+		BuyDirectionDown:                       viperData.V1.GetInt("config.buy_direction_down"),
+		BuyDirectionUp:                         viperData.V1.GetInt("config.buy_direction_up"),
+		BuyQuantityFiatUp:                      viperData.V1.GetFloat64("config.buy_quantity_fiat_up"),
+		BuyQuantityFiatDown:                    viperData.V1.GetFloat64("config.buy_quantity_fiat_down"),
+		BuyQuantityFiatInit:                    viperData.V1.GetFloat64("config.buy_quantity_fiat_init"),
+		BuyRepeatThresholdDown:                 viperData.V1.GetFloat64("config.buy_repeat_threshold_down"),
+		BuyRepeatThresholdDownSecond:           viperData.V1.GetFloat64("config.buy_repeat_threshold_down_second"),
+		BuyRepeatThresholdDownSecondStartCount: viperData.V1.GetInt("config.buy_repeat_threshold_down_second_start_count"),
+		BuyRepeatThresholdUp:                   viperData.V1.GetFloat64("config.buy_repeat_threshold_up"),
+		BuyRsi7Entry:                           viperData.V1.GetFloat64("config.buy_rsi7_entry"),
+		BuyWait:                                viperData.V1.GetInt("config.buy_wait"),
+		ExchangeComission:                      viperData.V1.GetFloat64("config.exchange_comission"),
+		ProfitMin:                              viperData.V1.GetFloat64("config.profit_min"),
+		SellWaitBeforeCancel:                   viperData.V1.GetInt("config.sellwaitbeforecancel"),
+		SellWaitAfterCancel:                    viperData.V1.GetInt("config.sellwaitaftercancel"),
+		SellToCover:                            viperData.V1.GetBool("config.selltocover"),
+		SellHoldOnRSI3:                         viperData.V1.GetFloat64("config.sellholdonrsi3"),
+		Stoploss:                               viperData.V1.GetFloat64("config.stoploss"),
+		SymbolFiat:                             viperData.V1.GetString("config.symbol_fiat"),
+		SymbolFiatStash:                        viperData.V1.GetFloat64("config.symbol_fiat_stash"),
+		Symbol:                                 viperData.V1.GetString("config.symbol"),
+		TimeEnforce:                            viperData.V1.GetBool("config.time_enforce"),
+		TimeStart:                              viperData.V1.GetString("config.time_start"),
+		TimeStop:                               viperData.V1.GetString("config.time_stop"),
+		Debug:                                  viperData.V1.GetBool("config.debug"),
+		Exit:                                   viperData.V1.GetBool("config.exit"),
+		DryRun:                                 viperData.V1.GetBool("config.dryrun"),
+		NewSession:                             viperData.V1.GetBool("config.newsession"),
 		ConfigTemplateList:                     getConfigTemplateList(sessionData),
-		ExchangeName:                           viper.GetString("config.exchangename"),
-		TestNet:                                viper.GetBool("config.testnet"),
+		ExchangeName:                           viperData.V1.GetString("config.exchangename"),
+		TestNet:                                viperData.V1.GetBool("config.testnet"),
 		HTMLSnippet:                            nil,
 		ConfigGlobal: &types.ConfigGlobal{
-			Apikey:           viper.GetString("config_global.apiKey"),
-			Secretkey:        viper.GetString("config_global.secretKey"),
-			ApikeyTestNet:    viper.GetString("config_global.apiKeyTestNet"),
-			SecretkeyTestNet: viper.GetString("config_global.secretKeyTestNet"),
-			TgBotApikey:      viper.GetString("config_global.tgbotapikey")},
+			Apikey:           viperData.V2.GetString("config_global.apiKey"),
+			Secretkey:        viperData.V2.GetString("config_global.secretKey"),
+			ApikeyTestNet:    viperData.V2.GetString("config_global.apiKeyTestNet"),
+			SecretkeyTestNet: viperData.V2.GetString("config_global.secretKeyTestNet"),
+			TgBotApikey:      viperData.V2.GetString("config_global.tgbotapikey")},
 	}
 
 	return configData
@@ -516,52 +550,53 @@ func loadConfigData(
 
 // SaveConfigData save viper configuration from html
 func SaveConfigData(
+	viperData *types.ViperData,
 	r *http.Request,
 	sessionData *types.Session) {
 
-	viper.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy24hsHighpriceEntry"))
-	viper.Set("config.buy_direction_down", r.PostFormValue("buyDirectionDown"))
-	viper.Set("config.buy_direction_up", r.PostFormValue("buyDirectionUp"))
-	viper.Set("config.buy_quantity_fiat_up", r.PostFormValue("buyQuantityFiatUp"))
-	viper.Set("config.buy_quantity_fiat_down", r.PostFormValue("buyQuantityFiatDown"))
-	viper.Set("config.buy_quantity_fiat_init", r.PostFormValue("buyQuantityFiatInit"))
-	viper.Set("config.buy_rsi7_entry", r.PostFormValue("buyRsi7Entry"))
-	viper.Set("config.buy_wait", r.PostFormValue("buyWait"))
-	viper.Set("config.buy_repeat_threshold_down", r.PostFormValue("buyRepeatThresholdDown"))
-	viper.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buyRepeatThresholdDownSecond"))
-	viper.Set("config.buy_repeat_threshold_down_second_start_count", r.PostFormValue("buyRepeatThresholdDownSecondStartCount"))
-	viper.Set("config.buy_repeat_threshold_up", r.PostFormValue("buyRepeatThresholdUp"))
-	viper.Set("config.exchange_comission", r.PostFormValue("exchangeComission"))
+	viperData.V1.Set("config.buy_24hs_highprice_entry", r.PostFormValue("buy24hsHighpriceEntry"))
+	viperData.V1.Set("config.buy_direction_down", r.PostFormValue("buyDirectionDown"))
+	viperData.V1.Set("config.buy_direction_up", r.PostFormValue("buyDirectionUp"))
+	viperData.V1.Set("config.buy_quantity_fiat_up", r.PostFormValue("buyQuantityFiatUp"))
+	viperData.V1.Set("config.buy_quantity_fiat_down", r.PostFormValue("buyQuantityFiatDown"))
+	viperData.V1.Set("config.buy_quantity_fiat_init", r.PostFormValue("buyQuantityFiatInit"))
+	viperData.V1.Set("config.buy_rsi7_entry", r.PostFormValue("buyRsi7Entry"))
+	viperData.V1.Set("config.buy_wait", r.PostFormValue("buyWait"))
+	viperData.V1.Set("config.buy_repeat_threshold_down", r.PostFormValue("buyRepeatThresholdDown"))
+	viperData.V1.Set("config.buy_repeat_threshold_down_second", r.PostFormValue("buyRepeatThresholdDownSecond"))
+	viperData.V1.Set("config.buy_repeat_threshold_down_second_start_count", r.PostFormValue("buyRepeatThresholdDownSecondStartCount"))
+	viperData.V1.Set("config.buy_repeat_threshold_up", r.PostFormValue("buyRepeatThresholdUp"))
+	viperData.V1.Set("config.exchange_comission", r.PostFormValue("exchangeComission"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
-		viper.Set("config.exchangename", r.PostFormValue("exchangename"))
+		viperData.V1.Set("config.exchangename", r.PostFormValue("exchangename"))
 	}
-	viper.Set("config.profit_min", r.PostFormValue("profitMin"))
-	viper.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
-	viper.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
-	viper.Set("config.selltocover", r.PostFormValue("selltocover"))
-	viper.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
-	viper.Set("config.Stoploss", r.PostFormValue("stoploss"))
+	viperData.V1.Set("config.profit_min", r.PostFormValue("profitMin"))
+	viperData.V1.Set("config.sellwaitbeforecancel", r.PostFormValue("sellwaitbeforecancel"))
+	viperData.V1.Set("config.sellwaitaftercancel", r.PostFormValue("sellwaitaftercancel"))
+	viperData.V1.Set("config.selltocover", r.PostFormValue("selltocover"))
+	viperData.V1.Set("config.sellholdonrsi3", r.PostFormValue("sellholdonrsi3"))
+	viperData.V1.Set("config.Stoploss", r.PostFormValue("stoploss"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
-		viper.Set("config.symbol", r.PostFormValue("symbol"))
+		viperData.V1.Set("config.symbol", r.PostFormValue("symbol"))
 	}
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
-		viper.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
+		viperData.V1.Set("config.symbol_fiat", r.PostFormValue("symbol_fiat"))
 	}
-	viper.Set("config.symbol_fiat_stash", r.PostFormValue("symbolFiatStash"))
-	viper.Set("config.time_enforce", r.PostFormValue("timeEnforce"))
-	viper.Set("config.time_start", r.PostFormValue("timeStart"))
-	viper.Set("config.time_stop", r.PostFormValue("timeStop"))
+	viperData.V1.Set("config.symbol_fiat_stash", r.PostFormValue("symbolFiatStash"))
+	viperData.V1.Set("config.time_enforce", r.PostFormValue("timeEnforce"))
+	viperData.V1.Set("config.time_start", r.PostFormValue("timeStart"))
+	viperData.V1.Set("config.time_stop", r.PostFormValue("timeStop"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
-		viper.Set("config.testnet", r.PostFormValue("testnet"))
+		viperData.V1.Set("config.testnet", r.PostFormValue("testnet"))
 	}
-	viper.Set("config.debug", r.PostFormValue("debug"))
-	viper.Set("config.exit", r.PostFormValue("exit"))
-	viper.Set("config.dryrun", r.PostFormValue("dryrun"))
+	viperData.V1.Set("config.debug", r.PostFormValue("debug"))
+	viperData.V1.Set("config.exit", r.PostFormValue("exit"))
+	viperData.V1.Set("config.dryrun", r.PostFormValue("dryrun"))
 	if r.PostFormValue("exchangename") != "" { /* Test for disabled input in index_nostart.html where return is nil */
-		viper.Set("config.newsession", r.PostFormValue(("newsession")))
+		viperData.V1.Set("config.newsession", r.PostFormValue(("newsession")))
 	}
 
-	if err := viper.WriteConfig(); err != nil {
+	if err := viperData.V1.WriteConfig(); err != nil {
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,

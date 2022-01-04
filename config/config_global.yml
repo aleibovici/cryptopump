@@ -1,6 +1,6 @@
 config_global:
-  apikey: 
-  apikeytestnet: 
-  secretkey: 
-  secretkeytestnet: 
-  tgbotapikey: 
+  apikey: ""
+  apikeytestnet: ""
+  secretkey: ""
+  secretkeytestnet: ""
+  tgbotapikey: ""

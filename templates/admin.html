@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous" />
+
+        <link href="../static/stylesheets/cryptopump.css" rel="stylesheet" type="text/css" />
+
+    </head>
+
+    <body class="html">
+
+        <br>
+
+        <div class="container-fluid">
+
+            <form method="post" action="/">
+
+                <input type="hidden" name="submitselect" value="" id="submitselect" />
+                
+                <div class="container-fluid form-group">
+
+                    <div class="col container-input ml-1">
+
+                        <div class="row col-md-auto">
+                            <div class="col">
+                                <label class="col-form-label" for="Apikey">API Key</label>
+                            </div>
+                            <div class="col input-group input-group-sm">
+                                <input type="text" class="form-control" id="Apikey"
+                                    name="Apikey" data-toggle="tooltip"
+                                    title='Apikey'
+                                    value="{{ .ConfigGlobal.Apikey }}" />
+                            </div>
+                        </div>
+    
+                        <div class="row col-md-auto">
+                            <div class="col">
+                                <label class="col-form-label" for="Secretkey">API Secret</label>
+                            </div>
+                            <div class="col input-group input-group-sm">
+                                <input type="text" class="form-control" id="Secretkey" name="Secretkey" data-toggle="tooltip"
+                                    title='Secretkey'
+                                    value="{{ .ConfigGlobal.Secretkey }}" />
+                            </div>
+                        </div>
+    
+                        <div class="row col-md-auto">
+                            <div class="col">
+                                <label class="col-form-label" for="ApikeyTestNet">API Key TestNet</label>
+                            </div>
+                            <div class="col input-group input-group-sm">
+                                <input type="text" class="form-control" id="ApikeyTestNet" name="ApikeyTestNet" data-toggle="tooltip"
+                                    title='ApikeyTestNet'
+                                    value="{{ .ConfigGlobal.ApikeyTestNet }}" />
+                            </div>
+                        </div>
+    
+                        <div class="row col-md-auto">
+                            <div class="col">
+                                <label class="col-form-label" for="SecretkeyTestNet">API Secret TestNet</label>
+                            </div>
+                            <div class="col input-group input-group-sm">
+                                <input type="text" class="form-control" id="SecretkeyTestNet" name="SecretkeyTestNet" data-toggle="tooltip"
+                                    title='SecretkeyTestNet'
+                                    value="{{ .ConfigGlobal.SecretkeyTestNet }}" />
+                            </div>
+                        </div>
+    
+                        <div class="row col-md-auto">
+                            <div class="col">
+                                <label class="col-form-label" for="TgBotApikey">Telegram Bot API Key</label>
+                            </div>
+                            <div class="col input-group input-group-sm">
+                                <input type="text" class="form-control" id="TgBotApikey" name="TgBotApikey" data-toggle="tooltip"
+                                    title='TgBotApikey'
+                                    value="{{ .ConfigGlobal.TgBotApikey }}" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="container-fluid">
+
+                        <div class="row">
+
+                            <button type="button" class="btn btn-primary btn-primary-addon" id="back" name="back"
+                            onclick="document.getElementById('submitselect').value='adminExit';this.form.submit()">
+                            Save
+                            </button>
+    
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+            
+        </div>
+
+    </body>
+
+</html>

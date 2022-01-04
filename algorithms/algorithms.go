@@ -746,6 +746,7 @@ func WsKline(
 
 // WsBookTicker Pushes any update to the best bid or asks price or quantity in real-time for a specified symbol
 func WsBookTicker(
+	viperData *types.ViperData,
 	configData *types.Config,
 	marketData *types.Market,
 	sessionData *types.Session,
@@ -836,7 +837,7 @@ func WsBookTicker(
 		/* Reload config data every 10 seconds */
 		if time.Now().Second()%10 == 0 {
 
-			configData = functions.GetConfigData(sessionData)
+			configData = functions.GetConfigData(viperData, sessionData)
 
 		}
 
