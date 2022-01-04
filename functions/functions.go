@@ -310,14 +310,13 @@ func SaveConfigGlobalData(
 	r *http.Request,
 	sessionData *types.Session) {
 
-	viperData.V2.Set("config_global.apiKey", r.FormValue("Apikey"))
-	viperData.V2.Set("config_global.secretKey", r.FormValue("Secretkey"))
-	viperData.V2.Set("config_global.apiKeyTestNet", r.FormValue("ApikeyTestNet"))
-	viperData.V2.Set("config_global.secretKeyTestNet", r.FormValue("SecretkeyTestNet"))
-	viperData.V2.Set("config_global.tgbotapikey", r.FormValue("TgBotApikey"))
+	viperData.V2.Set("config_global.apiKey", r.FormValue("Apikey"))                     /* Api Key */
+	viperData.V2.Set("config_global.secretKey", r.FormValue("Secretkey"))               /* Secret Key */
+	viperData.V2.Set("config_global.apiKeyTestNet", r.FormValue("ApikeyTestNet"))       /* Api Key TestNet */
+	viperData.V2.Set("config_global.secretKeyTestNet", r.FormValue("SecretkeyTestNet")) /* Secret Key TestNet */
+	viperData.V2.Set("config_global.tgbotapikey", r.FormValue("TgBotApikey"))           /* Tg Bot Api Key */
 
-	/* Save the configuration file */
-	if err := viperData.V2.WriteConfig(); err != nil {
+	if err := viperData.V2.WriteConfig(); err != nil { /* Write configuration file */
 
 		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
@@ -329,6 +328,15 @@ func SaveConfigGlobalData(
 		}.Do()
 
 	}
+
+	logger.LogEntry{ /* Log Entry */
+		Config:   nil,
+		Market:   nil,
+		Session:  nil,
+		Order:    &types.Order{},
+		Message:  "Global configuration saved",
+		LogLevel: "DebugLevel",
+	}.Do()
 
 }
 
