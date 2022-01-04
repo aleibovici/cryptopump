@@ -139,18 +139,34 @@ func (logEntry LogEntry) Do() {
 
 		default:
 
-			log.WithFields(log.Fields{
-				"threadID": logEntry.Session.ThreadID,
-			}).Info(logEntry.Message)
+			if logEntry.Session == nil || logEntry.Session.ThreadID == "" {
+
+				log.WithFields(log.Fields{}).Info(logEntry.Message)
+
+			} else {
+
+				log.WithFields(log.Fields{
+					"threadID": logEntry.Session.ThreadID,
+				}).Info(logEntry.Message)
+
+			}
 
 		}
 
 	case log.StandardLogger().GetLevel() == log.DebugLevel:
 
-		log.WithFields(log.Fields{
-			"threadID": logEntry.Session.ThreadID,
-			"orderID":  logEntry.Order.OrderID,
-		}).Debug(logEntry.Message)
+		if logEntry.Session == nil || logEntry.Session.ThreadID == "" {
+
+			log.WithFields(log.Fields{}).Info(logEntry.Message)
+
+		} else {
+
+			log.WithFields(log.Fields{
+				"threadID": logEntry.Session.ThreadID,
+				"orderID":  logEntry.Order.OrderID,
+			}).Debug(logEntry.Message)
+
+		}
 
 	}
 

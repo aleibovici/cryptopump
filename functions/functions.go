@@ -332,10 +332,10 @@ func SaveConfigGlobalData(
 	logger.LogEntry{ /* Log Entry */
 		Config:   nil,
 		Market:   nil,
-		Session:  nil,
+		Session:  sessionData,
 		Order:    &types.Order{},
 		Message:  "Global configuration saved",
-		LogLevel: "DebugLevel",
+		LogLevel: "InfoLevel",
 	}.Do()
 
 }

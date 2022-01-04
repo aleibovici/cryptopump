@@ -249,7 +249,7 @@ func (fh *myHandler) handler(w http.ResponseWriter, r *http.Request) {
 
 				fh.sessionData.Admin = false                                    /* Unset admin flag */
 				functions.SaveConfigGlobalData(fh.viperData, r, fh.sessionData) /* Save global data */
-				functions.LoadConfigTemplate(fh.viperData, fh.sessionData)      /* Load configuration data */
+				functions.GetConfigData(fh.viperData, fh.sessionData)           /* Get Config Data */
 				functions.ExecuteTemplate(w, fh.configData, fh.sessionData)     /* This is the template execution for 'index' */
 
 			case "new":
