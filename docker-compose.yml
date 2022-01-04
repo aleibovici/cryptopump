@@ -4,6 +4,9 @@ services:
 
   cryptopump_db:
     image: cryptopump_db:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: cryptopump_db
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -11,6 +14,8 @@ services:
     ports:
       - "3306:3306"
     tty: true
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -18,6 +23,9 @@ services:
 
   cryptopump_app:
     image: cryptopump:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: cryptopump_app
     restart: always
     environment:
