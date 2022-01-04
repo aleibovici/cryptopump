@@ -3,34 +3,28 @@ version: '3.6'
 services:
 
   cryptopump_db:
-    image: cryptopump_db:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: andreleibovici/cryptopump_db:latest
     container_name: cryptopump_db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password # change this
     ports:
       - "3306:3306"
     tty: true
     cap_add:
       - SYS_NICE  # CAP_SYS_NICE
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql # database files
     networks:
       - backend
 
   cryptopump_app:
-    image: cryptopump:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: andreleibovici/cryptopump:latest
     container_name: cryptopump_app
     restart: always
     environment:
       - DB_USER=root
-      - DB_PASS=password
+      - DB_PASS=password # change this
       - DB_TCP_HOST=cryptopump_db
       - DB_PORT=3306
       - DB_NAME=cryptopump
@@ -38,6 +32,8 @@ services:
       - "8080-8090:8080-8090"
       - "22:22"
     tty: true
+    volumes:
+      - config_data:/go/src/cryptopump/config # config files
     networks:
       - backend
     depends_on:
@@ -48,3 +44,4 @@ networks:
 
 volumes:
   db_data:
+  config_data:
