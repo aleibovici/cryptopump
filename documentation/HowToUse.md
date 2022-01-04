@@ -135,6 +135,8 @@ In the bottom right corner the system status is displayed:
 
 ### BUTTONS:
 
+- Admin: Global configuration page where the exchange API Key, API Secret, API Key TestNet, API Secret TestNet and the Telegram Bot API can be configures. This configuration applies too all CryptoPump sessions and threads.
+
 - New: When a session is already in progress it will start a new session on a different HTTP port, i.e. if running the first session on 8080 it will start the next one on 8081. 
 
 - Start: Start the bot on the trading pair previously set. 
