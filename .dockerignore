@@ -4,3 +4,5 @@
 .DS_Store
 .vscode
 .dccache
+/config/config.yml
+/config/config_global.yml
