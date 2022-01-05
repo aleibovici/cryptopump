@@ -33,8 +33,6 @@ Always start by running a this trading tool in Dry-run or TestNet and do not eng
 
 ![](https://github.com/aleibovici/img/blob/b2c9390494906b8e83635a5f320dd48f67a48fbd/telegram_screenshot.jpg?raw=true)
 
-![](https://github.com/aleibovici/img/blob/b2c9390494906b8e83635a5f320dd48f67a48fbd/telegram_screenshot.jpg?raw=true)
-
 - CryptoPump requires MySQL to persist data and transactions, and the .sql file to create the structure can be found in the MySQL folder (cryptopump.sql). I use MySQL with Docker in the same machine Cryptopump is running, and it performs well. Cloud-based MySQL instances are also supported. The environment variables are in launch.json if Visual Studio Code is in use; optionally, the following environment variables set DB_USER, DB_PASS, DB_TCP_HOST, DB_PORT, DB_NAME. For using MySQL with docker go here (<https://hub.docker.com/_/mysql>). (refer to HOW TO INSTALL file)
 
 - For each instance of the code, a new HTTP port is opened, starting with 8080, 8081, 8082 (or starting with the port defined by environment variable PORT). Just point your browser to the address, and you should get the session configuration page and the Bollinger and Exchange data.
