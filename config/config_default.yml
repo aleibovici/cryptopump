@@ -1,6 +1,4 @@
 config:
-  apikey: 
-  apikeytestnet: 
   buy_24hs_highprice_entry: "0.0005"
   buy_24hs_highprice_entry_macd: "20"
   buy_direction_down: "20"
@@ -17,23 +15,21 @@ config:
   buy_rsi7_entry: "40"
   buy_wait: "60"
   debug: "false"
-  dryrun: "true"
+  dryrun: "false"
   exchange_comission: "0.00075"
   exchangename: BINANCE
   exit: "false"
   newsession: "false"
   profit_min: "0.001"
-  secretkey: 
-  secretkeytestnet: 
   sellholdonrsi3: "70"
   selltocover: "false"
   sellwaitaftercancel: "10"
   sellwaitbeforecancel: "20"
+  stoploss: "0"
   symbol: BTCUSDT
   symbol_fiat: USDT
   symbol_fiat_stash: "100"
-  testnet: "false"
-  tgbotapikey: 
+  testnet: "true"
   time_enforce: "false"
   time_start: 04:00AM
   time_stop: 07:00PM

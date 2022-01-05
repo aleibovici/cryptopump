@@ -21,10 +21,17 @@ var marketData = &types.Market{
 
 func init() {
 
-	viper.AddConfigPath("../config") /* Set the path to look for the configurations file */
-	if err := viper.ReadInConfig(); err != nil {
+	viperData := &types.ViperData{ /* Viper Configuration */
+		V1: viper.New(), /* Session configurations file */
+		V2: viper.New(), /* Global configurations file */
+	}
 
-		logger.LogEntry{
+	viperData.V1.SetConfigType("yml")       /* Set the type of the configurations file */
+	viperData.V1.AddConfigPath("../config") /* Set the path to look for the configurations file */
+	viperData.V1.SetConfigName("config")    /* Set the file name of the configurations file */
+	if err := viperData.V1.ReadInConfig(); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  nil,
@@ -34,8 +41,9 @@ func init() {
 		}.Do()
 
 	}
+	viperData.V1.WatchConfig()
 
-	configData = functions.GetConfigData(sessionData)
+	configData = functions.GetConfigData(viperData, sessionData)
 	configData.TestNet = true
 
 	exchange.GetClient(configData, sessionData)

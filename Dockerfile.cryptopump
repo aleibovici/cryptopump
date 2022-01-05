@@ -1,0 +1,15 @@
+FROM golang:1.16
+RUN apt-get update -qq && apt-get install -y -qq \
+    && apt-get -qq clean
+WORKDIR /go/src/cryptopump
+COPY . .
+# do not copy configuration files, but rather configuration templates
+COPY config/config_template.yml /go/src/cryptopump/config/config.yml
+COPY config/config_global_template.yml /go/src/cryptopump/config/config_global.yml
+# install dependencies
+RUN go get -d  -v ./... 
+RUN go install -v ./...
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout cryptopump.log \
+    && ln -sf /dev/stderr cryptopump_debug.log
+CMD ["cryptopump"]

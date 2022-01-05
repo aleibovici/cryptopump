@@ -1,6 +1,20 @@
 ## HOW TO INSTALL
 
-Cryptopump can be used on Windows and Linux as long as a MYSQL database is present and usable. 
+Cryptopump can be used on Windows and Linux (with a MYSQL database is present and usable) or in a self-contained Docker environment. 
+
+### DOCKER:
+
+This is the easiest way to get CryptoPump up and running. The Docker Compose file provides all the necessary components to run the system.
+
+1 - Create a directory for the project.
+
+2 - Copy the file docker-compose.yml to cryptopump directory, and edit the file, replacing <password> for "MYSQL_ROOT_PASSWORD" and "DB_PASS" with a password of your choice. Save the file.
+
+3 - Execute docker-compose up -d
+
+Docker Compose will download all the necessary images, including the database, and start Cryptopump. A persistent volume named "cryptopump_db_data" will be created and host the database files.
+
+Cryptopump can be accessed by pointing your browser to http://localhost:8080.
 
 ### WINDOWS:
 

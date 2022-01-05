@@ -129,7 +129,7 @@ func LoadSessionDataAdditionalComponents(
 
 			if !sessionData.QuantityOffsetFlag { /* Only log Quantity offset error if first time */
 
-				logger.LogEntry{
+				logger.LogEntry{ /* Log Entry */
 					Config:   configData,
 					Market:   nil,
 					Session:  sessionData,
@@ -159,7 +159,7 @@ func LoadSessionDataAdditionalComponentsAsync(sessionData *types.Session) {
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,

@@ -31,7 +31,7 @@ CREATE TABLE `global` (
   `ProfitPct` float NOT NULL,
   `TransactTime` varchar(45) NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci MAX_ROWS=1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci MAX_ROWS=1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

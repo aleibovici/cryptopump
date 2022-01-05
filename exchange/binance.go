@@ -164,9 +164,9 @@ func binanceGetClient(
 	/* If TRAVIS flag is set, the testnet API is used */
 	if os.Getenv("TRAVIS") == "true" {
 
-		configData.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
-		configData.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		configData.ConfigGlobal.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
+		configData.ConfigGlobal.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
@@ -174,7 +174,7 @@ func binanceGetClient(
 	if flag.Lookup("test.v") != nil {
 
 		binance.UseTestnet = true
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
@@ -182,11 +182,11 @@ func binanceGetClient(
 	if configData.TestNet {
 
 		binance.UseTestnet = true
-		return binance.NewClient(configData.ApikeyTestNet, configData.SecretkeyTestNet)
+		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
 
 	}
 
-	return binance.NewClient(configData.Apikey, configData.Secretkey)
+	return binance.NewClient(configData.ConfigGlobal.Apikey, configData.ConfigGlobal.Secretkey)
 
 }
 
@@ -211,6 +211,15 @@ func binanceGetUserStreamServiceListenKey(
 	sessionData *types.Session) (listenKey string, err error) {
 
 	if listenKey, err = sessionData.Clients.Binance.NewStartUserStreamService().Do(context.Background()); err != nil {
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   nil,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + err.Error(),
+			LogLevel: "DebugLevel",
+		}.Do()
 
 		return "", err
 
@@ -248,15 +257,12 @@ func binanceNewSetServerTimeService(
 
 }
 
-/* Retrieve symbol fiat funds available */
-func binanceGetSymbolFiatFunds(
-	sessionData *types.Session) (balance float64, err error) {
-
-	var account *binance.Account
+/* Get account */
+func binanceGetAccount(sessionData *types.Session) (account *binance.Account, err error) {
 
 	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -265,15 +271,29 @@ func binanceGetSymbolFiatFunds(
 			LogLevel: "DebugLevel",
 		}.Do()
 
+	}
+
+	return account, err
+
+}
+
+/* Retrieve symbol fiat funds available */
+func binanceGetSymbolFiatFunds(
+	sessionData *types.Session) (balance float64, err error) {
+
+	var account *binance.Account
+
+	if account, err = binanceGetAccount(sessionData); err != nil {
+
 		return 0, err
 
 	}
 
-	for key := range account.Balances {
+	for key := range account.Balances { /* Loop through balances */
 
-		if account.Balances[key].Asset == sessionData.SymbolFiat {
+		if account.Balances[key].Asset == sessionData.SymbolFiat { /* If the balance is the fiat balance */
 
-			return functions.StrToFloat64(account.Balances[key].Free), err
+			return functions.StrToFloat64(account.Balances[key].Free), err /* Return balance */
 
 		}
 
@@ -289,9 +309,9 @@ func binanceGetSymbolFunds(
 
 	var account *binance.Account
 
-	if account, err = sessionData.Clients.Binance.NewGetAccountService().Do(context.Background()); err != nil {
+	if account, err = binanceGetAccount(sessionData); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -304,11 +324,11 @@ func binanceGetSymbolFunds(
 
 	}
 
-	for key := range account.Balances {
+	for key := range account.Balances { /* Loop through balances */
 
-		if account.Balances[key].Asset == sessionData.Symbol[0:3] {
+		if account.Balances[key].Asset == sessionData.Symbol[0:3] { /* Check if asset is correct */
 
-			return functions.StrToFloat64(account.Balances[key].Free), err
+			return functions.StrToFloat64(account.Balances[key].Free), err /* Return balance */
 
 		}
 
@@ -395,7 +415,7 @@ func binanceBuyOrder(
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeMarket).
 		Quantity(quantity).Do(context.Background()); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,

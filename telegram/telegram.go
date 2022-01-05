@@ -30,7 +30,7 @@ func (message Message) Send(sessionData *types.Session) {
 
 	if _, err := sessionData.TgBotAPI.Send(msg); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -38,6 +38,7 @@ func (message Message) Send(sessionData *types.Session) {
 			Message:  functions.GetFunctionName() + " - " + err.Error(),
 			LogLevel: "DebugLevel",
 		}.Do()
+
 	}
 
 }
@@ -49,9 +50,9 @@ func (Connect) Do(
 
 	var err error
 
-	if sessionData.TgBotAPI, err = tgbotapi.NewBotAPI(configData.TgBotApikey); err != nil {
+	if sessionData.TgBotAPI, err = tgbotapi.NewBotAPI(configData.ConfigGlobal.TgBotApikey); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   nil,
 			Market:   nil,
 			Session:  sessionData,
@@ -76,7 +77,7 @@ func CheckUpdates(
 	var updates tgbotapi.UpdatesChannel
 
 	/* Exit if no API key found */
-	if configData.TgBotApikey == "" {
+	if configData.ConfigGlobal.TgBotApikey == "" {
 
 		return
 
@@ -97,7 +98,7 @@ func CheckUpdates(
 
 	if updates, err = sessionData.TgBotAPI.GetUpdatesChan(u); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,

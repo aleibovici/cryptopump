@@ -24,7 +24,7 @@ func (Node) GetRole(
 	/* Conditional defer logging when there is an error retriving data */
 	defer func() {
 		if err != nil {
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,
@@ -95,7 +95,7 @@ func (Node) ReleaseMasterRole(sessionData *types.Session) {
 
 		if err := os.Remove(filename); err != nil {
 
-			logger.LogEntry{
+			logger.LogEntry{ /* Log Entry */
 				Config:   nil,
 				Market:   nil,
 				Session:  sessionData,
@@ -133,7 +133,7 @@ func (Node) CheckStatus(configData *types.Config,
 		configData,
 		sessionData); err != nil {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   nil,
 			Session:  sessionData,

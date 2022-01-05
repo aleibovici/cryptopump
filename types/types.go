@@ -8,6 +8,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/paulbellamy/ratecounter"
 	"github.com/sdcoffey/techan"
+	"github.com/spf13/viper"
 )
 
 // Order struct define an exchange order
@@ -108,6 +109,7 @@ type Session struct {
 	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
 	DiffTotal               float64                  /* This variable holds the difference between the total funds and the total funds in the last session */
 	Global                  *Global
+	Admin                   bool /* This flag is true when the admin page is selected */
 }
 
 // Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
@@ -162,10 +164,6 @@ type Market struct {
 // Config struct for configuration
 type Config struct {
 	ThreadID                               string /* For index.html population */
-	Apikey                                 string /* Exchange API Key */
-	Secretkey                              string /* Exchange Secret Key */
-	ApikeyTestNet                          string /* API key for exchange test network, used with launch.json */
-	SecretkeyTestNet                       string /* Secret key for exchange test network, used with launch.json */
 	Buy24hsHighpriceEntry                  float64
 	BuyDirectionDown                       int
 	BuyDirectionUp                         int
@@ -198,8 +196,17 @@ type Config struct {
 	ConfigTemplateList                     interface{} /* List of configuration templates available in ./config folder */
 	ExchangeName                           string      /* Exchange name */
 	TestNet                                bool        /* Use Exchange TestNet */
-	TgBotApikey                            string      /* Telegram bot API key */
 	HTMLSnippet                            interface{} /* Store kline plotter graph for html output */
+	ConfigGlobal                           *ConfigGlobal
+}
+
+// ConfigGlobal struct for global configuration
+type ConfigGlobal struct {
+	Apikey           string /* Exchange API Key */
+	Secretkey        string /* Exchange Secret Key */
+	ApikeyTestNet    string /* API key for exchange test network, used with launch.json */
+	SecretkeyTestNet string /* Secret key for exchange test network, used with launch.json */
+	TgBotApikey      string /* Telegram bot API key */
 }
 
 // OutboundAccountPosition Struct for User Data Streams for Binance
@@ -251,4 +258,10 @@ type ExecutionReport struct {
 	CumulativeQuoteQty    string `json:"Z"` //Cumulative quote asset transacted quantity
 	LastQuoteQty          string `json:"Y"` //Last quote asset transacted quantity (i.e. lastPrice * lastQty)
 	QuoteOrderQty         string `json:"Q"` //Quote Order Qty
+}
+
+// ViperData struct for Viper configuration files
+type ViperData struct {
+	V1 *viper.Viper `json:"v1"` /* Session configurations file */
+	V2 *viper.Viper `json:"v2"` /* Global configurations file */
 }

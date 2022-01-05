@@ -345,7 +345,7 @@ func BuyTicker(
 	/* Exit if DryRun mode set to true */
 	if configData.DryRun {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -476,7 +476,7 @@ S:
 
 		}
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -490,7 +490,7 @@ S:
 
 	} else if isCanceled {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -530,7 +530,7 @@ func SellTicker(
 	/* Exit if DryRun mode set to true */
 	if configData.DryRun {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -555,7 +555,7 @@ func SellTicker(
 	if (orderResponse == nil && err != nil) ||
 		(orderResponse == nil && err == nil) {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:   configData,
 			Market:   marketData,
 			Session:  sessionData,
@@ -665,7 +665,7 @@ S:
 
 					default:
 
-						logger.LogEntry{
+						logger.LogEntry{ /* Log Entry */
 							Config:  configData,
 							Market:  marketData,
 							Session: sessionData,
@@ -703,7 +703,7 @@ S:
 
 				default:
 
-					logger.LogEntry{
+					logger.LogEntry{ /* Log Entry */
 						Config:  configData,
 						Market:  marketData,
 						Session: sessionData,
@@ -756,7 +756,7 @@ S:
 
 		}
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
@@ -771,7 +771,7 @@ S:
 
 	} else if isCanceled {
 
-		logger.LogEntry{
+		logger.LogEntry{ /* Log Entry */
 			Config:  configData,
 			Market:  marketData,
 			Session: sessionData,
