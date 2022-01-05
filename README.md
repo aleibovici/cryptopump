@@ -13,6 +13,7 @@ CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed
 Do not risk money which you are afraid to lose. USE THE SOFTWARE AT YOUR OWN RISK. THE AUTHORS AND ALL AFFILIATES ASSUME NO RESPONSIBILITY FOR YOUR TRADING RESULTS.
 
 Always start by running a this trading tool in Dry-run or TestNet and do not engage money before you understand how it works and what profit/loss you should expect.
+#### - CryptoPump is now available as a self-contained Docker container set. Check it out at https://hub.docker.com/repository/docker/andreleibovici/cryptopump
 
 - CryptoPump is a cryptocurrency trading tool that focuses on extremely high speed and flexibility. The algorithms utilize Go Language and the exchange WebSockets to react in real-time to market movements based on Bollinger statistical analysis and pre-defined profit margins.
 
