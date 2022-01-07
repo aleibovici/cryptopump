@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Dockerfile.cryptopump
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:$(date +%s)
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:buildx-latest
 
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -35,7 +35,7 @@ jobs:
           context: .
           file: ./Dockerfile.mysql
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:$(date +%s)
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:buildx-latest
       
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
