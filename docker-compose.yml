@@ -31,7 +31,6 @@ services:
       - DB_NAME=cryptopump
     ports:
       - "8080-8090:8080-8090"
-      - "22:22"
     tty: true
     volumes:
       - config_data:/go/src/cryptopump/config # config files
