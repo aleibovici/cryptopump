@@ -34,7 +34,7 @@ jobs:
           platforms: linux/amd64
           file: ./Dockerfile.cryptopump
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:buildx-latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:latest
 
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -43,7 +43,7 @@ jobs:
           platforms: linux/amd64
           file: ./Dockerfile.mysql
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:buildx-latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:latest
       
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
