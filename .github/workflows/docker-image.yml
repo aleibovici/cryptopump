@@ -52,7 +52,7 @@ jobs:
         platforms: linux/amd64, linux/arm64
         file: ./Dockerfile.mysql.buildx
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:build-x:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:buildx-latest
       
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
