@@ -1,6 +1,5 @@
 .git
 .github
-.travis.yml
 .DS_Store
 .vscode
 .dccache
