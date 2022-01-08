@@ -109,7 +109,8 @@ type Session struct {
 	QuantityOffsetFlag      bool                     /* This flag is true when the quantity is offset */
 	DiffTotal               float64                  /* This variable holds the difference between the total funds and the total funds in the last session */
 	Global                  *Global
-	Admin                   bool /* This flag is true when the admin page is selected */
+	Admin                   bool   /* This flag is true when the admin page is selected */
+	Port                    string /* This variable holds the port number for the web server */
 }
 
 // Global (Session.Global) struct store semi-persistent values to help offload mySQL queries load
