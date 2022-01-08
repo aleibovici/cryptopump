@@ -1,2 +1,0 @@
-FROM mysql/mysql-server:8.0
-COPY /mysql/cryptopump.sql /docker-entrypoint-initdb.d/init.sql
