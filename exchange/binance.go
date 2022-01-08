@@ -8,6 +8,7 @@ import (
 
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/threads"
 	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
@@ -333,6 +334,9 @@ func binanceGetSymbolFunds(
 		}
 
 	}
+
+	/* Cleanly exit ThreadID */
+	threads.Thread{}.Terminate(sessionData, "Balance or Pair not found for symbol "+sessionData.Symbol[0:3])
 
 	return 0, err
 
