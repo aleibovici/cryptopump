@@ -1,2 +1,0 @@
-FROM hypriot/rpi-mysql:latest
-COPY /mysql/cryptopump.sql /docker-entrypoint-initdb.d/init.sql

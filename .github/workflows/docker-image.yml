@@ -45,14 +45,5 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db:latest
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          platforms: linux/arm/v6
-          file: ./Dockerfile.mysql.rpi
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_db_rpi:latest
-
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
