@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ main, beta, features ]
+    branches: [ main, beta ]
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v6
+          platforms: linux/amd64
           file: ./Dockerfile.cryptopump
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:latest
