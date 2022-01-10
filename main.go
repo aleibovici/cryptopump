@@ -118,6 +118,7 @@ func main() {
 		DiffTotal:               0,
 		Global:                  &types.Global{},
 		Admin:                   false,
+		Port:                    "",
 	}
 
 	marketData := &types.Market{
@@ -146,15 +147,23 @@ func main() {
 		viperData:   viperData,
 	}
 
-	port := functions.GetPort() /* Determine port for HTTP service. */
+	sessionData.Port = functions.GetPort() /* Determine port for HTTP service. */
+
+	logger.LogEntry{ /* Log Entry */
+		Config:   configData,
+		Market:   marketData,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Listening on port " + sessionData.Port,
+		LogLevel: "InfoLevel",
+	}.Do()
 
 	http.HandleFunc("/", myHandler.handler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	fmt.Printf("Listening on port %s \n", port)
 
-	open.Run("http://localhost:" + port) /* Open URI using the OS's default browser */
+	open.Run("http://localhost:" + sessionData.Port) /* Open URI using the OS's default browser */
 
-	http.ListenAndServe(fmt.Sprintf(":%s", port), nil) /* Start HTTP service. */
+	http.ListenAndServe(fmt.Sprintf(":%s", sessionData.Port), nil) /* Start HTTP service. */
 
 }
 
@@ -387,7 +396,7 @@ func execution(
 			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
-			Message:  "Resuming",
+			Message:  "Resuming on port " + sessionData.Port,
 			LogLevel: "InfoLevel",
 		}.Do()
 
@@ -410,7 +419,7 @@ func execution(
 			Market:   marketData,
 			Session:  sessionData,
 			Order:    &types.Order{},
-			Message:  "Initializing",
+			Message:  "Initializing on port " + sessionData.Port,
 			LogLevel: "InfoLevel",
 		}.Do()
 

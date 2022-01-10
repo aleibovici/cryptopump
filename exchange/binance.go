@@ -3,11 +3,11 @@ package exchange
 import (
 	"context"
 	"flag"
-	"os"
 	"time"
 
 	"github.com/aleibovici/cryptopump/functions"
 	"github.com/aleibovici/cryptopump/logger"
+	"github.com/aleibovici/cryptopump/threads"
 	"github.com/aleibovici/cryptopump/types"
 
 	"github.com/adshao/go-binance/v2"
@@ -160,15 +160,6 @@ func binanceGetClient(
 
 	binance.WebsocketKeepalive = false
 	binance.WebsocketTimeout = time.Second * 30
-
-	/* If TRAVIS flag is set, the testnet API is used */
-	if os.Getenv("TRAVIS") == "true" {
-
-		configData.ConfigGlobal.ApikeyTestNet = functions.MustGetenv("apikeytestnet")
-		configData.ConfigGlobal.SecretkeyTestNet = functions.MustGetenv("secretkeytestnet")
-		return binance.NewClient(configData.ConfigGlobal.ApikeyTestNet, configData.ConfigGlobal.SecretkeyTestNet)
-
-	}
 
 	/* If the -test.v flag is set, the testnet API is used */
 	if flag.Lookup("test.v") != nil {
@@ -333,6 +324,9 @@ func binanceGetSymbolFunds(
 		}
 
 	}
+
+	/* Cleanly exit ThreadID */
+	threads.Thread{}.Terminate(sessionData, "Balance or Pair not found for symbol "+sessionData.Symbol[0:3])
 
 	return 0, err
 
