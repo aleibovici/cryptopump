@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v6
+          platforms: linux/amd64,linux/arm/v7
           file: ./Dockerfile.cryptopump
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump:latest
@@ -49,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v6
+          platforms: linux/amd64,linux/arm/v7
           file: ./Dockerfile.mariadb
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptopump_mariadb:latest
