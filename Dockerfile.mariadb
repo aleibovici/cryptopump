@@ -1,2 +1,2 @@
-FROM yobasystems/alpine-mariadb
+FROM yobasystems/alpine-mariadb:10.5.11-armhf
 COPY /mysql/cryptopump-mariadb.sql /docker-entrypoint-initdb.d/init.sql
