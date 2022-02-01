@@ -154,17 +154,9 @@ UNLOCK TABLES;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `DeleteSession`(IN in_ThreadID varchar(45))
-BEGIN
-	DECLARE ThreadID varchar(45);
-	SET SQL_SAFE_UPDATES = 0;
-	SET ThreadID = in_ThreadID;
-	DELETE FROM session
-	WHERE session.ThreadID = in_ThreadID;
-	SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `DeleteSession`(IN in_ThreadID varchar(45)) BEGIN DECLARE ThreadID varchar(45); SET SQL_SAFE_UPDATES = 0; SET ThreadID = in_ThreadID; DELETE FROM session WHERE session.ThreadID = in_ThreadID; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -178,14 +170,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `DeleteThreadTransactionAll`()
-BEGIN
-    SET SQL_SAFE_UPDATES = 0;
-    DELETE FROM thread;
-    SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `DeleteThreadTransactionAll`() BEGIN SET SQL_SAFE_UPDATES = 0; DELETE FROM thread; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -199,17 +186,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `DeleteThreadTransactionByOrderID`(IN in_param_OrderID bigint)
-BEGIN
-	DECLARE declared_in_param_OrderID bigint;
-    SET SQL_SAFE_UPDATES = 0;
-    SET declared_in_param_OrderID = in_param_OrderID;
-    DELETE FROM thread
-    WHERE thread.OrderID = in_param_OrderID;
-    SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `DeleteThreadTransactionByOrderID`(IN in_param_OrderID bigint) BEGIN DECLARE declared_in_param_OrderID bigint; SET SQL_SAFE_UPDATES = 0; SET declared_in_param_OrderID = in_param_OrderID; DELETE FROM thread WHERE thread.OrderID = in_param_OrderID; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -223,21 +202,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetGlobal`()
-BEGIN
-SELECT 
-    `global`.`Profit` AS `Profit`,
-	`global`.`ProfitNet` AS `ProfitNet`,
-    `global`.`ProfitPct` AS `ProfitPct`,
-    `global`.`TransactTime` AS `TransactTime`
-FROM
-    `global`
-WHERE
-    `global`.`ID` = 1
-LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetGlobal`() BEGIN SELECT `global`.`Profit` AS `Profit`, `global`.`ProfitNet` AS `ProfitNet`, `global`.`ProfitPct` AS `ProfitPct`, `global`.`TransactTime` AS `TransactTime` FROM `global` WHERE `global`.`ID` = 1 LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -251,22 +218,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetLastOrderTransactionPrice`(IN in_param_ThreadID varchar(45), IN in_param_Side varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-    DECLARE declared_in_param_Side CHAR(45);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-    SET declared_in_param_Side = in_param_Side;
-    SELECT `orders`.`Price` AS `Price`
-	FROM `orders`
-	WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID
-		AND `orders`.`Side` = declared_in_param_Side AND (`orders`.`Status` <> 'CANCELED'
-		OR `orders`.`Status` IS NULL))
-	ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC
-	LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetLastOrderTransactionPrice`(IN in_param_ThreadID varchar(45), IN in_param_Side varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); DECLARE declared_in_param_Side CHAR(45); SET declared_in_param_ThreadID = in_param_ThreadID; SET declared_in_param_Side = in_param_Side; SELECT `orders`.`Price` AS `Price` FROM `orders` WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID AND `orders`.`Side` = declared_in_param_Side AND (`orders`.`Status` <> 'CANCELED' OR `orders`.`Status` IS NULL)) ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -280,19 +234,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetLastOrderTransactionSide`(IN in_param_ThreadID varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-	SELECT `orders`.`Side` AS `Side`
-	FROM `orders`
-	WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID
-	   AND `orders`.`Status` = 'FILLED')
-	ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC
-	LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetLastOrderTransactionSide`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT `orders`.`Side` AS `Side` FROM `orders` WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID AND `orders`.`Status` = 'FILLED') ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -306,27 +250,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderByOrderID`(IN in_param_OrderID bigint, IN in_param_ThreadID varchar(45))
-BEGIN
-DECLARE declared_in_param_orderid BIGINT; 
-DECLARE declared_in_param_threadid CHAR(50); 
-SET declared_in_param_orderid = in_param_orderid; 
-SET declared_in_param_threadid = in_param_threadid;
-SELECT 
-    `orders`.`orderid` AS `OrderID`,
-    `orders`.`price` AS `Price`,
-    `orders`.`executedquantity` AS `ExecutedQuantity`,
-    `orders`.`cummulativequoteqty` AS `CummulativeQuoteQty`,
-    `orders`.`transacttime` AS `TransactTime`
-FROM
-    `orders`
-WHERE
-    (`orders`.`orderid` = declared_in_param_orderid
-        AND `orders`.`threadid` = declared_in_param_threadid)
-LIMIT 1; 
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderByOrderID`(IN in_param_OrderID bigint, IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_orderid BIGINT; DECLARE declared_in_param_threadid CHAR(50); SET declared_in_param_orderid = in_param_orderid; SET declared_in_param_threadid = in_param_threadid; SELECT `orders`.`orderid` AS `OrderID`, `orders`.`price` AS `Price`, `orders`.`executedquantity` AS `ExecutedQuantity`, `orders`.`cummulativequoteqty` AS `CummulativeQuoteQty`, `orders`.`transacttime` AS `TransactTime` FROM `orders` WHERE (`orders`.`orderid` = declared_in_param_orderid AND `orders`.`threadid` = declared_in_param_threadid) LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -340,16 +266,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderSymbol`(IN in_param varchar(45))
-BEGIN
-	DECLARE declared_in_param CHAR(45);
-    SET declared_in_param = in_param;
-	SELECT Symbol from orders 
-    WHERE orders.ThreadID = declared_in_param
-    ORDER BY TransactTime DESC LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderSymbol`(IN in_param varchar(45)) BEGIN DECLARE declared_in_param CHAR(45); SET declared_in_param = in_param; SELECT Symbol from orders WHERE orders.ThreadID = declared_in_param ORDER BY TransactTime DESC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -363,21 +282,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionCount`(IN in_param_ThreadID varchar(45), IN in_param_Side varchar(45), IN in_param_Minutes int)
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-    DECLARE declared_in_param_Side CHAR(45);
-    DECLARE declared_in_param_Minutes int;
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-    SET declared_in_param_Side = in_param_Side;
-    SET declared_in_param_Minutes = in_param_Minutes;
-SELECT COALESCE(count(*),0) AS `count`
-FROM `orders`
-WHERE (`orders`.`Side` = declared_in_param_Side
-   AND `orders`.`Status` = 'FILLED' AND str_to_date(date_format(CAST(from_unixtime((`orders`.`TransactTime` / 1000)) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') BETWEEN str_to_date(date_format(CAST(date_add(now(6), INTERVAL declared_in_param_Minutes minute) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') AND str_to_date(date_format(CAST(now(6) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') AND `orders`.`ThreadID` = declared_in_param_ThreadID);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionCount`(IN in_param_ThreadID varchar(45), IN in_param_Side varchar(45), IN in_param_Minutes int) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); DECLARE declared_in_param_Side CHAR(45); DECLARE declared_in_param_Minutes int; SET declared_in_param_ThreadID = in_param_ThreadID; SET declared_in_param_Side = in_param_Side; SET declared_in_param_Minutes = in_param_Minutes; SELECT COALESCE(count(*),0) AS `count` FROM `orders` WHERE (`orders`.`Side` = declared_in_param_Side AND `orders`.`Status` = 'FILLED' AND str_to_date(date_format(CAST(from_unixtime((`orders`.`TransactTime` / 1000)) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') BETWEEN str_to_date(date_format(CAST(date_add(now(6), INTERVAL declared_in_param_Minutes minute) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') AND str_to_date(date_format(CAST(now(6) AS DATETIME), '%Y-%m-%d %H:%i'), '%Y-%m-%d %H:%i') AND `orders`.`ThreadID` = declared_in_param_ThreadID); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -391,20 +298,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionPending`(IN in_param_ThreadID varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-SELECT `orders`.`OrderID` AS `OrderID`, `orders`.`Symbol` AS `Symbol`
-FROM `orders`
-WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID
-   AND (`orders`.`Status` <> 'FILLED'
-    OR `orders`.`Status` IS NULL) AND (`orders`.`Status` <> 'CANCELED' OR `orders`.`Status` IS NULL) AND `orders`.`Status` IS NOT NULL AND (`orders`.`Status` <> '' OR `orders`.`Status` IS NULL))
-ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) ASC
-LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionPending`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT `orders`.`OrderID` AS `OrderID`, `orders`.`Symbol` AS `Symbol` FROM `orders` WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID AND (`orders`.`Status` <> 'FILLED' OR `orders`.`Status` IS NULL) AND (`orders`.`Status` <> 'CANCELED' OR `orders`.`Status` IS NULL) AND `orders`.`Status` IS NOT NULL AND (`orders`.`Status` <> '' OR `orders`.`Status` IS NULL)) ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) ASC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -418,30 +314,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionSideLastTwo`(IN in_param_ThreadID varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-	SELECT `A`.`Side` AS `Last`, `B`.`Side` AS `SecondLast` FROM (
-	(SELECT `orders`.`Side` AS `Side`
-	FROM `orders`
-	WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID
-	   AND (`orders`.`Status` <> 'CANCELED'
-		OR `orders`.`Status` IS NULL))
-	ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC
-	LIMIT 1) A
-	INNER JOIN
-	(SELECT `orders`.`Side` AS `Side`
-	FROM `orders`
-	WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID
-	   AND (`orders`.`Status` <> 'CANCELED'
-		OR `orders`.`Status` IS NULL))
-	ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC
-	LIMIT 1,1) B
-	);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionSideLastTwo`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT `A`.`Side` AS `Last`, `B`.`Side` AS `SecondLast` FROM ( (SELECT `orders`.`Side` AS `Side` FROM `orders` WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID AND (`orders`.`Status` <> 'CANCELED' OR `orders`.`Status` IS NULL)) ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC LIMIT 1) A INNER JOIN (SELECT `orders`.`Side` AS `Side` FROM `orders` WHERE (`orders`.`ThreadID` = declared_in_param_ThreadID AND (`orders`.`Status` <> 'CANCELED' OR `orders`.`Status` IS NULL)) ORDER BY from_unixtime((`orders`.`TransactTime` / 1000)) DESC LIMIT 1,1) B ); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -455,17 +330,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionTimeByOrderID`(IN in_param_OrderID bigint)
-BEGIN
-	DECLARE declared_in_param_OrderID bigint;
-    SET declared_in_param_OrderID = in_param_OrderID;
-	SELECT `orders`.`TransactTime` AS `TransactTime`
-	FROM `orders`
-	WHERE `orders`.`OrderID` = declared_in_param_OrderID
-	LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetOrderTransactionTimeByOrderID`(IN in_param_OrderID bigint) BEGIN DECLARE declared_in_param_OrderID bigint; SET declared_in_param_OrderID = in_param_OrderID; SELECT `orders`.`TransactTime` AS `TransactTime` FROM `orders` WHERE `orders`.`OrderID` = declared_in_param_OrderID LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -479,52 +346,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetProfit`()
-BEGIN
-SELECT
-        SUM(`source`.`Profit`) AS `profit`,
-        SUM(`source`.`Profit`) + (`source`.`Diff`) AS `netprofit`,
-        AVG(`source`.`Percentage`) AS `avg` 
-    FROM
-        (SELECT
-            `orders`.`Side` AS `Side`,
-            `Orders`.`Side` AS `Orders__Side`,
-            `orders`.`Status` AS `Status`,
-            `Orders`.`Status` AS `Orders__Status`,
-            `orders`.`ThreadID` AS `ThreadID`,
-            `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`,
-            `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
-            (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`,
-            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE 
-                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL 
-                ELSE `Orders`.`CummulativeQuoteQty` END) AS `Percentage`,
-(SELECT
-    sum(`session`.`DiffTotal`) AS `sum` 
-FROM
-    `session`) AS `Diff` 
-FROM
-`orders` 
-INNER JOIN
-`orders` `Orders` 
-    ON `orders`.`OrderID` = `Orders`.`OrderIDSource` 
-WHERE
-(
-    `orders`.`Side` = 'BUY'
-) 
-AND (
-    `orders`.`Status` = 'FILLED'
-)
-) `source` 
-WHERE
-(
-1 = 1 
-AND `source`.`Orders__Side` = 'SELL' 
-AND 1 = 1 
-AND `source`.`Orders__Status` = 'FILLED'
-);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetProfit`() BEGIN SELECT SUM(`source`.`Profit`) AS `profit`, SUM(`source`.`Profit`) + (`source`.`Diff`) AS `netprofit`, AVG(`source`.`Percentage`) AS `avg` FROM (SELECT `orders`.`Side` AS `Side`, `Orders`.`Side` AS `Orders__Side`, `orders`.`Status` AS `Status`, `Orders`.`Status` AS `Orders__Status`, `orders`.`ThreadID` AS `ThreadID`, `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`, `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`, ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL ELSE `Orders`.`CummulativeQuoteQty` END) AS `Percentage`, (SELECT sum(`session`.`DiffTotal`) AS `sum` FROM `session`) AS `Diff` FROM `orders` INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource` WHERE ( `orders`.`Side` = 'BUY' ) AND ( `orders`.`Status` = 'FILLED' ) ) `source` WHERE ( 1 = 1 AND `source`.`Orders__Side` = 'SELL' AND 1 = 1 AND `source`.`Orders__Status` = 'FILLED' ); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -538,45 +362,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetProfitByThreadID`(IN in_param_ThreadID varchar(45))
-BEGIN
-DECLARE declared_in_param_ThreadID CHAR(50);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-SELECT 
-    SUM(`source`.`Profit`) + (`source`.`Diff`) AS `sum`,
-    AVG(`source`.`Percentage`) AS `avg`
-FROM
-    (SELECT 
-        `orders`.`Side` AS `Side`,
-            `Orders`.`Side` AS `Orders__Side`,
-            `orders`.`Status` AS `Status`,
-            `Orders`.`Status` AS `Orders__Status`,
-            `orders`.`ThreadID` AS `ThreadID`,
-            `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`,
-            `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
-            (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`,
-            ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE
-                WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL
-                ELSE `Orders`.`CummulativeQuoteQty`
-            END) AS `Percentage`,
-            (SELECT 
-                    SUM(`session`.`DiffTotal`) AS `sum`
-                FROM
-                    `session`
-                WHERE
-                    `session`.`ThreadID` = declared_in_param_ThreadID) AS `Diff`
-    FROM
-        `orders`
-    INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source`
-WHERE
-    (`source`.`Side` = 'BUY'
-        AND `source`.`Orders__Side` = 'SELL'
-        AND `source`.`Status` = 'FILLED'
-        AND `source`.`Orders__Status` = 'FILLED'
-        AND `source`.`ThreadID` = declared_in_param_ThreadID);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetProfitByThreadID`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(50); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT SUM(`source`.`Profit`) + (`source`.`Diff`) AS `sum`, AVG(`source`.`Percentage`) AS `avg` FROM (SELECT `orders`.`Side` AS `Side`, `Orders`.`Side` AS `Orders__Side`, `orders`.`Status` AS `Status`, `Orders`.`Status` AS `Orders__Status`, `orders`.`ThreadID` AS `ThreadID`, `Orders`.`CummulativeQuoteQty` AS `Orders__CummulativeQuoteQty`, `orders`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, (`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) AS `Profit`, ((`Orders`.`CummulativeQuoteQty` - `orders`.`CummulativeQuoteQty`) / CASE WHEN `Orders`.`CummulativeQuoteQty` = 0 THEN NULL ELSE `Orders`.`CummulativeQuoteQty` END) AS `Percentage`, (SELECT SUM(`session`.`DiffTotal`) AS `sum` FROM `session` WHERE `session`.`ThreadID` = declared_in_param_ThreadID) AS `Diff` FROM `orders` INNER JOIN `orders` `Orders` ON `orders`.`OrderID` = `Orders`.`OrderIDSource`) `source` WHERE (`source`.`Side` = 'BUY' AND `source`.`Orders__Side` = 'SELL' AND `source`.`Status` = 'FILLED' AND `source`.`Orders__Status` = 'FILLED' AND `source`.`ThreadID` = declared_in_param_ThreadID); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -590,14 +378,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetSessionStatus`()
-BEGIN
-SELECT `session`.`ThreadID` AS `ThreadID`, `session`.`Status` AS `Status`
-FROM cryptopump.session
-WHERE `session`.`Status` = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetSessionStatus`() BEGIN SELECT `session`.`ThreadID` AS `ThreadID`, `session`.`Status` AS `Status` FROM cryptopump.session WHERE `session`.`Status` = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -611,15 +394,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadCount`()
-BEGIN
-SELECT 
-    COUNT(DISTINCT `session`.`ThreadID`) AS `count`
-FROM
-    `cryptopump`.`session`;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadCount`() BEGIN SELECT COUNT(DISTINCT `session`.`ThreadID`) AS `count` FROM `cryptopump`.`session`; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -633,19 +410,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadLastTransaction`(IN in_param_ThreadID varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(50);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-	SELECT `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`OrderID` AS `OrderID`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity`, `Orders`.`TransactTime` AS `TransactTime`
-	FROM `thread`
-	LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID`
-	WHERE (`thread`.`ThreadID` = declared_in_param_ThreadID)
-	ORDER BY `thread`.`Price` ASC
-	LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadLastTransaction`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(50); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`OrderID` AS `OrderID`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity`, `Orders`.`TransactTime` AS `TransactTime` FROM `thread` LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID` WHERE (`thread`.`ThreadID` = declared_in_param_ThreadID) ORDER BY `thread`.`Price` ASC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -659,15 +426,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionAmount`()
-BEGIN
-SELECT 
-    SUM(`thread`.`CummulativeQuoteQty`) AS `sum`
-FROM
-    `cryptopump`.`thread`;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionAmount`() BEGIN SELECT SUM(`thread`.`CummulativeQuoteQty`) AS `sum` FROM `cryptopump`.`thread`; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -681,22 +442,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByPrice`(IN in_param_ThreadID varchar(45), IN in_param_Price float)
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(50);
-	DECLARE declared_in_param_Price FLOAT;
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-    SET declared_in_param_Price = in_param_Price;
-	SELECT `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`OrderID` AS `OrderID`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity`, `Orders`.`TransactTime` AS `TransactTime`
-	FROM `thread`
-	LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID`
-	WHERE (`thread`.`ThreadID` = declared_in_param_ThreadID
-	   AND `thread`.`Price` < declared_in_param_Price)
-	ORDER BY `thread`.`Price` ASC
-	LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByPrice`(IN in_param_ThreadID varchar(45), IN in_param_Price float) BEGIN DECLARE declared_in_param_ThreadID CHAR(50); DECLARE declared_in_param_Price FLOAT; SET declared_in_param_ThreadID = in_param_ThreadID; SET declared_in_param_Price = in_param_Price; SELECT `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`OrderID` AS `OrderID`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity`, `Orders`.`TransactTime` AS `TransactTime` FROM `thread` LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID` WHERE (`thread`.`ThreadID` = declared_in_param_ThreadID AND `thread`.`Price` < declared_in_param_Price) ORDER BY `thread`.`Price` ASC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -710,30 +458,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByPriceHigher`(IN in_param_ThreadID varchar(45), IN in_param_Price float)
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(50);
-	DECLARE declared_in_param_Price FLOAT;
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-    SET declared_in_param_Price = in_param_Price;
-	SELECT 
-    `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
-    `thread`.`OrderID` AS `OrderID`,
-    `thread`.`Price` AS `Price`,
-    `thread`.`ExecutedQuantity` AS `ExecutedQuantity`,
-    `Orders`.`TransactTime` AS `TransactTime`
-FROM
-    `thread`
-        LEFT JOIN
-    `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID`
-WHERE
-    (`thread`.`ThreadID` = declared_in_param_ThreadID
-        AND `thread`.`Price` > declared_in_param_Price)
-ORDER BY `thread`.`Price` DESC
-LIMIT 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByPriceHigher`(IN in_param_ThreadID varchar(45), IN in_param_Price float) BEGIN DECLARE declared_in_param_ThreadID CHAR(50); DECLARE declared_in_param_Price FLOAT; SET declared_in_param_ThreadID = in_param_ThreadID; SET declared_in_param_Price = in_param_Price; SELECT `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`OrderID` AS `OrderID`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity`, `Orders`.`TransactTime` AS `TransactTime` FROM `thread` LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID` WHERE (`thread`.`ThreadID` = declared_in_param_ThreadID AND `thread`.`Price` > declared_in_param_Price) ORDER BY `thread`.`Price` DESC LIMIT 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -747,25 +474,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByThreadID`(IN in_param_ThreadID varchar(45))
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(50);
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-SELECT 
-    `thread`.`OrderID` AS `OrderID`,
-    `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`,
-    `thread`.`Price` AS `Price`,
-    `thread`.`ExecutedQuantity` AS `ExecutedQuantity`
-FROM
-    `thread`
-        LEFT JOIN
-    `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID`
-WHERE
-    `thread`.`ThreadID` = declared_in_param_ThreadID
-ORDER BY `thread`.`Price` ASC;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionByThreadID`(IN in_param_ThreadID varchar(45)) BEGIN DECLARE declared_in_param_ThreadID CHAR(50); SET declared_in_param_ThreadID = in_param_ThreadID; SELECT `thread`.`OrderID` AS `OrderID`, `thread`.`CummulativeQuoteQty` AS `CummulativeQuoteQty`, `thread`.`Price` AS `Price`, `thread`.`ExecutedQuantity` AS `ExecutedQuantity` FROM `thread` LEFT JOIN `orders` `Orders` ON `thread`.`OrderID` = `Orders`.`OrderID` WHERE `thread`.`ThreadID` = declared_in_param_ThreadID ORDER BY `thread`.`Price` ASC; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -779,15 +490,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionCount`(IN in_param varchar(45))
-BEGIN
-	DECLARE declared_in_param CHAR(50);
-    SET declared_in_param = in_param;
-    SELECT count(*) AS count FROM thread
-    WHERE thread.ThreadID = declared_in_param;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionCount`(IN in_param varchar(45)) BEGIN DECLARE declared_in_param CHAR(50); SET declared_in_param = in_param; SELECT count(*) AS count FROM thread WHERE thread.ThreadID = declared_in_param; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -801,12 +506,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionDistinct`()
-BEGIN
-	SELECT DISTINCT ThreadID, ThreadIDSession FROM thread;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactionDistinct`() BEGIN SELECT DISTINCT ThreadID, ThreadIDSession FROM thread; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -820,19 +522,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactiontUpmarketPriceCount`(IN in_param_ThreadID varchar(45), IN in_param_Price float)
-BEGIN
-	DECLARE declared_in_param_ThreadID CHAR(45);
-	DECLARE declared_in_param_Price float;
-    SET declared_in_param_ThreadID = in_param_ThreadID;
-    SET declared_in_param_Price = in_param_Price;
-	SELECT count(*) AS `count`
-	FROM `thread`
-	WHERE (`thread`.`Price` < declared_in_param_Price
-	   AND `thread`.`ThreadID` = declared_in_param_ThreadID);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `GetThreadTransactiontUpmarketPriceCount`(IN in_param_ThreadID varchar(45), IN in_param_Price float) BEGIN DECLARE declared_in_param_ThreadID CHAR(45); DECLARE declared_in_param_Price float; SET declared_in_param_ThreadID = in_param_ThreadID; SET declared_in_param_Price = in_param_Price; SELECT count(*) AS `count` FROM `thread` WHERE (`thread`.`Price` < declared_in_param_Price AND `thread`.`ThreadID` = declared_in_param_ThreadID); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -846,13 +538,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint)
-BEGIN
-INSERT INTO global (Profit, ProfitNet, ProfitPct, TransactTime)
-VALUES (in_Profit, in_ProfitNet, in_ProfitPct, in_TransactTime);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint) BEGIN INSERT INTO global (Profit, ProfitNet, ProfitPct, TransactTime) VALUES (in_Profit, in_ProfitNet, in_ProfitPct, in_TransactTime); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -866,13 +554,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveOrder`(ClientOrderId varchar(45), CummulativeQuoteQty float, ExecutedQuantity float, OrderID bigint, OrderIDSource bigint, Price float, Side varchar(45), Status varchar(45), Symbol varchar(45), TransactTime bigint, ThreadID varchar(45), ThreadIDSession varchar(45))
-BEGIN
-INSERT INTO orders (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession)
-VALUES (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveOrder`(ClientOrderId varchar(45), CummulativeQuoteQty float, ExecutedQuantity float, OrderID bigint, OrderIDSource bigint, Price float, Side varchar(45), Status varchar(45), Symbol varchar(45), TransactTime bigint, ThreadID varchar(45), ThreadIDSession varchar(45)) BEGIN INSERT INTO orders (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession) VALUES (ClientOrderId, CummulativeQuoteQty, ExecutedQuantity, OrderID, OrderIDSource, Price, Side, Status, Symbol, TransactTime, ThreadID, ThreadIDSession); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -886,13 +570,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1))
-BEGIN
-INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds, DiffTotal, Status)
-VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds, in_DiffTotal, in_Status);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1)) BEGIN INSERT INTO session (ThreadID, ThreadIDSession, Exchange, FiatSymbol, FiatFunds, DiffTotal, Status) VALUES (in_ThreadID, in_ThreadIDSession, in_Exchange, in_FiatSymbol, in_FiatFunds, in_DiffTotal, in_Status); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -906,13 +586,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `SaveThreadTransaction`(ThreadID varchar(45), ThreadIDSession varchar(45), OrderID bigint, CummulativeQuoteQty float, Price float, ExecutedQuantity float)
-BEGIN
-INSERT INTO thread (ThreadID, ThreadIDSession, OrderID, CummulativeQuoteQty, Price, ExecutedQuantity)
-VALUES (ThreadID, ThreadIDSession, OrderID, CummulativeQuoteQty, Price, ExecutedQuantity);
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `SaveThreadTransaction`(ThreadID varchar(45), ThreadIDSession varchar(45), OrderID bigint, CummulativeQuoteQty float, Price float, ExecutedQuantity float) BEGIN INSERT INTO thread (ThreadID, ThreadIDSession, OrderID, CummulativeQuoteQty, Price, ExecutedQuantity) VALUES (ThreadID, ThreadIDSession, OrderID, CummulativeQuoteQty, Price, ExecutedQuantity); END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -926,21 +602,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint)
-BEGIN
-SET SQL_SAFE_UPDATES = 0;
-UPDATE global 
-SET 
-    Profit = in_Profit,
-    ProfitNet = in_ProfitNet,
-    ProfitPct = in_ProfitPct,
-    TransactTime = in_TransactTime
-WHERE
-    ID = 1;
-SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateGlobal`(in_Profit float, in_ProfitNet float, in_ProfitPct float, in_TransactTime bigint) BEGIN SET SQL_SAFE_UPDATES = 0; UPDATE global SET Profit = in_Profit, ProfitNet = in_ProfitNet, ProfitPct = in_ProfitPct, TransactTime = in_TransactTime WHERE ID = 1; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -954,19 +618,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateOrder`(in_OrderID bigint, CummulativeQuoteQty float, ExecutedQuantity float, Price float, Status varchar(45))
-BEGIN
-SET SQL_SAFE_UPDATES = 0;
-UPDATE orders
-SET  CummulativeQuoteQty = CummulativeQuoteQty,
-	ExecutedQuantity = ExecutedQuantity,
-    Price = Price,
-    Status = Status
-WHERE OrderID = in_OrderID;
-SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateOrder`(in_OrderID bigint, CummulativeQuoteQty float, ExecutedQuantity float, Price float, Status varchar(45)) BEGIN SET SQL_SAFE_UPDATES = 0; UPDATE orders SET CummulativeQuoteQty = CummulativeQuoteQty, ExecutedQuantity = ExecutedQuantity, Price = Price, Status = Status WHERE OrderID = in_OrderID; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
@@ -980,20 +634,9 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1))
-BEGIN
-SET SQL_SAFE_UPDATES = 0;
-	UPDATE `session` 
-SET 
-    `session`.`FiatFunds` = in_FiatFunds,
-    `session`.`DiffTotal` = in_DiffTotal,
-    `session`.`Status` = in_Status
-WHERE
-    `session`.`ThreadID` = in_ThreadID;
-SET SQL_SAFE_UPDATES = 1;
-END ;;
-DELIMITER ;
+
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateSession`(in_ThreadID varchar(45), in_ThreadIDSession varchar(45), in_Exchange varchar(45), in_FiatSymbol varchar(45), in_FiatFunds float, in_DiffTotal float, in_Status tinyint(1)) BEGIN SET SQL_SAFE_UPDATES = 0; UPDATE `session` SET `session`.`FiatFunds` = in_FiatFunds, `session`.`DiffTotal` = in_DiffTotal, `session`.`Status` = in_Status WHERE `session`.`ThreadID` = in_ThreadID; SET SQL_SAFE_UPDATES = 1; END;
+
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
