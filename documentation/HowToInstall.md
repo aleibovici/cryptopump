@@ -1,8 +1,10 @@
 ## HOW TO INSTALL
 
-Cryptopump can be used on Windows and Linux (with a MYSQL database is present and usable) or in a self-contained Docker environment. 
+Cryptopump can be used on Windows or Linux (with a MySQL or MariaDB database) or in a self-contained Docker environment. 
 
 ### DOCKER:
+
+#### - CryptoPump is now available as a self-contained Docker container set for linux/amd64 and linux/arm/v7 (Raspberry Pi). Check it out at https://hub.docker.com/repository/docker/andreleibovici/cryptopump
 
 This is the easiest way to get CryptoPump up and running. The Docker Compose file provides all the necessary components to run the system.
 
