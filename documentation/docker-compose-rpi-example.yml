@@ -1,0 +1,47 @@
+version: '3.6'
+
+services:
+
+  cryptopump_db:
+    image: andreleibovici/cryptopump_mariadb:latest
+    container_name: cryptopump_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password # change this
+    ports:
+      - "3306:3306"
+    tty: true
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+    volumes:
+      - db_data:/var/lib/mysql # database files
+      - /etc/localtime:/etc/localtime:ro # timezone
+    networks:
+      - backend
+
+  cryptopump_app:
+    image: andreleibovici/cryptopump:latest
+    container_name: cryptopump_app
+    restart: always
+    environment:
+      - DB_USER=root
+      - DB_PASS=password # change this
+      - DB_TCP_HOST=cryptopump_db
+      - DB_PORT=3306
+      - DB_NAME=cryptopump
+    ports:
+      - "8080-8090:8080-8090"
+    tty: true
+    volumes:
+      - config_data:/go/src/cryptopump/config # config files
+      - /etc/localtime:/etc/localtime:ro # timezone
+    networks:
+      - backend
+    depends_on:
+      - cryptopump_db
+
+networks:
+  backend:
+
+volumes:
+  db_data:
+  config_data:
