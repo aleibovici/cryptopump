@@ -3,8 +3,6 @@ package algorithms
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -578,49 +576,32 @@ func WsUserDataServe(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		switch {
-		case strings.Contains(err.Error(), "1001"):
-			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
+	}
 
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+	for {
 
-		case strings.Contains(err.Error(), "1006"):
-			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
-			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+		doneC, stopC, err = exchange.WsUserDataServe(configData, sessionData, wsHandler, errHandler) /* Start websocket channel */
 
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+		if err != nil { /* If websocket channel is not connected */
 
-		case strings.Contains(err.Error(), "read: operation timed out"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+			panic(err) /* Panic */
 
 		}
 
-		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
-		Channel{
-			name: "WsUserDataServe",
-		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
+		<-doneC
 
-		/* Retrieve NEW WsUserDataServe listen key for user stream service when there's an error */
-		sessionData.ListenKey, err = exchange.GetUserStreamServiceListenKey(configData, sessionData)
+		logger.LogEntry{ /* Log Entry */
+			Config:   configData,
+			Market:   nil,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + "websocket channel disconnected, trying to re-establish",
+			LogLevel: "DebugLevel",
+		}.Do()
 
-	}
-
-	doneC, stopC, err = exchange.WsUserDataServe(configData, sessionData, wsHandler, errHandler)
-
-	if err != nil {
-
-		fmt.Println(err)
+		time.Sleep(time.Second / 3) /* Sleep for 3 seconds */
 
 	}
-
-	<-doneC
 
 }
 
@@ -696,51 +677,32 @@ func WsKline(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		switch {
-		case strings.Contains(err.Error(), "1006"):
-			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
-			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+	}
 
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+	for {
 
-		case strings.Contains(err.Error(), "EOF"):
-			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
+		doneC, stopC, err = exchange.WsKlineServe(configData, sessionData, wsHandler, errHandler) /* Start websocket channel */
 
-			return
+		if err != nil { /* If websocket channel is not connected */
 
-		case strings.Contains(err.Error(), "1001"):
-			/* -1001 DISCONNECTED Internal error; unable to process your request. Please try again. */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-		case strings.Contains(err.Error(), "read: operation timed out"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+			panic(err) /* Panic */
 
 		}
 
-		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
-		Channel{
-			name: "WsKline",
-		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
+		<-doneC
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + "websocket channel disconnected, trying to re-establish",
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		time.Sleep(time.Second / 3) /* Sleep for 3 seconds */
 
 	}
-
-	doneC, stopC, err = exchange.WsKlineServe(configData, sessionData, wsHandler, errHandler)
-
-	if err != nil {
-
-		fmt.Println(err)
-
-	}
-
-	<-doneC
 
 }
 
@@ -854,58 +816,32 @@ func WsBookTicker(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		switch {
-		case strings.Contains(err.Error(), "1006"):
-			/* -1006 UNEXPECTED_RESP An unexpected response was received from the message bus. Execution status unknown. */
-			/* Error Codes for Binance https://github.com/binance/binance-spot-api-docs/blob/master/errors.md */
+	}
 
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+	for {
 
-		case strings.Contains(err.Error(), "1008"):
-			/* websocket: close 1008 (policy violation): Pong timeout */
-			/* 1008 indicates that an endpoint is terminating the connection
-			because it has received a message that violates its policy.  This
-			is a generic status code that can be returned when there is no
-			other more suitable status code (e.g., 1003 or 1009) or if there
-			is a need to hide specific details about the policy. */
+		doneC, stopC, err = exchange.WsBookTickerServe(configData, sessionData, wsHandler, errHandler) /* Start websocket channel */
 
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+		if err != nil { /* If websocket channel is not connected */
 
-			return
-
-		case strings.Contains(err.Error(), "EOF"):
-			/* -unexpected EOF An unexpected response was received from the message bus. Execution status unknown. */
-
-			return
-
-		case strings.Contains(err.Error(), "read: operation timed out"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: operation timed out */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
-
-		case strings.Contains(err.Error(), "read: connection reset by peer"):
-			/* read tcp X.X.X.X:port->X.X.X.X:port: read: connection reset by peer */
-
-			exchange.GetClient(configData, sessionData) /* Reconnect exchange client */
+			panic(err) /* Panic */
 
 		}
 
-		Channel{}.SetTrue(sessionData) /* Set all goroutine channels to stop */
-		Channel{
-			name: "WsBookTicker",
-		}.Stop(stopC, wg, configData, sessionData) /* Stop goroutine channel */
+		<-doneC
+
+		logger.LogEntry{ /* Log Entry */
+			Config:   configData,
+			Market:   marketData,
+			Session:  sessionData,
+			Order:    &types.Order{},
+			Message:  functions.GetFunctionName() + " - " + "websocket channel disconnected, trying to re-establish",
+			LogLevel: "DebugLevel",
+		}.Do()
+
+		time.Sleep(time.Second / 3) /* Sleep for 3 seconds */
 
 	}
-
-	doneC, stopC, err = exchange.WsBookTickerServe(configData, sessionData, wsHandler, errHandler)
-
-	if err != nil {
-
-		fmt.Println(err)
-
-	}
-
-	<-doneC
 
 }
 

@@ -158,8 +158,8 @@ func binanceMapExchangeInfo(sessionData *types.Session, from *binance.ExchangeIn
 func binanceGetClient(
 	configData *types.Config) *binance.Client {
 
-	binance.WebsocketKeepalive = false
-	binance.WebsocketTimeout = time.Second * 30
+	binance.WebsocketKeepalive = false           /* Disable websocket keepalive */
+	binance.WebsocketTimeout = time.Second * 100 /* Set websocket timeout */
 
 	/* If the -test.v flag is set, the testnet API is used */
 	if flag.Lookup("test.v") != nil {
