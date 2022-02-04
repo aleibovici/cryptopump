@@ -615,8 +615,16 @@ func SaveConfigData(
 			LogLevel: "DebugLevel",
 		}.Do()
 
-		os.Exit(1)
 	}
+
+	logger.LogEntry{ /* Log Entry */
+		Config:   nil,
+		Market:   nil,
+		Session:  sessionData,
+		Order:    &types.Order{},
+		Message:  "Configuration saved",
+		LogLevel: "InfoLevel",
+	}.Do()
 
 }
 
