@@ -21,6 +21,5 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/tcnksm/go-httpstat v0.2.0
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.8 // indirect
 )
